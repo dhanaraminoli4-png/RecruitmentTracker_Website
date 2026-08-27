@@ -1,0 +1,734 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.JobApplication>
+
+@{
+    ViewData["Title"] = "My Applications";
+
+    var applications = Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.JobApplication>();
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .applications-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 25px 45px 60px;
+    }
+
+    .applications-wrapper {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .application-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 20px;
+    }
+
+    .application-heading-label {
+        color: #718096;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .application-header h1 {
+        color: #0b1f3a;
+        font-size: 26px;
+        font-weight: 700;
+        margin: 2px 0 3px;
+    }
+
+    .application-header p {
+        color: #718096;
+        margin: 0;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+           FIND JOB BUTTON
+           ========================================================= */
+
+    .find-job-button {
+        height: 42px;
+        padding: 0 17px;
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        transition: .2s ease;
+    }
+
+        .find-job-button:hover {
+            background: #132f55;
+            color: white;
+        }
+
+
+    /* =========================================================
+           STATUS COMING SOON PANEL
+           ========================================================= */
+
+    .status-preview {
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .status-preview-header {
+        padding: 19px 24px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .status-preview-title {
+        color: #0b1f3a;
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 3px;
+    }
+
+    .status-preview-description {
+        color: #8a96a6;
+        font-size: 11px;
+        margin: 0;
+    }
+
+    .coming-soon-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #edf2f7;
+        color: #526174;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-preview-body {
+        padding: 22px 24px;
+    }
+
+    .status-steps {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .status-step {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+    }
+
+        .status-step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            height: 1px;
+            background: #dce3ec;
+            left: 17px;
+            right: 12px;
+            top: 7px;
+            margin-left: 10px;
+        }
+
+    .status-dot {
+        width: 14px;
+        height: 14px;
+        min-width: 14px;
+        border-radius: 50%;
+        background: #dce3ec;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 0 0 4px #f5f7fb;
+    }
+
+    .status-step-content {
+        margin-left: 11px;
+        padding-right: 15px;
+    }
+
+        .status-step-content strong {
+            display: block;
+            color: #0b1f3a;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .status-step-content span {
+            display: block;
+            color: #9aa6b5;
+            font-size: 10px;
+        }
+
+
+    /* =========================================================
+           TABLE CARD
+           ========================================================= */
+
+    .table-wrap {
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+    }
+
+
+    /* =========================================================
+           TABLE TOOLBAR
+           ========================================================= */
+
+    .table-toolbar {
+        padding: 21px 24px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+        .table-toolbar strong {
+            display: block;
+            color: #0b1f3a;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .table-toolbar span {
+            display: block;
+            color: #8a96a6;
+            font-size: 12px;
+        }
+
+    .application-count {
+        background: #edf2f7;
+        color: #18365f;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+           TABLE
+           ========================================================= */
+
+    .application-table {
+        width: 100%;
+        min-width: 750px;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+        .application-table thead {
+            background: #0b1f3a;
+        }
+
+        .application-table th {
+            padding: 13px 18px;
+            text-align: left;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .7px;
+            border-bottom: 1px solid #18365f;
+            white-space: nowrap;
+        }
+
+        .application-table td {
+            padding: 17px 18px;
+            color: #526174;
+            font-size: 12px;
+            border-bottom: 1px solid #edf0f4;
+            vertical-align: middle;
+        }
+
+        .application-table tbody tr {
+            transition: .15s ease;
+        }
+
+            .application-table tbody tr:hover {
+                background: #fafbfd;
+            }
+
+            .application-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+
+    /* =========================================================
+           JOB
+           ========================================================= */
+
+    .job-info {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .job-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .job-title {
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .job-code {
+        color: #9aa6b5;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+           APPLIED DATE
+           ========================================================= */
+
+    .applied-date {
+        color: #526174;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .applied-label {
+        color: #9aa6b5;
+        font-size: 10px;
+        margin-top: 3px;
+    }
+
+
+    /* =========================================================
+           VIEW BUTTON
+           ========================================================= */
+
+    .application-action {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .view-application-btn {
+        padding: 6px 11px;
+        border-radius: 7px;
+        border: 1px solid #d8e0ea;
+        background: white;
+        color: #0b1f3a;
+        font-size: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+        .view-application-btn:hover {
+            background: #0b1f3a;
+            border-color: #0b1f3a;
+            color: white;
+        }
+
+
+    /* =========================================================
+           EMPTY STATE
+           ========================================================= */
+
+    .empty-state {
+        padding: 65px 25px;
+        text-align: center;
+        background: white;
+    }
+
+    .empty-state-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .empty-state h5 {
+        color: #0b1f3a;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .empty-state p {
+        color: #718096;
+        font-size: 12px;
+        margin: 0 0 18px;
+    }
+
+
+    /* =========================================================
+           MOBILE
+           ========================================================= */
+
+    @@media (max-width: 900px) {
+
+        .applications-page {
+            padding: 25px 20px 50px;
+        }
+
+        .application-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .find-job-button {
+            width: 100%;
+        }
+
+        .status-preview-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .status-steps {
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .status-step {
+            width: 100%;
+        }
+
+            .status-step:not(:last-child)::after {
+                width: 1px;
+                height: 20px;
+                left: 6px;
+                top: 18px;
+                right: auto;
+                margin: 0;
+            }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+
+<div class="applications-page">
+
+    <div class="applications-wrapper">
+
+
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
+        <div class="application-header">
+
+            <div>
+
+                <div class="application-heading-label">
+                    CANDIDATE WORKSPACE · MY APPLICATIONS
+                </div>
+
+                <h1>
+                    My Applications
+                </h1>
+
+                <p>
+                    View the vacancies you have applied for and keep your applications organised in one place.
+                </p>
+
+            </div>
+
+
+            <a asp-action="Vacancies"
+               class="find-job-button">
+
+                + Find a Job
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             APPLICATION STATUS — UPCOMING FEATURE
+             ===================================================== -->
+
+        <div class="status-preview">
+
+            <div class="status-preview-header">
+
+                <div>
+
+                    <div class="status-preview-title">
+                        Application Progress
+                    </div>
+
+                    <p class="status-preview-description">
+                        Candidate status tracking will be available in an upcoming update.
+                    </p>
+
+                </div>
+
+
+                <span class="coming-soon-badge">
+                    Coming Soon
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =====================================================
+             APPLICATION TABLE
+             ===================================================== -->
+
+        <div class="table-wrap">
+
+
+            
+
+            @if (!applications.Any())
+            {
+                <!-- =================================================
+                     EMPTY STATE
+                     ================================================= -->
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        +
+                    </div>
+
+                    <h5>
+                        No applications yet
+                    </h5>
+
+                    <p>
+                        You haven't applied for any vacancies yet.
+                    </p>
+
+                    <a asp-action="Vacancies"
+                       class="find-job-button">
+
+                        Browse Jobs
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+
+                <!-- =================================================
+                     APPLICATION TABLE
+                     ================================================= -->
+
+                <div class="table-responsive">
+
+                    <table class="table application-table align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Applied
+                                </th>
+
+                                <th>
+                                    Application
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var application in applications)
+                            {
+
+                                var jobTitle =
+                                application.JobVacancy?.JobTitle
+                                ?? "Unknown Job";
+
+                                var jobCode =
+                                application.JobVacancy?.JobCode
+                                ?? "";
+
+                                var initials = "JB";
+
+                                if (!string.IsNullOrWhiteSpace(jobTitle))
+                                {
+                                    var words =
+                                    jobTitle
+                                    .Trim()
+                                    .Split(
+                                    ' ',
+                                    StringSplitOptions.RemoveEmptyEntries
+                                    );
+
+                                    if (words.Length >= 2)
+                                    {
+                                        initials =
+                                        $"{words[0][0]}{words[^1][0]}"
+                                        .ToUpper();
+                                    }
+                                    else
+                                    {
+                                        initials =
+                                        words[0]
+                                        .Substring(
+                                        0,
+                                        Math.Min(
+                                        2,
+                                        words[0].Length
+                                        )
+                                        )
+                                        .ToUpper();
+                                    }
+                                }
+
+
+                                <tr>
+
+
+                                    <!-- POSITION -->
+
+                                    <td>
+
+                                        <div class="job-info">
+
+                                            <div class="job-avatar">
+                                                @initials
+                                            </div>
+
+                                            <div>
+
+                                                <div class="job-title">
+                                                    @jobTitle
+                                                </div>
+
+                                                @if (!string.IsNullOrWhiteSpace(jobCode))
+                                                {
+                                                    <div class="job-code">
+                                                        @jobCode
+                                                    </div>
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- APPLIED -->
+
+                                    <td>
+
+                                        <div class="applied-date">
+                                            @application.AppliedDate.ToString("dd MMM yyyy")
+                                        </div>
+
+                                        <div class="applied-label">
+                                            Application submitted
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- APPLICATION -->
+
+                                    <td>
+
+                                        <div class="application-action">
+
+                                            <span class="coming-soon-badge">
+                                                Status tracking coming soon
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+</div>

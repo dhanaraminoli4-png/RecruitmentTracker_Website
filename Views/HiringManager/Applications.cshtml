@@ -1,0 +1,37 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.JobApplication>
+@{ ViewData["Title"] = "Candidates"; }
+
+<div class="page-heading">
+    <div><div class="section-label">HIRING MANAGER WORKSPACE</div><h1>Candidate review</h1><p>Every candidate forwarded by HR stays visible, including completed decisions.</p></div>
+</div>
+@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+
+@if (!Model.Any())
+{
+    <div class="empty-state"><h5>No candidates yet</h5><p>HR-shortlisted candidates will appear here.</p></div>
+}
+else
+{
+    <div class="panel p-3 mb-3"><strong>@Model.Count() candidate@(Model.Count() == 1 ? "" : "s")</strong><span class="text-muted small ms-2">Forwarded applications are never removed automatically.</span></div>
+    <div class="table-wrap"><div class="table-responsive"><table class="table align-middle">
+        <thead><tr><th>Candidate</th><th>Position</th><th>AI Match</th><th>HR Status</th><th>HM Decision</th><th>Review</th></tr></thead>
+        <tbody>
+        @foreach (var application in Model)
+        {
+            <tr>
+                <td><strong>@(application.Candidate?.FullName ?? "Unknown Candidate")</strong><div class="text-muted small">@application.Candidate?.Email</div></td>
+                <td>@application.JobVacancy?.JobTitle</td>
+                <td><strong>@application.AIScore.ToString("0.0")%</strong></td>
+                <td><span class="badge status-shortlisted">Shortlisted</span></td>
+                <td>
+                    @if (!application.HiringManagerReviewed) { <span class="badge status-review">Pending Review</span> }
+                    else if (application.HiringManagerShortlisted) { <span class="badge status-shortlisted">HM Shortlisted</span> }
+                    else { <span class="badge status-not">HM Rejected</span> }
+                </td>
+                <td><a asp-action="Review" asp-route-id="@application.Id" class="btn btn-primary btn-sm">@(application.HiringManagerReviewed ? "View Decision" : "Review")</a></td>
+            </tr>
+        }
+        </tbody>
+    </table></div></div>
+}

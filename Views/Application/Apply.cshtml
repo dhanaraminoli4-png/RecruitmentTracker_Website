@@ -1,0 +1,701 @@
+﻿@model RecruitmentTracker.Models.JobVacancy
+
+@{
+    ViewData["Title"] = "Apply";
+    var vacancy = ViewBag.Vacancy as RecruitmentTracker.Models.JobVacancy;
+}
+
+<style>
+
+    :root {
+        --navy: #0b1f3a;
+        --navy-light: #142d4c;
+        --text: #172033;
+        --muted: #6b7280;
+        --border: #d9dee7;
+    }
+
+    .apply-page {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 40px 25px 70px;
+    }
+
+    .page-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: #75809a;
+        margin-bottom: 8px;
+    }
+
+    .page-heading h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--navy);
+    }
+
+    .page-heading p {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .back-btn {
+        text-decoration: none;
+        color: var(--navy);
+        border: 1px solid var(--border);
+        padding: 10px 17px;
+        border-radius: 9px;
+        background: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+        .back-btn:hover {
+            background: #f5f7fa;
+            color: var(--navy);
+        }
+
+    .apply-card {
+        background: #fff;
+        border: 1px solid #e4e7ec;
+        border-radius: 18px;
+        margin-bottom: 22px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(30, 41, 59, .035);
+    }
+
+    .card-header {
+        padding: 20px 24px 17px;
+        border-bottom: 1px solid #eef0f3;
+    }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .card-header p {
+            margin: 5px 0 0;
+            font-size: 11px;
+            color: #969da7;
+        }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    .job-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .job-item {
+        background: #f8fafc;
+        border: 1px solid #edf0f4;
+        border-radius: 12px;
+        padding: 15px 16px;
+    }
+
+    .job-label {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #89919d;
+        margin-bottom: 6px;
+    }
+
+    .job-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: #252b36;
+        word-break: break-word;
+    }
+
+    .content-section {
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #eef0f3;
+    }
+
+        .content-section h4 {
+            margin: 0 0 9px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+    .content-text {
+        font-size: 12px;
+        color: #626b78;
+        line-height: 1.75;
+        white-space: pre-line;
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #3c434e;
+    }
+
+    .required-mark {
+        color: #e05252;
+        margin-left: 2px;
+    }
+
+    .form-control {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid #dfe3e8;
+        border-radius: 10px;
+        font-size: 12px;
+        color: #303640;
+        padding: 10px 13px;
+        outline: none;
+        box-sizing: border-box;
+        background: #fff;
+        transition: .2s;
+    }
+
+        .form-control::placeholder {
+            color: #adb3bc;
+        }
+
+        .form-control:focus {
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(11,31,58,.08);
+        }
+
+    .upload-section {
+        margin-top: 30px;
+    }
+
+        .upload-section h3 {
+            margin: 0 0 9px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+    .upload-box {
+        border: 1.5px dashed #9ca9ba;
+        border-radius: 14px;
+        padding: 21px;
+        background: rgba(11,31,58,.035);
+    }
+
+        .upload-box p {
+            margin: 0 0 13px;
+            color: #7a8492;
+            font-size: 11px;
+        }
+
+    .file-input {
+        width: 100%;
+        font-size: 11px;
+        color: #727b88;
+    }
+
+        .file-input::file-selector-button {
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 16px;
+            margin-right: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+    .submit-area {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 30px;
+        padding-top: 22px;
+        border-top: 1px solid #e8ebef;
+    }
+
+    .submit-btn {
+        min-height: 43px;
+        padding: 10px 24px;
+        border: none;
+        border-radius: 9px;
+        background: var(--navy);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .submit-btn:hover {
+            background: var(--navy-light);
+        }
+
+    @@media (max-width: 750px) {
+
+        .apply-page {
+            padding: 25px 18px 50px;
+        }
+
+        .page-heading {
+            flex-direction: column;
+        }
+
+        .job-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .submit-area {
+            justify-content: stretch;
+        }
+
+        .submit-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="apply-page">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="page-heading">
+
+        <div>
+
+            <div class="section-label">
+                APPLICATION
+            </div>
+
+            <h1>
+                Apply for @vacancy?.JobTitle
+            </h1>
+
+            <p>
+                @vacancy?.Location · @vacancy?.EmploymentType
+            </p>
+
+        </div>
+
+        <a asp-action="Vacancies"
+           class="back-btn">
+            ← Back to Jobs
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         JOB DETAILS
+         ===================================================== -->
+
+    <div class="apply-card">
+
+        <div class="card-header">
+
+            <h3>
+                Job Details
+            </h3>
+
+            <p>
+                Review the position before submitting your application.
+            </p>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="job-grid">
+
+                <div class="job-item">
+                    <div class="job-label">
+                        Job Title
+                    </div>
+
+                    <div class="job-value">
+                        @vacancy?.JobTitle
+                    </div>
+                </div>
+
+                <div class="job-item">
+                    <div class="job-label">
+                        Department
+                    </div>
+
+                    <div class="job-value">
+
+                        @if (!string.IsNullOrWhiteSpace(vacancy?.Department))
+                        {
+                            @vacancy.Department
+                        }
+                        else
+                        {
+                            @:Not specified
+                        }
+
+                    </div>
+                </div>
+
+                <div class="job-item">
+                    <div class="job-label">
+                        Location
+                    </div>
+
+                    <div class="job-value">
+                        @vacancy?.Location
+                    </div>
+                </div>
+
+                <div class="job-item">
+                    <div class="job-label">
+                        Employment Type
+                    </div>
+
+                    <div class="job-value">
+                        @vacancy?.EmploymentType
+                    </div>
+                </div>
+
+                <div class="job-item">
+                    <div class="job-label">
+                        Salary / Budget
+                    </div>
+
+                    <div class="job-value">
+
+                        @if (vacancy?.Salary != null)
+                        {
+                            @:Rs. @vacancy.Salary
+                        }
+                        else
+                        {
+                            @:Not specified
+                        }
+
+                    </div>
+                </div>
+
+                <div class="job-item">
+                    <div class="job-label">
+                        Closing Date
+                    </div>
+
+                    <div class="job-value">
+
+                        @if (vacancy != null)
+                        {
+                            @vacancy.ClosingDate.ToString("dd MMM yyyy")
+                        }
+                        else
+                        {
+                            @:Not specified
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            @if (vacancy != null &&
+                        !string.IsNullOrWhiteSpace(vacancy.Description))
+            {
+                <div class="content-section">
+
+                    <h4>
+                        About the Role
+                    </h4>
+
+                    <p class="content-text">
+                        @vacancy.Description
+                    </p>
+
+                </div>
+            }
+
+
+            @if (vacancy != null &&
+                        !string.IsNullOrWhiteSpace(vacancy.Responsibilities))
+            {
+                <div class="content-section">
+
+                    <h4>
+                        Responsibilities
+                    </h4>
+
+                    <p class="content-text">
+                        @vacancy.Responsibilities
+                    </p>
+
+                </div>
+            }
+
+
+            @if (vacancy != null &&
+                        !string.IsNullOrWhiteSpace(vacancy.Requirements))
+            {
+                <div class="content-section">
+
+                    <h4>
+                        Required Qualifications & Skills
+                    </h4>
+
+                    <p class="content-text">
+                        @vacancy.Requirements
+                    </p>
+
+                </div>
+            }
+
+
+            @if (vacancy != null &&
+                        !string.IsNullOrWhiteSpace(vacancy.PreferredRequirements))
+            {
+                <div class="content-section">
+
+                    <h4>
+                        Preferred Qualifications & Skills
+                    </h4>
+
+                    <p class="content-text">
+                        @vacancy.PreferredRequirements
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         APPLICATION DETAILS
+         ===================================================== -->
+
+    <div class="apply-card">
+
+        <div class="card-header">
+
+            <h3>
+                Application Details
+            </h3>
+
+            <p>
+                Enter your details and upload your documents.
+            </p>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Apply"
+                  asp-controller="Application"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="vacancyId"
+                       value="@vacancy?.Id" />
+
+
+                <!-- =================================================
+                     FIRST NAME
+                     ================================================= -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        First Name
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input type="text"
+                           name="firstName"
+                           class="form-control"
+                           placeholder="Enter your first name"
+                           required />
+
+                </div>
+
+
+                <!-- =================================================
+                     LAST NAME
+                     ================================================= -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Last Name
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input type="text"
+                           name="lastName"
+                           class="form-control"
+                           placeholder="Enter your last name"
+                           required />
+
+                </div>
+
+
+                <!-- =================================================
+                     PHONE
+                     ================================================= -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Phone Number
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input type="tel"
+                           name="phoneNumber"
+                           class="form-control"
+                           placeholder="Enter your phone number"
+                           required />
+
+                </div>
+
+
+                <!-- =================================================
+                     EMAIL
+                     ================================================= -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Email Address
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input type="email"
+                           name="email"
+                           class="form-control"
+                           placeholder="Enter your email address"
+                           required />
+
+                </div>
+
+
+                <!-- =================================================
+                     CV
+                     ================================================= -->
+
+                <div class="upload-section">
+
+                    <h3>
+                        CV / Resume
+                    </h3>
+
+                    <div class="upload-box">
+
+                        <p>
+                            Upload your CV or resume in PDF, DOC or DOCX format.
+                            Maximum size: 5 MB.
+                        </p>
+
+                        <input type="file"
+                               name="cvFile"
+                               class="file-input"
+                               accept=".pdf,.doc,.docx"
+                               required />
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     COVER LETTER
+                     ================================================= -->
+                @if (vacancy != null && vacancy.RequiresCoverLetter)
+                {
+                    <div class="upload-section">
+
+                        <h3>
+                            Cover Letter
+                            <span class="required-mark">*</span>
+                        </h3>
+
+                        <div class="upload-box">
+
+                            <p>
+                                Upload your cover letter in PDF, DOC or DOCX format.
+                                Maximum size: 5 MB.
+                            </p>
+
+                            <input type="file"
+                                   name="coverLetterFile"
+                                   class="file-input"
+                                   accept=".pdf,.doc,.docx"
+                                   required />
+
+                        </div>
+
+                    </div>
+                }
+
+
+                <!-- =================================================
+                     SUBMIT
+                     ================================================= -->
+
+                <div class="submit-area">
+
+                    <button type="submit"
+                            class="submit-btn">
+
+                        Submit Application
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

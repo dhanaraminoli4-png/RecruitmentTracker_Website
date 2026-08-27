@@ -1,0 +1,1762 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.JobApplication>
+
+@{
+    ViewData["Title"] = "Candidates";
+
+    var selectedStatus = ViewBag.Status as string ?? "all";
+    var search = ViewBag.Search as string ?? "";
+    var fromDate = ViewBag.FromDate as string ?? "";
+    var toDate = ViewBag.ToDate as string ?? "";
+    var minScore = ViewBag.MinScore;
+
+    var applications = Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.JobApplication>();
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .candidates-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 25px 45px 60px;
+    }
+
+    .candidates-wrapper {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .candidate-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        gap: 20px;
+    }
+
+    .candidate-heading-label {
+        color: #718096;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .8px;
+    }
+
+    .candidate-header h1 {
+        color: #0b1f3a;
+        font-size: 26px;
+        font-weight: 700;
+        margin: 2px 0 3px;
+    }
+
+    .candidate-header p {
+        color: #718096;
+        margin: 0;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+           SEARCH
+           ========================================================= */
+
+    .candidate-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 430px;
+    }
+
+        .candidate-search form {
+            flex: 1;
+        }
+
+        .candidate-search input {
+            height: 45px;
+            background: white;
+            border: 1px solid #d8e0ea;
+            border-radius: 9px;
+            padding: 0 14px;
+            color: #26374d;
+            font-size: 12px;
+        }
+
+            .candidate-search input::placeholder {
+                color: #9aa6b5;
+            }
+
+            .candidate-search input:focus {
+                outline: none;
+                border-color: #0b1f3a;
+                box-shadow: 0 0 0 3px rgba(11, 31, 58, .08);
+            }
+
+    .search-btn {
+        height: 45px;
+        padding: 0 17px;
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+        .search-btn:hover {
+            background: #132f55;
+        }
+
+    .filter-button {
+        height: 45px;
+        padding: 0 16px;
+        border: 1px solid #d8e0ea;
+        border-radius: 9px;
+        background: white;
+        color: #526174;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+        .filter-button:hover {
+            border-color: #0b1f3a;
+            color: #0b1f3a;
+        }
+
+
+    /* =========================================================
+           TABS
+           ========================================================= */
+
+    .pipeline-tabs {
+        display: flex;
+        gap: 6px;
+        border-bottom: 1px solid #dce3ec;
+        margin-bottom: 18px;
+    }
+
+    .pipeline-tab {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        color: #718096;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+    }
+
+        .pipeline-tab:hover {
+            color: #18365f;
+        }
+
+        .pipeline-tab.active {
+            color: #0b1f3a;
+            border-bottom-color: #0b1f3a;
+        }
+
+    .pipeline-count {
+        background: #edf2f7;
+        color: #18365f;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .pipeline-tab.active .pipeline-count {
+        background: #e6edf5;
+        color: #0b1f3a;
+    }
+
+
+    /* =========================================================
+           FILTER PANEL
+           ========================================================= */
+
+    .filter-panel {
+        display: none;
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+        margin-bottom: 20px;
+    }
+
+        .filter-panel.show {
+            display: block;
+        }
+
+    .filter-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+        .filter-title strong {
+            color: #0b1f3a;
+            font-size: 13px;
+        }
+
+        .filter-title span {
+            display: block;
+            color: #8a96a6;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+    .form-label {
+        color: #526174;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .filter-panel .form-control {
+        height: 38px;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #26374d;
+    }
+
+        .filter-panel .form-control:focus {
+            border-color: #0b1f3a;
+            box-shadow: 0 0 0 3px rgba(11, 31, 58, .06);
+        }
+
+
+    /* =========================================================
+           TABLE CARD
+           ========================================================= */
+
+    .table-wrap {
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+    }
+
+
+    /* =========================================================
+           TABLE TOOLBAR
+           ========================================================= */
+
+    .table-toolbar {
+        padding: 21px 24px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .table-toolbar strong {
+            display: block;
+            color: #0b1f3a;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .table-toolbar span {
+            display: block;
+            color: #8a96a6;
+            font-size: 12px;
+        }
+
+
+    /* =========================================================
+           SELECTION TOOLBAR
+           ========================================================= */
+
+    .candidate-selection-toolbar {
+        padding: 18px 24px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        background: white;
+    }
+
+        .candidate-selection-toolbar strong {
+            display: block;
+            color: #0b1f3a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .candidate-selection-toolbar span {
+            display: block;
+            margin-top: 3px;
+            color: #8a96a6;
+            font-size: 11px;
+        }
+
+    .selection-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .selection-btn {
+        height: 35px;
+        padding: 0 13px;
+        border-radius: 7px;
+        border: 1px solid #d8e0ea;
+        background: white;
+        color: #526174;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .selection-btn:hover {
+            border-color: #0b1f3a;
+            color: #0b1f3a;
+        }
+
+    .pass-btn {
+        border-color: #a9d8c2;
+        color: #287a5b;
+    }
+
+        .pass-btn:hover {
+            background: #e9f7f1;
+            border-color: #287a5b;
+        }
+
+    .fail-btn {
+    border-color: #e2b4b8;
+    color: #b64e55;
+}
+
+.fail-btn:hover {
+    background: #fbeeee;
+    border-color: #b64e55;
+}
+
+
+
+
+    /* =========================================================
+           TABLE
+           ========================================================= */
+
+    .candidate-table {
+        width: 100%;
+        min-width: 1150px;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+        .candidate-table thead {
+            background: #0b1f3a;
+        }
+
+        .candidate-table th {
+            padding: 13px 15px;
+            text-align: left;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .7px;
+            border-bottom: 1px solid #18365f;
+            white-space: nowrap;
+        }
+
+        .candidate-table td {
+            padding: 16px 15px;
+            color: #526174;
+            font-size: 12px;
+            border-bottom: 1px solid #edf0f4;
+            vertical-align: middle;
+        }
+
+        .candidate-table tbody tr {
+            transition: .15s ease;
+        }
+
+            .candidate-table tbody tr:hover {
+                background: #fafbfd;
+            }
+
+            .candidate-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+
+    /* =========================================================
+           CANDIDATE
+           ========================================================= */
+
+    .candidate-info {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 220px;
+    }
+
+    .candidate-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .candidate-name {
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .candidate-email {
+        color: #9aa6b5;
+        font-size: 10px;
+    }
+
+
+    /* =========================================================
+           JOB
+           ========================================================= */
+
+    .job-title {
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .job-code {
+        color: #9aa6b5;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+           AI SCORE
+           ========================================================= */
+
+    .score-wrapper {
+        min-width: 105px;
+    }
+
+    .score-number {
+        color: #0b1f3a;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .score-progress {
+        width: 85px;
+        height: 5px;
+        background: #e5eaf0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 6px;
+    }
+
+    .score-progress-bar {
+        height: 100%;
+        background: #0b1f3a;
+        border-radius: 10px;
+    }
+
+
+    /* =========================================================
+           STATUS
+           ========================================================= */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-passed {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .status-review {
+        background: #fff5e8;
+        color: #a56820;
+    }
+
+    .status-failed {
+        background: #fbeeee;
+        color: #b64e55;
+    }
+
+
+    /* =========================================================
+           ACTIONS
+           ========================================================= */
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+        min-width: 190px;
+    }
+
+        .action-buttons .btn {
+            padding: 6px 9px;
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+    .btn-outline-primary {
+        color: #0b1f3a;
+        border-color: #d8e0ea;
+    }
+
+        .btn-outline-primary:hover {
+            background: #0b1f3a;
+            border-color: #0b1f3a;
+            color: white;
+        }
+
+    .btn-outline-secondary {
+        color: #526174;
+        border-color: #d8e0ea;
+    }
+
+        .btn-outline-secondary:hover {
+            color: #0b1f3a;
+            border-color: #0b1f3a;
+            background: #f8fafc;
+        }
+
+    .btn-outline-success {
+        color: #287a5b;
+        border-color: #b8ddcc;
+    }
+
+        .btn-outline-success:hover {
+            color: white;
+            background: #287a5b;
+            border-color: #287a5b;
+        }
+
+
+    /* =========================================================
+           EMPTY STATE
+           ========================================================= */
+
+    .empty-state {
+        padding: 65px 25px;
+        text-align: center;
+        background: white;
+    }
+
+        .empty-state h5 {
+            color: #0b1f3a;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            color: #718096;
+            font-size: 12px;
+            margin: 0;
+        }
+
+
+    /* =========================================================
+           CHECKBOX
+           ========================================================= */
+
+    .select-column {
+        width: 55px;
+        min-width: 55px;
+        text-align: center !important;
+    }
+
+    .candidate-checkbox,
+    #selectAllCheckbox {
+        width: 17px !important;
+        height: 17px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        appearance: auto !important;
+        -webkit-appearance: checkbox !important;
+        position: static !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        cursor: pointer !important;
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 900px) {
+
+        .candidates-page {
+            padding: 25px 20px 50px;
+        }
+
+        .candidate-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .candidate-search {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .pipeline-tabs {
+            overflow-x: auto;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .candidate-selection-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .selection-actions {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+
+<div class="candidates-page">
+
+    <div class="candidates-wrapper">
+
+
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
+        <div class="candidate-header">
+
+            <div>
+
+                <div class="candidate-heading-label">
+                    HR WORKSPACE · CANDIDATES
+                </div>
+
+                <h1>
+                    Candidates
+                </h1>
+
+                <p>
+                    View and manage candidates across all job postings.
+                </p>
+
+            </div>
+
+
+            <div class="candidate-search">
+
+                <form method="get"
+                      asp-action="Management"
+                      class="d-flex gap-2 w-100">
+
+                    <input type="hidden"
+                           name="status"
+                           value="@selectedStatus" />
+
+                    <input type="hidden"
+                           name="fromDate"
+                           value="@fromDate" />
+
+                    <input type="hidden"
+                           name="toDate"
+                           value="@toDate" />
+
+                    <input type="hidden"
+                           name="minScore"
+                           value="@minScore" />
+
+                    <input type="text"
+                           name="search"
+                           value="@search"
+                           class="form-control"
+                           placeholder="Search candidates..." />
+
+                    <button type="submit"
+                            class="search-btn">
+                        Search
+                    </button>
+
+                </form>
+
+
+                <button type="button"
+                        class="filter-button"
+                        onclick="toggleFilters()">
+                    Filters
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             PIPELINE TABS
+             ===================================================== -->
+
+        <div class="pipeline-tabs">
+
+            <a asp-action="Management"
+               asp-route-status="all"
+               asp-route-search="@search"
+               asp-route-fromDate="@fromDate"
+               asp-route-toDate="@toDate"
+               asp-route-minScore="@minScore"
+               class="pipeline-tab @(selectedStatus == "all" ? "active" : "")">
+
+                <span>All</span>
+
+                <span class="pipeline-count">
+                    @(ViewBag.AllCount ?? 0)
+                </span>
+
+            </a>
+
+
+            <a asp-action="Management"
+               asp-route-status="passed"
+               asp-route-search="@search"
+               asp-route-fromDate="@fromDate"
+               asp-route-toDate="@toDate"
+               asp-route-minScore="@minScore"
+               class="pipeline-tab @(selectedStatus == "passed" ? "active" : "")">
+
+                <span>Passed</span>
+
+                <span class="pipeline-count">
+                    @(ViewBag.PassedCount ?? 0)
+                </span>
+
+            </a>
+
+
+            <a asp-action="Management"
+               asp-route-status="review"
+               asp-route-search="@search"
+               asp-route-fromDate="@fromDate"
+               asp-route-toDate="@toDate"
+               asp-route-minScore="@minScore"
+               class="pipeline-tab @(selectedStatus == "review" ? "active" : "")">
+
+                <span>Review</span>
+
+                <span class="pipeline-count">
+                    @(ViewBag.ReviewCount ?? 0)
+                </span>
+
+            </a>
+
+
+            <a asp-action="Management"
+               asp-route-status="failed"
+               asp-route-search="@search"
+               asp-route-fromDate="@fromDate"
+               asp-route-toDate="@toDate"
+               asp-route-minScore="@minScore"
+               class="pipeline-tab @(selectedStatus == "failed" ? "active" : "")">
+
+                <span>Failed</span>
+
+                <span class="pipeline-count">
+                    @(ViewBag.FailedCount ?? 0)
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             FILTER PANEL
+             ===================================================== -->
+
+        <form method="get"
+              asp-action="Management"
+              id="filterPanel"
+              class="filter-panel">
+
+            <input type="hidden"
+                   name="status"
+                   value="@selectedStatus" />
+
+            <input type="hidden"
+                   name="search"
+                   value="@search" />
+
+            <div class="filter-title">
+
+                <div>
+
+                    <strong>
+                        Filter candidates
+                    </strong>
+
+                    <span>
+                        Narrow candidates by application date or minimum AI score.
+                    </span>
+
+                </div>
+
+                <a asp-action="Management"
+                   class="btn btn-sm btn-light">
+                    Reset
+                </a>
+
+            </div>
+
+
+            <div class="row g-3">
+
+                <div class="col-lg-3">
+
+                    <label class="form-label">
+                        From date
+                    </label>
+
+                    <input type="date"
+                           name="fromDate"
+                           value="@fromDate"
+                           class="form-control" />
+
+                </div>
+
+
+                <div class="col-lg-3">
+
+                    <label class="form-label">
+                        To date
+                    </label>
+
+                    <input type="date"
+                           name="toDate"
+                           value="@toDate"
+                           class="form-control" />
+
+                </div>
+
+
+                <div class="col-lg-3">
+
+                    <label class="form-label">
+                        Minimum AI score
+                    </label>
+
+                    <input type="number"
+                           name="minScore"
+                           value="@minScore"
+                           min="0"
+                           max="100"
+                           step="1"
+                           class="form-control"
+                           placeholder="e.g. 70" />
+
+                </div>
+
+
+                <div class="col-lg-3 d-flex align-items-end">
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        Apply filters
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <!-- =====================================================
+             TABLE
+             ===================================================== -->
+
+        <div class="table-wrap">
+
+            @if (!applications.Any())
+            {
+                <div class="empty-state">
+
+                    <h5>
+                        No candidates found
+                    </h5>
+
+                    <p>
+                        Try changing your search or filter options.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+
+                <!-- =================================================
+                     REVIEW TABLE
+                     ================================================= -->
+                @if (selectedStatus == "review")
+                {
+                    <form method="post"
+                          id="candidateForm">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="vacancyId"
+                               id="vacancyId"
+                               value="" />
+
+
+                        <div class="candidate-selection-toolbar">
+
+                            <div>
+
+                                <strong>
+                                    Review Candidates
+                                </strong>
+
+                                <span id="selectionText">
+                                    Select candidates to pass.
+                                </span>
+
+                            </div>
+
+
+                            <div class="selection-actions">
+
+                                <button type="button"
+                                        id="selectAllBtn"
+                                        class="selection-btn">
+                                    Select All
+                                </button>
+
+                                <button type="submit"
+                                        formaction="@Url.Action("MarkPassed", "HRApplication")"
+                                        class="selection-btn pass-btn">
+                                    Pass Selected
+                                </button>
+
+                                <button type="submit"
+                                        formaction="@Url.Action("MarkFailed", "HRApplication")"
+                                        class="selection-btn fail-btn">
+                                    Fail Selected
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="table-responsive">
+
+                            <table class="table candidate-table align-middle">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th class="select-column">
+                                            <input type="checkbox"
+                                                   id="selectAllCheckbox" />
+                                        </th>
+
+                                        <th>
+                                            Candidate
+                                        </th>
+
+                                        <th>
+                                            Job
+                                        </th>
+
+                                        <th>
+                                            AI Score
+                                        </th>
+
+                                        <th>
+                                            Status
+                                        </th>
+
+                                        <th>
+                                            Applied
+                                        </th>
+
+                                        <th>
+                                            Actions
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    @foreach (var application in applications)
+                                    {
+                                        var candidateName =
+                                        application.Candidate?.FullName
+                                        ?? "Unknown Candidate";
+
+                                        var initials = "??";
+
+                                        if (!string.IsNullOrWhiteSpace(candidateName))
+                                        {
+                                            var nameParts =
+                                            candidateName
+                                            .Trim()
+                                            .Split(
+                                            ' ',
+                                            StringSplitOptions.RemoveEmptyEntries
+                                            );
+
+                                            if (nameParts.Length >= 2)
+                                            {
+                                                initials =
+                                                $"{nameParts[0][0]}{nameParts[^1][0]}"
+                                                .ToUpper();
+                                            }
+                                            else if (nameParts.Length == 1)
+                                            {
+                                                initials =
+                                                nameParts[0]
+                                                .Substring(
+                                                0,
+                                                Math.Min(
+                                                2,
+                                                nameParts[0].Length
+                                                )
+                                                )
+                                                .ToUpper();
+                                            }
+                                        }
+
+                                        var score =
+                                        Math.Min(
+                                        100,
+                                        Math.Max(
+                                        0,
+                                        application.AIScore
+                                        )
+                                        );
+
+                                        <tr>
+
+                                            <!-- SELECT -->
+
+                                            <td class="select-column">
+
+                                                <input type="checkbox"
+                                                       class="candidate-checkbox"
+                                                       name="selectedIds"
+                                                       value="@application.Id"
+                                                       data-vacancy-id="@application.JobVacancyId" />
+
+                                            </td>
+
+
+                                            <!-- CANDIDATE -->
+
+                                            <td>
+
+                                                <div class="candidate-info">
+
+                                                    <div class="candidate-avatar">
+                                                        @initials
+                                                    </div>
+
+                                                    <div>
+
+                                                        <div class="candidate-name">
+                                                            @candidateName
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <!-- JOB -->
+
+                                            <td>
+
+                                                <div class="job-title">
+                                                    @(application.JobVacancy?.JobTitle
+                                                                                            ?? "Unknown Job")
+                                    </div>
+
+                                    @if (application.JobVacancy != null)
+                                                {
+                                                    <div class="job-code">
+                                                        @application.JobVacancy.JobCode
+                                                    </div>
+                                                }
+
+                                            </td>
+
+
+                                            <!-- SCORE -->
+
+                                            <td>
+
+                                                <div class="score-wrapper">
+
+                                                    <div class="score-number">
+                                                        @application.AIScore.ToString("0.0")%
+                                                    </div>
+
+                                                    <div class="score-progress">
+
+                                                        <div class="score-progress-bar"
+                                                             style="width:@score%">
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <!-- STATUS -->
+
+                                            <td>
+
+                                                <span class="status-badge status-review">
+                                                    Review
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- APPLIED -->
+
+                                            <td>
+                                                @application.AppliedDate.ToString("dd MMM yyyy")
+                                            </td>
+
+
+                                            <!-- ACTIONS -->
+
+                                            <td>
+
+                                                <div class="action-buttons">
+
+                                                    <a asp-action="AIAnalysis"
+                                                       asp-route-id="@application.Id"
+                                                       asp-route-vacancyId="@application.JobVacancyId"
+                                                       class="btn btn-outline-primary btn-sm">
+                                                        Review
+                                                    </a>
+
+
+                                                    @if (!string.IsNullOrWhiteSpace(application.CVFilePath))
+                                                    {
+                                                        <a asp-action="ViewCV"
+                                                           asp-route-id="@application.Id"
+                                                           asp-route-vacancyId="@application.JobVacancyId"
+                                                           target="_blank"
+                                                           class="btn btn-outline-secondary btn-sm">
+                                                            CV
+                                                        </a>
+                                                    }
+
+
+                                                    @if (!string.IsNullOrWhiteSpace(application.CoverLetterFilePath))
+                                                    {
+                                                        <a asp-action="ViewCoverLetter"
+                                                           asp-route-id="@application.Id"
+                                                           asp-route-vacancyId="@application.JobVacancyId"
+                                                           target="_blank"
+                                                           class="btn btn-outline-success btn-sm">
+                                                            Cover Letter
+                                                        </a>
+                                                    }
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </form>
+                }
+                else
+                {
+
+                    <!-- =================================================
+                         NORMAL TABLE
+                         ================================================= -->
+
+                    <div class="table-responsive">
+
+                        <table class="table candidate-table align-middle">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Candidate
+                                    </th>
+
+                                    <th>
+                                        Job
+                                    </th>
+
+                                    <th>
+                                        AI Score
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Applied
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @foreach (var application in applications)
+                                {
+                                    var candidateName =
+                                    application.Candidate?.FullName
+                                    ?? "Unknown Candidate";
+
+                                    var initials = "??";
+
+                                    if (!string.IsNullOrWhiteSpace(candidateName))
+                                    {
+                                        var nameParts =
+                                        candidateName
+                                        .Trim()
+                                        .Split(
+                                        ' ',
+                                        StringSplitOptions.RemoveEmptyEntries
+                                        );
+
+                                        if (nameParts.Length >= 2)
+                                        {
+                                            initials =
+                                            $"{nameParts[0][0]}{nameParts[^1][0]}"
+                                            .ToUpper();
+                                        }
+                                        else if (nameParts.Length == 1)
+                                        {
+                                            initials =
+                                            nameParts[0]
+                                            .Substring(
+                                            0,
+                                            Math.Min(
+                                            2,
+                                            nameParts[0].Length
+                                            )
+                                            )
+                                            .ToUpper();
+                                        }
+                                    }
+
+
+                                    var score =
+                                    Math.Min(
+                                    100,
+                                    Math.Max(
+                                    0,
+                                    application.AIScore
+                                    )
+                                    );
+
+
+                                    string displayStatus;
+                                    string statusClass;
+
+
+                                    if (application.Status == "Passed")
+                                    {
+                                        displayStatus = "Passed";
+                                        statusClass = "status-passed";
+                                    }
+                                    else if (application.Status == "Not Shortlisted")
+                                    {
+                                        displayStatus = "Failed";
+                                        statusClass = "status-failed";
+                                    }
+                                    else if (application.Status == "Under Review")
+                                    {
+                                        displayStatus = "Review";
+                                        statusClass = "status-review";
+                                    }
+                                    else if (application.AIScore >= 70)
+                                    {
+                                        displayStatus = "Passed";
+                                        statusClass = "status-passed";
+                                    }
+                                    else if (application.AIScore >= 50)
+                                    {
+                                        displayStatus = "Review";
+                                        statusClass = "status-review";
+                                    }
+                                    else
+                                    {
+                                        displayStatus = "Failed";
+                                        statusClass = "status-failed";
+                                    }
+
+
+                                <tr>
+
+                                    <!-- CANDIDATE -->
+
+                                    <td>
+
+                                        <div class="candidate-info">
+
+                                            <div class="candidate-avatar">
+                                                @initials
+                                            </div>
+
+                                            <div>
+
+                                                <div class="candidate-name">
+                                                    @candidateName
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- JOB -->
+
+                                    <td>
+
+                                        <div class="job-title">
+                                            @(application.JobVacancy?.JobTitle
+                                                                                ?? "Unknown Job")
+                                </div>
+
+                                @if (application.JobVacancy != null)
+                                            {
+                                                <div class="job-code">
+                                                    @application.JobVacancy.JobCode
+                                                </div>
+                                            }
+
+                                        </td>
+
+
+                                        <!-- SCORE -->
+
+                                        <td>
+
+                                            <div class="score-wrapper">
+
+                                                <div class="score-number">
+                                                    @application.AIScore.ToString("0.0")%
+                                                </div>
+
+                                                <div class="score-progress">
+
+                                                    <div class="score-progress-bar"
+                                                         style="width:@score%">
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- STATUS -->
+
+                                        <td>
+
+                                            <span class="status-badge @statusClass">
+                                                @displayStatus
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- APPLIED -->
+
+                                        <td>
+
+                                            @application.AppliedDate.ToString("dd MMM yyyy")
+
+                                        </td>
+
+
+                                        <!-- ACTIONS -->
+
+                                        <td>
+
+                                            <div class="action-buttons">
+
+                                                <a asp-action="AIAnalysis"
+                                                   asp-route-id="@application.Id"
+                                                   asp-route-vacancyId="@application.JobVacancyId"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    Review
+                                                </a>
+
+
+                                                @if (!string.IsNullOrWhiteSpace(application.CVFilePath))
+                                                {
+                                                    <a asp-action="ViewCV"
+                                                       asp-route-id="@application.Id"
+                                                       asp-route-vacancyId="@application.JobVacancyId"
+                                                       target="_blank"
+                                                       class="btn btn-outline-secondary btn-sm">
+                                                        CV
+                                                    </a>
+                                                }
+
+
+                                                @if (!string.IsNullOrWhiteSpace(application.CoverLetterFilePath))
+                                                {
+                                                    <a asp-action="ViewCoverLetter"
+                                                       asp-route-id="@application.Id"
+                                                       asp-route-vacancyId="@application.JobVacancyId"
+                                                       target="_blank"
+                                                       class="btn btn-outline-success btn-sm">
+                                                        Cover Letter
+                                                    </a>
+                                                }
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                }
+
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     JAVASCRIPT
+     ============================================================= -->
+@if (selectedStatus == "review")
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form =
+                document.getElementById("candidateForm");
+
+            if (!form) {
+                return;
+            }
+
+
+            const selectAllCheckbox =
+                document.getElementById("selectAllCheckbox");
+
+            const selectAllBtn =
+                document.getElementById("selectAllBtn");
+
+            const selectionText =
+                document.getElementById("selectionText");
+
+            const checkboxes =
+                Array.from(
+                    document.querySelectorAll(".candidate-checkbox")
+                );
+
+
+            function updateSelection() {
+
+                const selected =
+                    checkboxes.filter(
+                        checkbox => checkbox.checked
+                    );
+
+                const count =
+                    selected.length;
+
+
+                if (count === 0) {
+
+                    selectionText.textContent =
+                        "Select candidates to pass.";
+
+                }
+                else {
+
+                    selectionText.textContent =
+                        count +
+                        " candidate(s) selected.";
+
+                }
+
+
+                const allSelected =
+                    checkboxes.length > 0 &&
+                    selected.length === checkboxes.length;
+
+
+                if (selectAllCheckbox) {
+
+                    selectAllCheckbox.checked =
+                        allSelected;
+
+                }
+
+
+                if (selectAllBtn) {
+
+                    selectAllBtn.textContent =
+                        allSelected
+                            ? "Deselect All"
+                            : "Select All";
+
+                }
+
+            }
+
+
+            /* =====================================================
+               SELECT ALL CHECKBOX
+               ===================================================== */
+
+            if (selectAllCheckbox) {
+
+                selectAllCheckbox.addEventListener(
+                    "change",
+                    function () {
+
+                        checkboxes.forEach(
+                            checkbox => {
+
+                                checkbox.checked =
+                                    selectAllCheckbox.checked;
+
+                            }
+                        );
+
+                        updateSelection();
+
+                    }
+                );
+
+            }
+
+
+            /* =====================================================
+               SELECT ALL BUTTON
+               ===================================================== */
+
+            if (selectAllBtn) {
+
+                selectAllBtn.addEventListener(
+                    "click",
+                    function () {
+
+                        const allSelected =
+                            checkboxes.length > 0 &&
+                            checkboxes.every(
+                                checkbox => checkbox.checked
+                            );
+
+
+                        checkboxes.forEach(
+                            checkbox => {
+
+                                checkbox.checked =
+                                    !allSelected;
+
+                            }
+                        );
+
+                        updateSelection();
+
+                    }
+                );
+
+            }
+
+
+            /* =====================================================
+               INDIVIDUAL CHECKBOXES
+               ===================================================== */
+
+            checkboxes.forEach(
+                checkbox => {
+
+                    checkbox.addEventListener(
+                        "change",
+                        updateSelection
+                    );
+
+                }
+            );
+
+
+            /* =====================================================
+               FORM SUBMIT
+               ===================================================== */
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    const selected =
+                        checkboxes.filter(
+                            checkbox => checkbox.checked
+                        );
+
+
+                    if (selected.length === 0) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select at least one candidate."
+                        );
+
+                        return;
+
+                    }
+
+
+                    const vacancyIds =
+                        selected.map(
+                            checkbox =>
+                                checkbox.dataset.vacancyId
+                        );
+
+
+                    const firstVacancyId =
+                        vacancyIds[0];
+
+
+                    const differentVacancy =
+                        vacancyIds.some(
+                            id =>
+                                id !== firstVacancyId
+                        );
+
+
+                    if (differentVacancy) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Please select candidates from the same job vacancy."
+                        );
+
+                        return;
+
+                    }
+
+
+                    document.getElementById("vacancyId").value =
+                        firstVacancyId;
+
+                }
+            );
+
+
+            updateSelection();
+
+        });
+
+    </script>
+}
+
+
+<script>
+
+    function toggleFilters() {
+
+        const panel =
+            document.getElementById("filterPanel");
+
+        if (panel) {
+
+            panel.classList.toggle("show");
+
+        }
+
+    }
+
+</script>

@@ -1,0 +1,52 @@
+﻿@model RecruitmentTracker.Models.JobApplication
+@{ ViewData["Title"] = "Review Candidate"; }
+
+<div class="page-heading">
+    <div><div class="section-label">CANDIDATE REVIEW</div><h1>@Model.Candidate?.FullName</h1><p>@Model.JobVacancy?.JobTitle · @Model.Candidate?.Email</p></div>
+    <a asp-action="Applications" class="btn btn-outline-primary">← Candidates</a>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="stat-card"><div class="stat-label">AI MATCH</div><div class="stat-value">@Model.AIScore.ToString("0.0")%</div><span class="badge status-review">@Model.AIRecommendation</span></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="stat-label">HR STATUS</div><div class="stat-value" style="font-size:20px">Shortlisted</div><span class="badge status-shortlisted">Forwarded by HR</span></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="stat-label">APPLICATION</div><div class="stat-value" style="font-size:20px">@Model.AppliedDate.ToString("dd MMM yyyy")</div><span class="text-muted small">Submitted date</span></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card mb-3"><div class="card-header"><strong>Candidate & AI Summary</strong></div><div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6"><div class="section-label">CANDIDATE</div><p class="mb-1 fw-bold">@Model.Candidate?.FullName</p><p class="text-muted small">@Model.Candidate?.Email</p></div>
+                <div class="col-md-6"><div class="section-label">AI SCREENING</div><p class="mb-1">Overall: <strong>@Model.AIOverallScore.ToString("0.0")%</strong></p><p class="mb-1">Required: <strong>@Model.AIRequiredScore.ToString("0.0")%</strong></p><p class="mb-0">Preferred: <strong>@Model.AIPreferredScore.ToString("0.0")%</strong></p></div>
+            </div>
+        </div></div>
+        <div class="card"><div class="card-header"><strong>Documents</strong></div><div class="card-body d-flex flex-wrap gap-2">
+            @if (!string.IsNullOrWhiteSpace(Model.CVFilePath)) { <a asp-controller="HRApplication" asp-action="ViewCV" asp-route-id="@Model.Id" asp-route-vacancyId="@Model.JobVacancyId" target="_blank" class="btn btn-outline-primary">View CV</a> }
+            <a asp-controller="HRApplication" asp-action="AIAnalysis" asp-route-id="@Model.Id" asp-route-vacancyId="@Model.JobVacancyId" class="btn btn-outline-primary">View AI Analysis</a>
+        </div></div>
+    </div>
+
+    <div class="col-lg-5">
+        @if (Model.HiringManagerReviewed)
+        {
+            <div class="card"><div class="card-header"><strong>Decision Recorded</strong></div><div class="card-body">
+                <span class="badge @(Model.HiringManagerShortlisted ? "status-shortlisted" : "status-not")">@Model.HiringManagerDecision</span>
+                @if (!string.IsNullOrWhiteSpace(Model.HiringManagerComments)) { <p class="text-muted mt-3 mb-0">@Model.HiringManagerComments</p> }
+                <div class="alert alert-info mt-3 mb-0">The application remains in the candidate pipeline. This decision is stored separately from the candidate-facing Sprint 1 status.</div>
+            </div></div>
+        }
+        else
+        {
+            <div class="card"><div class="card-header"><strong>Hiring Manager Decision</strong></div><div class="card-body">
+                <p class="text-muted small">Make your internal decision. The candidate will continue to see <strong>Shortlisted</strong> during Sprint 1.</p>
+                <textarea id="comments" class="form-control mb-3" rows="5" placeholder="Optional comments or reason..."></textarea>
+                <div class="d-grid gap-2">
+                    <form asp-action="Shortlist" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="comments" id="shortlistComments" />@Html.AntiForgeryToken()<button class="btn btn-success" type="submit" onclick="document.getElementById('shortlistComments').value=document.getElementById('comments').value">✓ Shortlist Candidate</button></form>
+                    <form asp-action="Reject" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="comments" id="rejectComments" />@Html.AntiForgeryToken()<button class="btn btn-outline-danger" type="submit" onclick="document.getElementById('rejectComments').value=document.getElementById('comments').value">Not Selected</button></form>
+                </div>
+            </div></div>
+        }
+    </div>
+</div>

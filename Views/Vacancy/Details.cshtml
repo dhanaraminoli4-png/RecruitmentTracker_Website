@@ -1,0 +1,394 @@
+﻿@model RecruitmentTracker.Models.JobVacancy
+
+@{
+    ViewData["Title"] = "Job Details";
+
+    var isPublished =
+        Model.IsActive &&
+        Model.ClosingDate.Date >= DateTime.Today;
+}
+
+<style>
+    .vacancy-details-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 35px 45px 60px;
+    }
+
+    .vacancy-details-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-block;
+        color: #718096;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+        .back-link:hover {
+            color: #18365f;
+        }
+
+    .vacancy-header {
+        background: white;
+        color: #0b1f3a;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        padding: 28px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, 0.05);
+    }
+
+    .vacancy-label {
+        font-size: 10px;
+        letter-spacing: 1px;
+        font-weight: 700;
+        opacity: .7;
+        margin-bottom: 8px;
+        color: #718096;
+    }
+
+    .vacancy-header h1 {
+        color: #0b1f3a;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 15px;
+    }
+
+    .vacancy-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+        .vacancy-meta span {
+            background: #f3f6fa;
+            color: #526174;
+            border: 1px solid #e1e7ef;
+            border-radius: 50px;
+            padding: 9px 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+    .vacancy-status {
+        margin-top: 20px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .status-published {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .status-unpublished {
+        background: #edf1f5;
+        color: #687789;
+    }
+
+    .details-card {
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        padding: 28px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+
+    }
+
+        .details-card h2 {
+            color: #526174;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .details-card p {
+            color: #526174;
+            font-size: 13px;
+            line-height: 1.7;
+            white-space: pre-line;
+            margin: 0;
+        }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .detail-item {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+   
+
+        .detail-item label {
+            display: block;
+            color: #8a96a6;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .detail-item strong {
+            color: #0b1f3a;
+            font-size: 13px;
+        }
+
+    .details-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    .details-btn {
+        padding: 9px 15px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #dbe2eb;
+        background: white;
+        color: #526174;
+    }
+
+        .details-btn:hover {
+            color: #0b1f3a;
+            border-color: #0b1f3a;
+        }
+
+        .details-btn.primary {
+            background: #0b1f3a;
+            color: white;
+            border-color: #0b1f3a;
+        }
+
+            .details-btn.primary:hover {
+                background: #132f55;
+                color: white;
+            }
+
+    @@media (max-width: 700px) {
+        .vacancy-details-page {
+            padding: 25px 20px 50px;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="vacancy-details-page">
+
+    <div class="vacancy-details-wrapper">
+
+        <a asp-action="Index" class="back-link">
+            ← Back to Job Postings
+        </a>
+
+        <!-- HEADER -->
+
+        <div class="vacancy-header">
+
+            <div class="vacancy-label">
+                JOB POSTING
+            </div>
+
+            <h1>
+                @Model.JobCode · @Model.JobTitle
+            </h1>
+
+            <div class="vacancy-meta">
+
+                @if (!string.IsNullOrWhiteSpace(Model.Location))
+                {
+                    <span>
+                         @Model.Location
+                    </span>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.EmploymentType))
+                {
+                    <span>
+                         @Model.EmploymentType
+                    </span>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.Department))
+                {
+                    <span>
+                         @Model.Department
+                    </span>
+                }
+
+                @if (Model.Salary.HasValue)
+                {
+                    <span>
+                        Rs. @Model.Salary.Value.ToString("N0")
+                    </span>
+                }
+
+            </div>
+
+            <div class="vacancy-status">
+
+                @if (isPublished)
+                {
+                    <span class="status-badge status-published">
+                        ● Published
+                    </span>
+                }
+                else
+                {
+                    <span class="status-badge status-unpublished">
+                        ● Unpublished
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
+
+        <!-- JOB INFORMATION -->
+
+        <div class="details-card">
+
+            <h2>
+                Job Information
+            </h2>
+
+            <div class="details-grid">
+
+                <div class="detail-item">
+                    <label>Posted</label>
+                    <strong>
+                        @Model.CreatedDate.ToString("dd MMM yyyy")
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <label>Closing Date</label>
+                    <strong>
+                        @Model.ClosingDate.ToString("dd MMM yyyy")
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <label>Employment Type</label>
+                    <strong>
+                        @Model.EmploymentType
+                    </strong>
+                </div>
+
+                <div class="detail-item">
+                    <label>Location</label>
+                    <strong>
+                        @Model.Location
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DESCRIPTION -->
+
+        <div class="details-card">
+
+            <h2>
+                Job Description
+            </h2>
+
+            <p>
+                @Model.Description
+            </p>
+
+        </div>
+
+
+        <!-- RESPONSIBILITIES -->
+        @if (!string.IsNullOrWhiteSpace(Model.Responsibilities))
+        {
+            <div class="details-card">
+
+                <h2>
+                    Responsibilities
+                </h2>
+
+                <p >
+                    @Model.Responsibilities
+                </p>
+
+            </div>
+        }
+
+
+        <!-- REQUIREMENTS -->
+
+        <div class="details-card">
+
+            <h2>
+                Requirements
+            </h2>
+
+            <p>
+                @Model.Requirements
+            </p>
+
+        </div>
+
+
+        <!-- PREFERRED REQUIREMENTS -->
+        @if (!string.IsNullOrWhiteSpace(Model.PreferredRequirements))
+        {
+            <div class="details-card">
+
+                <h2>
+                    Preferred Requirements
+                </h2>
+
+                <p>
+                    @Model.PreferredRequirements
+                </p>
+
+            </div>
+        }
+
+
+        <!-- ACTIONS -->
+
+        <div class="details-actions">
+
+            <a asp-action="Index"
+               class="details-btn">
+
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

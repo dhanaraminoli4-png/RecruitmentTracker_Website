@@ -1,0 +1,359 @@
+@model RecruitmentTracker.Models.JobVacancy
+
+@{
+    ViewData["Title"] = "Vacancy Overview";
+}
+
+<div class="page-heading">
+    <div>
+        <div class="section-label">
+            VACANCY · @Model.JobCode · RECRUITMENT CAMPAIGN
+        </div>
+
+        <h1>@Model.JobTitle</h1>
+
+        <p>
+            @Model.Location · @Model.EmploymentType ·
+            Posted @Model.CreatedDate.ToString("dd MMM yyyy")
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        
+
+        <a asp-action="Index"
+           class="btn btn-light">
+            All vacancies
+        </a>
+    </div>
+</div>
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+
+<!-- VACANCY INFORMATION -->
+
+<div class="vacancy-hero mb-4">
+
+    <div>
+
+        <span class="badge @(Model.IsActive
+                          ? "status-shortlisted"
+                          : "status-applied")">
+
+            @(Model.IsActive
+                        ? "Live vacancy"
+                        : "Archived vacancy")
+
+        </span>
+
+        <h3>
+            @Model.JobTitle
+        </h3>
+
+        <p>
+            @(Model.Description?.Length > 360
+                        ? Model.Description.Substring(0, 360) + "..."
+                        : Model.Description)
+        </p>
+
+    </div>
+
+    <div class="hero-meta">
+
+        <span>
+            Closing date
+        </span>
+
+        <strong>
+            @Model.ClosingDate.ToString("dd MMM yyyy")
+        </strong>
+
+        <span>
+            @(Model.Salary.HasValue
+                        ? $"Budget {Model.Salary:N0}"
+                        : "Salary not specified")
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- VACANCY STATISTICS -->
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                TOTAL APPLICATIONS
+            </div>
+
+            <div class="stat-value">
+                @ViewBag.ApplicationCount
+            </div>
+
+            <span class="text-muted small">
+                Complete history
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                NEEDS HR REVIEW
+            </div>
+
+            <div class="stat-value">
+                @ViewBag.NeedsReviewCount
+            </div>
+
+            <span class="text-muted small">
+                Not manually reviewed
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                SENT TO HM
+            </div>
+
+            <div class="stat-value">
+                @ViewBag.ShortlistedCount
+            </div>
+
+            <span class="text-muted small">
+                Selected from Passed
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CANDIDATE PIPELINE -->
+
+<div class="section-heading">
+
+    <div>
+
+        <h4>
+            Candidate pipeline
+        </h4>
+
+        <p>
+            Each section contains applications for this vacancy only.
+            Candidates sent to the Hiring Manager remain in Passed.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="row g-3">
+
+
+    <!-- ALL APPLICATIONS -->
+
+    <div class="col-md-4">
+
+        <a class="workflow-card"
+           asp-controller="HRApplication"
+           asp-action="Index"
+           asp-route-vacancyId="@Model.Id">
+
+            <span>
+                01 · MASTER PIPELINE
+            </span>
+
+            <strong>
+                All applications
+            </strong>
+
+            <small>
+                @ViewBag.ApplicationCount candidates retained here
+            </small>
+
+        </a>
+
+    </div>
+
+
+    <!-- PASSED -->
+
+    <div class="col-md-4">
+
+        <a class="workflow-card"
+           asp-controller="HRApplication"
+           asp-action="Passed"
+           asp-route-vacancyId="@Model.Id">
+
+            <span>
+                02 · AI SCREENING
+            </span>
+
+            <strong>
+                Passed candidates
+            </strong>
+
+            <small>
+                @ViewBag.PassedCount strong AI matches
+            </small>
+
+        </a>
+
+    </div>
+
+
+    <!-- REVIEW -->
+
+    <div class="col-md-4">
+
+        <a class="workflow-card"
+           asp-controller="HRApplication"
+           asp-action="Review"
+           asp-route-vacancyId="@Model.Id">
+
+            <span>
+                03 · HUMAN REVIEW
+            </span>
+
+            <strong>
+                Review queue
+            </strong>
+
+            <small>
+                @ViewBag.ReviewCount candidates in the middle range
+            </small>
+
+        </a>
+
+    </div>
+
+
+    <!-- FAILED -->
+
+    <div class="col-md-4">
+
+        <a class="workflow-card"
+           asp-controller="HRApplication"
+           asp-action="Failed"
+           asp-route-vacancyId="@Model.Id">
+
+            <span>
+                04 · AI SCREENING
+            </span>
+
+            <strong>
+                Failed / low match
+            </strong>
+
+            <small>
+                @ViewBag.FailedCount applications below the threshold
+            </small>
+
+        </a>
+
+    </div>
+
+
+    <!-- REPORTING -->
+
+    <div class="col-md-4">
+
+        <a class="workflow-card"
+           asp-controller="HRApplication"
+           asp-action="Management"
+           asp-route-vacancyId="@Model.Id">
+
+            <span>
+                05 · REPORTING
+            </span>
+
+            <strong>
+                Filtered application report
+            </strong>
+
+            <small>
+                Search by status, score and date
+            </small>
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- RECRUITMENT HISTORY -->
+
+<div class="card mt-4">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+            <div>
+
+                <strong>
+                    Recruitment history
+                </strong>
+
+                <p class="text-muted mb-0 small">
+                    Closing or archiving this vacancy does not remove
+                    applications. Historical records remain searchable.
+                </p>
+
+            </div>
+
+
+            <form asp-action="ToggleStatus"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+                <button class="btn btn-outline-primary"
+                        type="submit">
+
+                    @(Model.IsActive
+                                        ? "Archive vacancy"
+                                        : "Reopen vacancy")
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

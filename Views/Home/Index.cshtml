@@ -1,0 +1,646 @@
+@{
+    ViewData["Title"] = "Altrium";
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .auth-page {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef5fc;
+        padding: 40px 25px;
+        overflow: hidden;
+    }
+
+
+    /* =========================================================
+           CONTAINER
+           ========================================================= */
+
+    .auth-container {
+        width: 100%;
+        max-width: 1120px;
+        min-height: 650px;
+        background: #ffffff;
+        border: 1px solid #dfe8f1;
+        border-radius: 24px;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1.05fr .95fr;
+        box-shadow: 0 25px 70px rgba(11, 31, 58, .08);
+        animation: authContainerIn .8s ease forwards;
+    }
+
+
+    /* =========================================================
+           LEFT BRANDING
+           ========================================================= */
+
+    .auth-brand {
+        position: relative;
+        overflow: hidden;
+        background: #e7f1fb;
+        padding: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        animation: authBrandIn .8s ease forwards;
+    }
+
+
+        /* Decorative circles */
+
+        .auth-brand::before {
+            content: "";
+            position: absolute;
+            width: 440px;
+            height: 440px;
+            border-radius: 50%;
+            border: 1px solid rgba(11,31,58,.07);
+            right: -220px;
+            top: -150px;
+        }
+
+
+        .auth-brand::after {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 1px solid rgba(11,31,58,.06);
+            left: -150px;
+            bottom: -130px;
+        }
+
+
+    /* =========================================================
+           LOGO
+           ========================================================= */
+
+    .brand-logo {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 55px;
+    }
+
+
+    .brand-mark {
+        width: 43px;
+        height: 43px;
+        border-radius: 11px;
+        background: #0b1f3a;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        font-weight: 900;
+        box-shadow: 0 7px 17px rgba(11,31,58,.14);
+    }
+
+
+    .brand-name {
+        color: #0b1f3a;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+
+    /* =========================================================
+           BRAND TEXT
+           ========================================================= */
+
+    .brand-eyebrow {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #55708f;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.7px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+
+
+        .brand-eyebrow::before {
+            content: "";
+            width: 27px;
+            height: 1px;
+            background: #8da5bd;
+        }
+
+
+    .brand-title {
+        position: relative;
+        z-index: 2;
+        color: #0b1f3a;
+        font-size: 44px;
+        line-height: 1.07;
+        font-weight: 800;
+        letter-spacing: -1.8px;
+        margin: 0 0 20px;
+    }
+
+
+        .brand-title span {
+            color: #55708f;
+        }
+
+
+    .brand-description {
+        position: relative;
+        z-index: 2;
+        max-width: 420px;
+        color: #60748b;
+        font-size: 13px;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+
+    /* =========================================================
+           SMALL TAGS
+           ========================================================= */
+
+    .brand-tags {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+
+    .brand-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 11px;
+        border-radius: 8px;
+        background: rgba(255,255,255,.58);
+        border: 1px solid rgba(11,31,58,.06);
+        color: #526a82;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+        .brand-tag span {
+            color: #0b1f3a;
+            font-size: 10px;
+        }
+
+
+    /* =========================================================
+           RIGHT SIDE
+           ========================================================= */
+
+    .auth-actions {
+        padding: 55px 65px;
+        display: flex;
+        align-items: center;
+        animation: authFormIn .8s ease .12s both;
+    }
+
+
+    .auth-content {
+        width: 100%;
+        max-width: 405px;
+        margin: auto;
+    }
+
+
+    /* =========================================================
+           HEADING
+           ========================================================= */
+
+    .auth-kicker {
+        color: #7a8797;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 9px;
+    }
+
+
+    .auth-heading {
+        color: #0b1f3a;
+        font-size: 30px;
+        line-height: 1.15;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin: 0 0 9px;
+    }
+
+
+    .auth-subheading {
+        color: #7b8797;
+        font-size: 12px;
+        line-height: 1.7;
+        margin: 0 0 28px;
+        max-width: 370px;
+    }
+
+
+    /* =========================================================
+           BUTTONS
+           ========================================================= */
+
+    .auth-button {
+        width: 100%;
+        height: 50px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+        transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+        margin-bottom: 11px;
+    }
+
+
+    .signin-button {
+        background: #0b1f3a;
+        color: #ffffff;
+        border: 1px solid #0b1f3a;
+        box-shadow: 0 8px 20px rgba(11,31,58,.14);
+    }
+
+
+        .signin-button:hover {
+            background: #163a60;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(11,31,58,.18);
+        }
+
+
+    .register-button {
+        background: #ffffff;
+        color: #0b1f3a;
+        border: 1px solid #d8e0e8;
+    }
+
+
+        .register-button:hover {
+            background: #f7fafd;
+            color: #0b1f3a;
+            border-color: #b9c8d8;
+            transform: translateY(-2px);
+        }
+
+
+    /* =========================================================
+           DIVIDER
+           ========================================================= */
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin: 25px 0;
+        color: #a0aab6;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            background: #edf0f4;
+            flex: 1;
+        }
+
+
+    /* =========================================================
+           NOTE
+           ========================================================= */
+
+    .account-note {
+        text-align: center;
+        color: #8a95a2;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+
+        .account-note strong {
+            color: #0b1f3a;
+            font-weight: 800;
+        }
+
+
+    /* =========================================================
+           ANIMATIONS
+           ========================================================= */
+
+    @@keyframes authContainerIn {
+
+        from {
+            opacity: 0;
+            transform: translateY(25px) scale(.985);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+
+    @@keyframes authBrandIn {
+
+        from {
+            opacity: 0;
+            transform: translateX(-25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+
+    @@keyframes authFormIn {
+
+        from {
+            opacity: 0;
+            transform: translateX(25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 900px) {
+
+        .auth-container {
+            grid-template-columns: 1fr;
+            max-width: 620px;
+        }
+
+
+        .auth-brand {
+            padding: 45px;
+        }
+
+
+        .brand-logo {
+            margin-bottom: 35px;
+        }
+
+
+        .brand-title {
+            font-size: 36px;
+        }
+
+
+        .auth-actions {
+            padding: 45px;
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .auth-page {
+            padding: 20px 15px;
+        }
+
+
+        .auth-container {
+            border-radius: 17px;
+        }
+
+
+        .auth-brand {
+            padding: 35px 28px;
+        }
+
+
+        .brand-title {
+            font-size: 31px;
+        }
+
+
+        .brand-description {
+            font-size: 12px;
+        }
+
+
+        .brand-tags {
+            display: none;
+        }
+
+
+        .auth-actions {
+            padding: 35px 25px;
+        }
+
+
+        .auth-heading {
+            font-size: 27px;
+        }
+    }
+</style>
+
+
+<div class="auth-page">
+
+    <div class="auth-container">
+
+
+        <!-- =====================================================
+             ALTRIUM BRANDING
+             ===================================================== -->
+
+        <section class="auth-brand">
+
+
+            <!-- LOGO -->
+
+            <div class="brand-logo">
+
+                <div class="brand-mark">
+                    A
+                </div>
+
+                <div class="brand-name">
+                    ALTRIUM
+                </div>
+
+            </div>
+
+
+            <!-- EYEBROW -->
+
+            <div class="brand-eyebrow">
+                ALTRIUM CAREERS
+            </div>
+
+
+            <!-- TITLE -->
+
+            <h1 class="brand-title">
+
+                Your next
+                <br />
+
+                <span>opportunity.</span>
+
+            </h1>
+
+
+            <!-- DESCRIPTION -->
+
+            <p class="brand-description">
+
+                Explore career opportunities,
+                apply for positions and follow
+                your recruitment journey with Altrium.
+
+            </p>
+
+
+            <!-- TAGS -->
+
+            <div class="brand-tags">
+
+                <div class="brand-tag">
+
+                    <span>✓</span>
+
+                    Explore opportunities
+
+                </div>
+
+
+                <div class="brand-tag">
+
+                    <span>✓</span>
+
+                    Apply online
+
+                </div>
+
+
+                <div class="brand-tag">
+
+                    <span>✓</span>
+
+                    Track applications
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             AUTHENTICATION
+             ===================================================== -->
+
+        <section class="auth-actions">
+
+            <div class="auth-content">
+
+
+                <div class="auth-kicker">
+                    Candidate Portal
+                </div>
+
+
+                <h2 class="auth-heading">
+                    Welcome to Altrium
+                </h2>
+
+
+                <p class="auth-subheading">
+
+                    Sign in to continue or create
+                    an account to explore opportunities.
+
+                </p>
+
+
+                <!-- SIGN IN -->
+
+                <a asp-area="Identity"
+                   asp-page="/Account/Login"
+                   class="auth-button signin-button">
+
+                    Sign In
+
+                </a>
+
+
+                <!-- REGISTER -->
+
+                <a asp-area="Identity"
+                   asp-page="/Account/Register"
+                   class="auth-button register-button">
+
+                    Create an Account
+
+                </a>
+
+
+                <!-- DIVIDER -->
+
+                <div class="divider">
+
+                    Secure candidate portal
+
+                </div>
+
+
+                <!-- NOTE -->
+
+                <div class="account-note">
+
+                    Your career journey starts here.
+                    <br />
+
+                    <strong>Discover your next opportunity at Altrium.</strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>

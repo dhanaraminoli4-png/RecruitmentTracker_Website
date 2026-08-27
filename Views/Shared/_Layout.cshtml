@@ -1,0 +1,259 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<RecruitmentTracker.Models.ApplicationUser> SignInManager
+@inject UserManager<RecruitmentTracker.Models.ApplicationUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - HireTrack</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RecruitmentTracker.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var isHR = User.IsInRole("HR");
+        var isCandidate = User.IsInRole("Candidate");
+        var isHM = User.IsInRole("HiringManager");
+        var isAdmin = User.IsInRole("SystemAdmin");
+
+        var controller =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+        <div class="site-app">
+
+            <!-- =====================================================
+                 LOGGED-IN NAVIGATION
+                 ===================================================== -->
+
+            <header class="modern-nav">
+
+                <div class="nav-inner">
+
+                    <!-- LOGO -->
+
+                    <a class="site-logo"
+                       asp-controller="Dashboard"
+                       asp-action="Index">
+
+                        <span class="logo-mark">H</span>
+
+                        <span>HireTrack</span>
+
+                    </a>
+
+
+                    <!-- =====================================================
+                    NAVIGATION
+                    ===================================================== -->
+
+                    <nav class="nav-links">
+
+                        @if (isHR || isAdmin)
+                        {
+                            <!-- JOB POSTINGS -->
+
+                            <a class="@(controller == "Vacancy" ? "active" : "")"
+                               asp-controller="Vacancy"
+                               asp-action="Index">
+                                Job Postings
+                            </a>
+
+
+                            <!-- APPLICATIONS -->
+
+                            <a class="@(controller == "HRApplication" ? "active" : "")"
+                               asp-controller="HRApplication"
+                               asp-action="Management">
+                                Applications
+                            </a>
+                        }
+
+                        else if (isCandidate)
+                        {
+                            var action =
+                            ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+                            <!-- FIND JOB -->
+
+                            <a class="@(controller == "Application" && action == "Vacancies" ? "active" : "")"
+                               asp-controller="Application"
+                               asp-action="Vacancies">
+
+                                Find Job
+
+                            </a>
+
+
+                            <!-- MY APPLICATIONS -->
+
+                            <a class="@(controller == "Application" && action == "MyApplications" ? "active" : "")"
+                               asp-controller="Application"
+                               asp-action="MyApplications">
+
+                                My Applications
+
+                            </a>
+                        }
+
+                        else if (isHM)
+                        {
+                            <!-- CANDIDATES -->
+
+                            <a class="@(controller == "HiringManager" ? "active" : "")"
+                               asp-controller="HiringManager"
+                               asp-action="Applications">
+
+                                Candidates
+
+                            </a>
+                        }
+
+                        else
+                        {
+                            <!-- DASHBOARD -->
+
+                            <a class="@(controller == "Dashboard" ? "active" : "")"
+                               asp-controller="Dashboard"
+                               asp-action="Index">
+
+                                Dashboard
+
+                            </a>
+                        }
+
+                </nav>
+
+
+                <!-- USER / LOGOUT -->
+
+                <div class="nav-actions">
+
+                    <span class="nav-user">
+
+                        <span class="nav-avatar">
+
+                            @(string.IsNullOrWhiteSpace(User.Identity?.Name)
+                                                        ? "U"
+                                                        : User.Identity!.Name.Substring(0, 1).ToUpper())
+
+                        </span>
+
+                            <span class="nav-user-name">
+
+                                @(User.Identity?.Name ?? "User")
+
+                            </span>
+
+                        </span>
+
+
+                        <form asp-area="Identity"
+                              asp-page="/Account/Logout"
+                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+
+                            <button class="nav-logout"
+                                    type="submit">
+
+                                Sign out
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                    <!-- MOBILE MENU -->
+
+                    <button class="mobile-menu-button"
+                            type="button"
+                            aria-label="Open menu"
+                            onclick="document.body.classList.toggle('menu-open')">
+
+                        ☰
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- LOGGED-IN CONTENT -->
+
+            <main class="site-content" role="main">
+
+                @RenderBody()
+
+            </main>
+
+        </div>
+        }
+
+    else
+    {
+        var currentPage =
+        ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+        <!-- =========================================================
+             PUBLIC / LOGGED-OUT HEADER
+
+             Login + Register both show ONLY the HireTrack logo.
+             No Login/Register buttons.
+             ========================================================= -->
+        if (currentPage == "/Account/Login" ||
+        currentPage == "/Account/Register")
+        {
+            <header class="public-header login-public-header">
+
+                <a class="brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <span class="brand-mark">
+                        H
+                    </span>
+
+                    <span>
+                        HireTrack
+                    </span>
+
+                </a>
+
+            </header>
+        }
+
+        <main class="public-main @(currentPage == "/Account/Register" ? "register-public-main" : "")"
+              role="main">
+
+            @RenderBody()
+
+        </main>
+    }
+
+
+    <!-- =============================================================
+         JAVASCRIPT
+         ============================================================= -->
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

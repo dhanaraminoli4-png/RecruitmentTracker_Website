@@ -1,0 +1,1412 @@
+﻿@model RecruitmentTracker.Models.AIAnalysisViewModel
+
+@{
+    ViewData["Title"] = "AI Analysis";
+
+    var recommendation = Model.Application.AIRecommendation ?? "Review";
+
+    var recommendationClass = recommendation switch
+    {
+        "High Match" => "ai-recommendation-high",
+        "Good Match" => "ai-recommendation-good",
+        "Low Match" => "ai-recommendation-low",
+        _ => "ai-recommendation-review"
+    };
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .ai-analysis-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 30px 45px 60px;
+    }
+
+    .ai-analysis-wrapper {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .ai-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 24px;
+    }
+
+    .ai-header-label {
+        color: #718096;
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .ai-page-header h1 {
+        color: #0b1f3a;
+        font-size: 28px;
+        font-weight: 750;
+        margin: 0 0 5px;
+        letter-spacing: -.4px;
+    }
+
+    .ai-header-subtitle {
+        color: #718096;
+        font-size: 12px;
+        margin: 0;
+    }
+
+        .ai-header-subtitle strong {
+            color: #526174;
+            font-weight: 700;
+        }
+
+
+    /* =========================================================
+           BACK BUTTON
+           ========================================================= */
+
+    .ai-back-btn {
+        height: 40px;
+        padding: 0 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 8px;
+        background: white;
+        border: 1px solid #d8e0ea;
+        color: #0b1f3a;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all .2s ease;
+        white-space: nowrap;
+    }
+
+        .ai-back-btn:hover {
+            background: #f8fafc;
+            border-color: #0b1f3a;
+            color: #0b1f3a;
+            transform: translateY(-1px);
+        }
+
+
+    /* =========================================================
+           AI HERO / SCORE AREA
+           ========================================================= */
+
+    .ai-hero {
+        position: relative;
+        overflow: hidden;
+        background: white;
+        border: 1px solid #e3e8ef;
+        border-radius: 16px;
+        padding: 28px 30px;
+        margin-bottom: 22px;
+        box-shadow: 0 5px 22px rgba(11,31,58,.05);
+    }
+
+        /*
+           Soft navy atmospheric gradient.
+           No animation / keyframes required.
+        */
+
+        .ai-hero::after {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            right: -110px;
+            top: -150px;
+            border-radius: 50%;
+            background: radial-gradient( circle, rgba(11,31,58,.08) 0%, rgba(11,31,58,.035) 45%, rgba(11,31,58,0) 72% );
+            pointer-events: none;
+        }
+
+    .ai-hero-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 35px;
+    }
+
+    .ai-hero-copy {
+        max-width: 650px;
+    }
+
+    .ai-small-label {
+        color: #718096;
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: 1px;
+        margin-bottom: 7px;
+    }
+
+    .ai-hero-copy h2 {
+        color: #0b1f3a;
+        font-size: 22px;
+        font-weight: 750;
+        margin: 0 0 7px;
+    }
+
+    .ai-hero-copy p {
+        color: #718096;
+        font-size: 12px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+
+    /* =========================================================
+           MAIN SCORE
+           ========================================================= */
+
+    .ai-main-score {
+        min-width: 230px;
+        display: flex;
+        align-items: center;
+        gap: 17px;
+    }
+
+    .ai-score-ring {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        background: #f0f4f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+        .ai-score-ring::before {
+            content: "";
+            position: absolute;
+            inset: 7px;
+            border-radius: 50%;
+            border: 5px solid #0b1f3a;
+            opacity: .12;
+        }
+
+        .ai-score-ring span {
+            color: #0b1f3a;
+            font-size: 21px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+
+    .ai-score-info span {
+        display: block;
+        color: #718096;
+        font-size: 10px;
+        font-weight: 650;
+        margin-bottom: 5px;
+    }
+
+    .ai-score-info strong {
+        display: block;
+        color: #0b1f3a;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+
+    .ai-score-info small {
+        color: #9aa6b5;
+        font-size: 9px;
+    }
+
+
+    /* =========================================================
+           SUMMARY CARDS
+           ========================================================= */
+
+    .ai-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 13px;
+        margin-bottom: 28px;
+    }
+
+    .ai-summary-card {
+        background: white;
+        border: 1px solid #e3e8ef;
+        border-radius: 13px;
+        padding: 18px 20px;
+        min-height: 110px;
+        box-shadow: 0 4px 18px rgba(11,31,58,.035);
+        transition: all .18s ease;
+    }
+
+        .ai-summary-card:hover {
+            border-color: #cbd6e2;
+            transform: translateY(-1px);
+            box-shadow: 0 7px 22px rgba(11,31,58,.06);
+        }
+
+    .ai-summary-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .ai-summary-label {
+        color: #718096;
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .75px;
+        text-transform: uppercase;
+    }
+
+    .ai-summary-icon {
+        width: 31px;
+        height: 31px;
+        border-radius: 8px;
+        background: #f0f4f8;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+    .ai-summary-value {
+        color: #0b1f3a;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .ai-summary-foot {
+        color: #9aa6b5;
+        font-size: 9px;
+        margin-top: 5px;
+    }
+
+
+    /* =========================================================
+           RECOMMENDATION
+           ========================================================= */
+
+    .ai-recommendation {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+        .ai-recommendation::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+    .ai-recommendation-high {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .ai-recommendation-good {
+        background: #edf3fa;
+        color: #315a82;
+    }
+
+    .ai-recommendation-review {
+        background: #f4f5f7;
+        color: #687789;
+    }
+
+    .ai-recommendation-low {
+        background: #f9eeee;
+        color: #a45258;
+    }
+
+
+    /* =========================================================
+           SECTION HEADER
+           ========================================================= */
+
+    .ai-section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 11px;
+    }
+
+        .ai-section-heading h3 {
+            color: #0b1f3a;
+            font-size: 16px;
+            font-weight: 750;
+            margin: 0 0 3px;
+        }
+
+        .ai-section-heading p {
+            color: #718096;
+            font-size: 10px;
+            margin: 0;
+        }
+
+    .ai-section-count {
+        color: #9aa6b5;
+        font-size: 9px;
+        font-weight: 650;
+    }
+
+
+    /* =========================================================
+           REQUIREMENT CARD
+           ========================================================= */
+
+    .ai-requirement-card {
+        background: white;
+        border: 1px solid #e3e8ef;
+        border-radius: 13px;
+        overflow: hidden;
+        margin-bottom: 23px;
+        box-shadow: 0 4px 18px rgba(11,31,58,.035);
+    }
+
+    .ai-requirement-card-header {
+        padding: 17px 20px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .ai-requirement-card-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ai-requirement-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+    .ai-requirement-card-header h4 {
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 750;
+        margin: 0 0 2px;
+    }
+
+    .ai-requirement-card-header span {
+        color: #9aa6b5;
+        font-size: 9px;
+    }
+
+
+    /* =========================================================
+           TABLE
+           ========================================================= */
+
+    .ai-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+        .ai-table thead {
+            background: #f8fafc;
+        }
+
+        .ai-table th {
+            color: #718096;
+            background: #f8fafc;
+            font-size: 9px;
+            font-weight: 750;
+            letter-spacing: .8px;
+            padding: 12px 17px;
+            text-align: left;
+            border-bottom: 1px solid #e4e9ef;
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        .ai-table td {
+            color: #526174;
+            background: white;
+            font-size: 11px;
+            padding: 14px 17px;
+            border-bottom: 1px solid #edf0f4;
+            vertical-align: middle;
+        }
+
+        .ai-table tbody tr {
+            transition: background .15s ease;
+        }
+
+            .ai-table tbody tr:hover td {
+                background: #fafbfd;
+            }
+
+            .ai-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+
+    /* =========================================================
+           REQUIREMENT TEXT
+           ========================================================= */
+
+    .ai-requirement-name {
+        color: #0b1f3a;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+
+    /* =========================================================
+           MATCH BADGES
+           ========================================================= */
+
+    .ai-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 9px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+        .ai-status::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+    .ai-status-matched {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .ai-status-partial {
+        background: #f3f5f7;
+        color: #687789;
+    }
+
+    .ai-status-notmatched {
+        background: #f9eeee;
+        color: #a45258;
+    }
+
+
+    /* =========================================================
+           SCORE BAR
+           ========================================================= */
+
+    .ai-score-bar {
+        min-width: 180px;
+    }
+
+    .ai-score-bar-track {
+        width: 100%;
+        height: 7px;
+        background: #edf1f5;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 5px;
+    }
+
+    .ai-score-bar-fill {
+        height: 100%;
+        background: #0b1f3a;
+        border-radius: 10px;
+        min-width: 2px;
+    }
+
+    .ai-score-number {
+        color: #0b1f3a;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+
+    /* =========================================================
+           METHOD
+           ========================================================= */
+
+    .ai-method {
+        color: #8a96a6;
+        font-size: 9px;
+    }
+
+
+    /* =========================================================
+           OVERALL MATCH
+           ========================================================= */
+
+    .ai-overall-card {
+        position: relative;
+        overflow: hidden;
+        background: white;
+        border: 1px solid #e3e8ef;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 3px;
+        box-shadow: 0 5px 22px rgba(11,31,58,.05);
+    }
+
+        .ai-overall-card::before {
+            content: "";
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            right: -90px;
+            bottom: -160px;
+            border-radius: 50%;
+            background: radial-gradient( circle, rgba(11,31,58,.07) 0%, rgba(11,31,58,0) 70% );
+            pointer-events: none;
+        }
+
+    .ai-overall-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ai-overall-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+
+    .ai-overall-title {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .ai-overall-icon {
+        width: 39px;
+        height: 39px;
+        border-radius: 10px;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        font-weight: 750;
+    }
+
+    .ai-overall-title h3 {
+        color: #0b1f3a;
+        font-size: 15px;
+        font-weight: 750;
+        margin: 0 0 3px;
+    }
+
+    .ai-overall-title span {
+        color: #9aa6b5;
+        font-size: 9px;
+    }
+
+    .ai-overall-score {
+        color: #0b1f3a;
+        font-size: 28px;
+        font-weight: 800;
+    }
+
+    .ai-overall-track {
+        width: 100%;
+        height: 12px;
+        background: #edf1f5;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .ai-overall-fill {
+        height: 100%;
+        background: #0b1f3a;
+        border-radius: 20px;
+        min-width: 2px;
+    }
+
+    .ai-overall-note {
+        color: #8a96a6;
+        font-size: 9px;
+        margin-top: 9px;
+    }
+
+
+    /* =========================================================
+           EMPTY STATE
+           ========================================================= */
+
+    .ai-empty {
+        padding: 38px 20px;
+        text-align: center;
+        color: #8a96a6;
+        font-size: 11px;
+    }
+
+    .ai-empty-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 17px;
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 1050px) {
+
+        .ai-analysis-page {
+            padding: 25px 25px 50px;
+        }
+
+        .ai-summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .ai-main-score {
+            min-width: 200px;
+        }
+    }
+
+
+    @@media (max-width: 800px) {
+
+        .ai-page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .ai-hero-inner {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .ai-main-score {
+            width: 100%;
+        }
+
+        .ai-summary-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .ai-analysis-page {
+            padding: 20px 15px 40px;
+        }
+
+        .ai-page-header h1 {
+            font-size: 24px;
+        }
+
+        .ai-back-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .ai-hero {
+            padding: 22px;
+        }
+
+        .ai-summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ai-main-score {
+            flex-direction: row;
+        }
+
+        .ai-table {
+            min-width: 760px;
+        }
+
+        .ai-requirement-card {
+            overflow-x: auto;
+        }
+
+        .ai-overall-top {
+            align-items: flex-start;
+        }
+
+        .ai-overall-score {
+            font-size: 23px;
+        }
+    }
+
+</style>
+
+
+<div class="ai-analysis-page">
+
+    <div class="ai-analysis-wrapper">
+
+
+        <!-- =====================================================
+             PAGE HEADER
+             ===================================================== -->
+
+        <div class="ai-page-header">
+
+            <div>
+
+                <div class="ai-header-label">
+                    AI SCREENING ANALYSIS
+                </div>
+
+                <h1>
+                    Candidate Analysis
+                </h1>
+
+                <p class="ai-header-subtitle">
+
+                    <strong>
+                        @Model.Application.Candidate?.FullName
+                    </strong>
+
+                    <span> — </span>
+
+                    @Model.Application.JobVacancy?.JobTitle
+
+                </p>
+
+            </div>
+
+
+            <a asp-controller="HRApplication"
+               asp-action="Management"
+               class="back-applications-btn">
+
+                <span class="back-arrow">←</span>
+                Back to Applications
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             AI HERO
+             ===================================================== -->
+
+        <div class="ai-hero">
+
+            <div class="ai-hero-inner">
+
+
+                <div class="ai-hero-copy">
+
+                    <div class="ai-small-label">
+                        AI-ASSISTED EVALUATION
+                    </div>
+
+                    <h2>
+                        Candidate-to-role match overview
+                    </h2>
+
+                    <p>
+                        This analysis compares the candidate's application
+                        against the required and preferred criteria defined
+                        for this vacancy.
+                    </p>
+
+                </div>
+
+
+                <div class="ai-main-score">
+
+                    <div class="ai-score-ring">
+
+                        <span>
+                            @Model.Application.AIScore.ToString("0")%
+                        </span>
+
+                    </div>
+
+
+                    <div class="ai-score-info">
+
+                        <span>
+                            FINAL AI SCORE
+                        </span>
+
+                        <strong>
+                            @Model.Application.AIScore.ToString("0.0")%
+                        </strong>
+
+                        <small>
+                            Overall screening signal
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             SUMMARY CARDS
+             ===================================================== -->
+
+        <div class="ai-summary-grid">
+
+
+            <!-- RECOMMENDATION -->
+
+            <div class="ai-summary-card">
+
+                <div class="ai-summary-top">
+
+                    <span class="ai-summary-label">
+                        Recommendation
+                    </span>
+
+                    <div class="ai-summary-icon">
+                        ✓
+                    </div>
+
+                </div>
+
+                <span class="ai-recommendation @recommendationClass">
+                    @recommendation
+                </span>
+
+                <div class="ai-summary-foot">
+                    AI screening recommendation
+                </div>
+
+            </div>
+
+
+            <!-- REQUIRED -->
+
+            <div class="ai-summary-card">
+
+                <div class="ai-summary-top">
+
+                    <span class="ai-summary-label">
+                        Required Requirements
+                    </span>
+
+                    <div class="ai-summary-icon">
+                        R
+                    </div>
+
+                </div>
+
+                <div class="ai-summary-value">
+                    @Model.Application.AIRequiredScore.ToString("0.0")%
+                </div>
+
+                <div class="ai-summary-foot">
+                    Match against mandatory criteria
+                </div>
+
+            </div>
+
+
+            <!-- PREFERRED -->
+
+            <div class="ai-summary-card">
+
+                <div class="ai-summary-top">
+
+                    <span class="ai-summary-label">
+                        Preferred Requirements
+                    </span>
+
+                    <div class="ai-summary-icon">
+                        P
+                    </div>
+
+                </div>
+
+                <div class="ai-summary-value">
+                    @Model.Application.AIPreferredScore.ToString("0.0")%
+                </div>
+
+                <div class="ai-summary-foot">
+                    Match against preferred criteria
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =====================================================
+             REQUIRED REQUIREMENTS
+             ===================================================== -->
+
+        <div class="ai-section-heading">
+
+            <div>
+
+                <h3>
+                    Required Requirements
+                </h3>
+
+                <p>
+                    Mandatory criteria evaluated by the AI screening process.
+                </p>
+
+            </div>
+
+            <span class="ai-section-count">
+                @(Model.RequiredResults?.Count() ?? 0) REQUIREMENTS
+            </span>
+
+        </div>
+
+
+        <div class="ai-requirement-card">
+
+
+            <div class="ai-requirement-card-header">
+
+                <div class="ai-requirement-card-header-left">
+
+                    <div class="ai-requirement-icon">
+                        R
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            Mandatory criteria
+                        </h4>
+
+                        <span>
+                            Requirements that should be satisfied by the candidate
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            @if (Model.RequiredResults == null ||
+                        !Model.RequiredResults.Any())
+            {
+                <div class="ai-empty">
+
+                    <div class="ai-empty-icon">
+                        —
+                    </div>
+
+                    No detailed required requirement analysis is available.
+
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="ai-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Requirement
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th style="width:25%;">
+                                    Match Score
+                                </th>
+
+                                <th>
+                                    Method
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var requirement in Model.RequiredResults)
+                            {
+                                var statusClass =
+                                requirement.Status == "Matched"
+                                ? "ai-status-matched"
+                                : requirement.Status == "Partial"
+                                ? "ai-status-partial"
+                                : "ai-status-notmatched";
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong class="ai-requirement-name">
+                                            @requirement.Requirement
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="ai-status @statusClass">
+
+                                            @if (requirement.Status == "Matched")
+                                            {
+                                                @:Matched
+                                            }
+                                            else if (requirement.Status == "Partial")
+                                            {
+                                                @:Partial
+                                            }
+                                            else
+                                            {
+                                                @:Not Matched
+                                            }
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="ai-score-bar">
+
+                                            <div class="ai-score-bar-track">
+
+                                                <div class="ai-score-bar-fill"
+                                                     style="width:@requirement.Score%;">
+                                                </div>
+
+                                            </div>
+
+                                            <span class="ai-score-number">
+                                                @requirement.Score.ToString("0.0")%
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="ai-method">
+                                            @requirement.Method
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+
+        <!-- =====================================================
+             PREFERRED REQUIREMENTS
+             ===================================================== -->
+
+        <div class="ai-section-heading">
+
+            <div>
+
+                <h3>
+                    Preferred Requirements
+                </h3>
+
+                <p>
+                    Additional criteria that strengthen the candidate's profile.
+                </p>
+
+            </div>
+
+            <span class="ai-section-count">
+                @(Model.PreferredResults?.Count() ?? 0) REQUIREMENTS
+            </span>
+
+        </div>
+
+
+        <div class="ai-requirement-card">
+
+
+            <div class="ai-requirement-card-header">
+
+                <div class="ai-requirement-card-header-left">
+
+                    <div class="ai-requirement-icon">
+                        P
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            Preferred criteria
+                        </h4>
+
+                        <span>
+                            Additional skills and qualifications considered by the AI
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            @if (Model.PreferredResults == null ||
+                        !Model.PreferredResults.Any())
+            {
+                <div class="ai-empty">
+
+                    <div class="ai-empty-icon">
+                        —
+                    </div>
+
+                    No preferred requirements were specified.
+
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="ai-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Requirement
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th style="width:25%;">
+                                    Match Score
+                                </th>
+
+                                <th>
+                                    Method
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var requirement in Model.PreferredResults)
+                            {
+                                var statusClass =
+                                requirement.Status == "Matched"
+                                ? "ai-status-matched"
+                                : requirement.Status == "Partial"
+                                ? "ai-status-partial"
+                                : "ai-status-notmatched";
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong class="ai-requirement-name">
+                                            @requirement.Requirement
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="ai-status @statusClass">
+
+                                            @if (requirement.Status == "Matched")
+                                            {
+                                                @:Matched
+                                            }
+                                            else if (requirement.Status == "Partial")
+                                            {
+                                                @:Partial
+                                            }
+                                            else
+                                            {
+                                                @:Not Matched
+                                            }
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="ai-score-bar">
+
+                                            <div class="ai-score-bar-track">
+
+                                                <div class="ai-score-bar-fill"
+                                                     style="width:@requirement.Score%;">
+                                                </div>
+
+                                            </div>
+
+                                            <span class="ai-score-number">
+                                                @requirement.Score.ToString("0.0")%
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="ai-method">
+                                            @requirement.Method
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+
+        <!-- =====================================================
+             OVERALL JOB MATCH
+             ===================================================== -->
+
+        <div class="ai-overall-card">
+
+            <div class="ai-overall-content">
+
+                <div class="ai-overall-top">
+
+                    <div class="ai-overall-title">
+
+                        <div class="ai-overall-icon">
+                            ◎
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Overall Job Match
+                            </h3>
+
+                            <span>
+                                Combined AI assessment of the candidate against this vacancy
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="ai-overall-score">
+                        @Model.Application.AIOverallScore.ToString("0.0")%
+                    </div>
+
+                </div>
+
+
+                <div class="ai-overall-track">
+
+                    <div class="ai-overall-fill"
+                         style="width:@Model.Application.AIOverallScore%;">
+                    </div>
+
+                </div>
+
+
+                <div class="ai-overall-note">
+                    AI analysis is intended to support HR review and should be considered alongside the candidate's full application.
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>

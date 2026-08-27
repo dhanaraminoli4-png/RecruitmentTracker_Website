@@ -1,0 +1,69 @@
+﻿
+@model RecruitmentTracker.Models.JobVacancy
+
+@{
+    ViewData["Title"] = "Delete Vacancy";
+}
+
+<h1>Delete Job Vacancy</h1>
+
+<h3>Are you sure you want to delete this vacancy?</h3>
+
+<div>
+    <hr />
+
+    <dl class="row">
+
+        <dt class="col-sm-3">
+            Job Title
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.JobTitle
+        </dd>
+
+        <dt class="col-sm-3">
+            Location
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.Location
+        </dd>
+
+        <dt class="col-sm-3">
+            Employment Type
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.EmploymentType
+        </dd>
+
+        <dt class="col-sm-3">
+            Closing Date
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.ClosingDate.ToString("yyyy-MM-dd")
+        </dd>
+
+    </dl>
+
+    <form asp-action="Delete" method="post">
+
+        <input type="hidden"
+               asp-for="Id" />
+
+        <button type="submit"
+                class="btn btn-danger">
+            Delete
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+</div>
+
+

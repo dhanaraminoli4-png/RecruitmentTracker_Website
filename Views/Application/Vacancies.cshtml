@@ -1,0 +1,1198 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.JobVacancy>
+
+@{
+    ViewData["Title"] = "Find Jobs";
+
+    var appliedVacancyIds =
+        ViewBag.AppliedVacancyIds as List<int>
+        ?? new List<int>();
+
+    var locations =
+        ViewBag.Locations as List<string>
+        ?? new List<string>();
+
+    var employmentTypes =
+        ViewBag.EmploymentTypes as List<string>
+        ?? new List<string>();
+
+    decimal salaryMin =
+        ViewBag.SalaryMin != null
+            ? (decimal)ViewBag.SalaryMin
+            : 0;
+
+    decimal salaryMax =
+        ViewBag.SalaryMax != null
+            ? (decimal)ViewBag.SalaryMax
+            : 500000;
+
+    decimal selectedMinSalary =
+        ViewBag.MinSalary != null
+            ? (decimal)ViewBag.MinSalary
+            : salaryMin;
+
+    decimal selectedMaxSalary =
+        ViewBag.MaxSalary != null
+            ? (decimal)ViewBag.MaxSalary
+            : salaryMax;
+
+    string selectedLocation =
+        ViewBag.SelectedLocation as string ?? "";
+
+    string selectedEmploymentType =
+        ViewBag.SelectedEmploymentType as string ?? "";
+
+    string searchValue =
+        ViewBag.Search as string ?? "";
+}
+
+<style>
+
+    /* =========================================================
+       PAGE
+       ========================================================= */
+
+    .jobs-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 45px 50px 70px;
+    }
+
+    .jobs-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+       SEARCH
+       ========================================================= */
+
+    .jobs-search-area {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 42px;
+    }
+
+    .jobs-search {
+        width: 100%;
+        max-width: 720px;
+        position: relative;
+    }
+
+    .jobs-search input {
+        width: 100%;
+        height: 56px;
+        border: 1px solid #d8e0ea;
+        border-radius: 14px;
+        padding: 0 145px 0 20px;
+        font-size: 14px;
+        background: white;
+        color: #26374d;
+        box-shadow: 0 5px 18px rgba(11, 31, 58, 0.06);
+        transition: .2s ease;
+    }
+
+    .jobs-search input::placeholder {
+        color: #9aa6b5;
+    }
+
+    .jobs-search input:focus {
+        outline: none;
+        border-color: #0b1f3a;
+        box-shadow: 0 0 0 4px rgba(11, 31, 58, 0.07);
+    }
+
+    .jobs-search button {
+        position: absolute;
+        right: 6px;
+        top: 6px;
+        height: 44px;
+        padding: 0 22px;
+        border: none;
+        border-radius: 10px;
+        background: #0b1f3a;
+        color: white;
+        font-weight: 600;
+        font-size: 12px;
+        transition: .2s ease;
+    }
+
+    .jobs-search button:hover {
+        background: #132f55;
+    }
+
+
+    /* =========================================================
+       MAIN LAYOUT
+       ========================================================= */
+
+    .jobs-layout {
+        display: grid;
+        grid-template-columns: 245px 1fr;
+        gap: 38px;
+        align-items: start;
+    }
+
+
+    /* =========================================================
+       FILTER PANEL
+       ========================================================= */
+
+    .filter-panel {
+        background: white;
+        border-radius: 17px;
+        padding: 24px 20px;
+        box-shadow: 0 6px 22px rgba(11, 31, 58, 0.06);
+        border: 1px solid #e8edf3;
+        position: sticky;
+        top: 25px;
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+    }
+
+    .filter-title {
+        font-size: 18px;
+        font-weight: 750;
+        color: #0b1f3a;
+        margin: 0;
+    }
+
+    .clear-filter {
+        border: none;
+        background: transparent;
+        color: #718096;
+        font-size: 11px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .clear-filter:hover {
+        color: #0b1f3a;
+    }
+
+
+    /* =========================================================
+       FILTER SECTIONS
+       ========================================================= */
+
+    .filter-section {
+        margin-bottom: 27px;
+    }
+
+    .filter-section-title {
+        font-size: 12px;
+        font-weight: 750;
+        color: #26374d;
+        margin-bottom: 13px;
+        display: block;
+    }
+
+
+    /* =========================================================
+       FILTER BUTTONS
+       ========================================================= */
+
+    .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .filter-option {
+        position: relative;
+    }
+
+    .filter-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .filter-option label {
+        display: inline-block;
+        padding: 8px 11px;
+        border-radius: 9px;
+        border: 1px solid #dbe2eb;
+        background: #fff;
+        color: #526174;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .filter-option label:hover {
+        border-color: #0b1f3a;
+        color: #0b1f3a;
+    }
+
+    .filter-option input:checked + label {
+        background: #0b1f3a;
+        border-color: #0b1f3a;
+        color: white;
+    }
+
+
+    /* =========================================================
+       SALARY
+       ========================================================= */
+
+    .salary-values {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #718096;
+        margin-bottom: 8px;
+    }
+
+    .salary-slider {
+        position: relative;
+        height: 35px;
+    }
+
+    .salary-slider input[type="range"] {
+        position: absolute;
+        width: 100%;
+        pointer-events: none;
+        appearance: none;
+        background: transparent;
+        top: 8px;
+    }
+
+    .salary-slider input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        background: #0b1f3a;
+        border: 3px solid white;
+        box-shadow: 0 1px 5px rgba(0,0,0,.2);
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    .salary-slider input[type="range"]::-moz-range-thumb {
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        background: #0b1f3a;
+        border: 3px solid white;
+        box-shadow: 0 1px 5px rgba(0,0,0,.2);
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    .salary-track {
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: #dce3ec;
+        border-radius: 5px;
+        z-index: 0;
+    }
+
+    .salary-slider input {
+        z-index: 2;
+    }
+
+    .salary-number {
+        font-size: 11px;
+        color: #0b1f3a;
+        font-weight: 700;
+        text-align: center;
+        margin-top: 4px;
+    }
+
+    .filter-apply-button {
+        width: 100%;
+        height: 42px;
+        border: none;
+        border-radius: 10px;
+        background: #0b1f3a;
+        color: white;
+        font-weight: 600;
+        font-size: 12px;
+        margin-top: 4px;
+        transition: .2s ease;
+    }
+
+    .filter-apply-button:hover {
+        background: #132f55;
+    }
+
+
+    /* =========================================================
+       RESULTS
+       ========================================================= */
+
+    .jobs-results {
+        min-width: 0;
+    }
+
+    .jobs-results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 22px;
+    }
+
+    .jobs-results-title {
+        color: #0b1f3a;
+        font-size: 23px;
+        font-weight: 750;
+        margin: 0;
+    }
+
+    .jobs-results-count {
+        color: #718096;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       JOB GRID
+       ========================================================= */
+
+    .job-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+
+    /* =========================================================
+       JOB CARD
+       ========================================================= */
+
+    .job-card {
+        position: relative;
+        overflow: hidden;
+
+        /*
+           Soft colour inside the card.
+           The bottom remains white for the footer.
+        */
+
+        background: linear-gradient(
+            to bottom,
+            var(--job-colour) 0%,
+            var(--job-colour) 72%,
+            #ffffff 72%,
+            #ffffff 100%
+        );
+
+        border: 1px solid #e6ebf2;
+        border-radius: 18px;
+
+        padding: 23px;
+
+
+        display: flex;
+        flex-direction: column;
+
+        box-shadow: 0 5px 18px rgba(11, 31, 58, 0.055);
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+
+        /* =========================================================
+       DIFFERENT SOFT COLOURS
+       ========================================================= */
+
+        .job-card:nth-child(5n + 1) {
+            --job-colour: #eef4ff; /* Light Blue */
+        }
+
+        .job-card:nth-child(5n + 2) {
+            --job-colour: #edf9f4; /* Light Mint */
+        }
+
+        .job-card:nth-child(5n + 3) {
+            --job-colour: #f4efff; /* Light Lavender */
+        }
+
+        .job-card:nth-child(5n + 4) {
+            --job-colour: #fff4e6; /* Light Peach */
+        }
+
+        .job-card:nth-child(5n + 5) {
+            --job-colour: #fff0f5; /* Light Pink */
+        }
+
+
+    /* =========================================================
+       DECORATIVE CIRCLE
+       ========================================================= */
+
+    .job-card::before {
+        content: "";
+        position: absolute;
+
+        width: 95px;
+        height: 95px;
+
+        border-radius: 50%;
+
+        background: rgba(255,255,255,.38);
+
+        top: -40px;
+        right: -25px;
+
+        pointer-events: none;
+    }
+
+
+    .job-card::after {
+        content: "";
+        position: absolute;
+
+        width: 45px;
+        height: 45px;
+
+        border-radius: 50%;
+
+        background: rgba(255,255,255,.25);
+
+        bottom: 65px;
+        left: -22px;
+
+        pointer-events: none;
+    }
+
+
+    .job-card:hover {
+        transform: translateY(-5px);
+
+        box-shadow:
+            0 13px 30px rgba(11, 31, 58, .10);
+
+        border-color: #d5dce6;
+    }
+
+
+    /* =========================================================
+       CARD CONTENT
+       ========================================================= */
+
+    .job-position-label {
+        color: #64748b;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.3px;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .job-title {
+        color: #0b1f3a;
+        font-size: 19px;
+        font-weight: 750;
+        line-height: 1.3;
+        margin-bottom: 17px;
+        letter-spacing: -.2px;
+    }
+
+
+    /* =========================================================
+       JOB DETAILS
+       ========================================================= */
+
+    .job-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-bottom: 18px;
+    }
+
+    .job-detail {
+        background: rgba(255,255,255,.72);
+
+        border: 1px solid rgba(255,255,255,.8);
+
+        border-radius: 8px;
+
+        padding: 6px 9px;
+
+        color: #526174;
+        font-size: 10px;
+        font-weight: 600;
+
+        backdrop-filter: blur(4px);
+    }
+
+
+    /* =========================================================
+       SALARY
+       ========================================================= */
+
+    .job-salary {
+        color: #0b1f3a;
+        font-size: 14px;
+        font-weight: 750;
+
+        margin-top: auto;
+        margin-bottom: 18px;
+    }
+
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    .job-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+
+        padding-top: 15px;
+
+
+        position: relative;
+        z-index: 2;
+    }
+
+    .job-closing {
+        color: #8a96a6;
+        font-size: 10px;
+    }
+
+
+    /* =========================================================
+       APPLY BUTTON
+       ========================================================= */
+
+    .apply-button {
+        border: none;
+
+        background: #0b1f3a;
+        color: white;
+
+        border-radius: 9px;
+
+        padding: 9px 14px;
+
+        font-size: 11px;
+        font-weight: 650;
+
+        text-decoration: none;
+        white-space: nowrap;
+
+        transition: .2s ease;
+
+        box-shadow: 0 3px 8px rgba(11,31,58,.12);
+    }
+
+    .apply-button:hover {
+        background: #132f55;
+        color: white;
+
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+       ALREADY APPLIED
+       ========================================================= */
+
+    .already-applied {
+        display: inline-block;
+
+        background: rgba(255,255,255,.8);
+
+        color: #526174;
+
+        border: 1px solid rgba(11,31,58,.08);
+
+        border-radius: 9px;
+
+        padding: 9px 12px;
+
+        font-size: 10px;
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+       ACTIVE SEARCH
+       ========================================================= */
+
+    .active-search {
+        font-size: 11px;
+        color: #718096;
+        margin-top: -12px;
+        margin-bottom: 20px;
+    }
+
+    .active-search strong {
+        color: #0b1f3a;
+    }
+
+
+    /* =========================================================
+       EMPTY STATE
+       ========================================================= */
+
+    .empty-jobs {
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 17px;
+        padding: 60px 30px;
+        text-align: center;
+        box-shadow: 0 5px 18px rgba(11,31,58,.04);
+    }
+
+    .empty-jobs h4 {
+        color: #0b1f3a;
+        font-weight: 750;
+    }
+
+    .empty-jobs p {
+        color: #718096;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .job-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .jobs-layout {
+            grid-template-columns: 220px 1fr;
+        }
+
+    }
+
+
+    @@media (max-width: 800px) {
+
+        .jobs-page {
+            padding: 30px 20px 50px;
+        }
+
+        .jobs-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-panel {
+            position: static;
+        }
+
+        .job-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .job-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .jobs-search input {
+            padding-right: 20px;
+        }
+
+        .jobs-search button {
+            position: static;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .jobs-search {
+            padding-bottom: 50px;
+        }
+
+    }
+
+</style>
+
+
+<div class="jobs-page">
+
+    <div class="jobs-wrapper">
+
+        <!-- =====================================================
+             SEARCH
+             ===================================================== -->
+
+        <div class="jobs-search-area">
+
+            <form method="get"
+                  asp-action="Vacancies"
+                  class="jobs-search">
+
+                <input type="text"
+                       name="search"
+                       value="@searchValue"
+                       placeholder="Search by job title or location..." />
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- =====================================================
+             MAIN AREA
+             ===================================================== -->
+
+        <div class="jobs-layout">
+
+
+            <!-- =================================================
+                 FILTERS
+                 ================================================= -->
+
+            <aside class="filter-panel">
+
+                <form method="get"
+                      asp-action="Vacancies">
+
+                    <!-- Keep search when filters are applied -->
+
+                    <input type="hidden"
+                           name="search"
+                           value="@searchValue" />
+
+
+                    <div class="filter-header">
+
+                        <h3 class="filter-title">
+                            Filters
+                        </h3>
+
+                        <a asp-action="Vacancies"
+                           class="clear-filter">
+                            Clear
+                        </a>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         EMPLOYMENT TYPE
+                         ========================================= -->
+                    @if (employmentTypes.Any())
+                    {
+                        <div class="filter-section">
+
+                            <span class="filter-section-title">
+                                Format
+                            </span>
+
+                            <div class="filter-options">
+
+                                @foreach (var type in employmentTypes)
+                                {
+                                    var id =
+                                    "type_" +
+                                    type.Replace(" ", "_")
+                                    .Replace("/", "_");
+
+                                    <div class="filter-option">
+
+                                        <input type="radio"
+                                               id="@id"
+                                               name="employmentType"
+                                               value="@type"
+                                               @(selectedEmploymentType.Equals(
+                                                                                      type,
+                                                                                      StringComparison.OrdinalIgnoreCase)
+                                                                                      ? "checked"
+                                                                                      : "") />
+
+                                <label for="@id">
+                                    @type
+                                </label>
+
+                                    </div>
+                                                        }
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <!-- =========================================
+                         LOCATION
+                         ========================================= -->
+                    @if (locations.Any())
+                    {
+                        <div class="filter-section">
+
+                            <span class="filter-section-title">
+                                Location
+                            </span>
+
+                            <div class="filter-options">
+
+                                @foreach (var loc in locations)
+                                {
+                                    var id =
+                                    "location_" +
+                                    loc.Replace(" ", "_")
+                                    .Replace("/", "_");
+
+                                    <div class="filter-option">
+
+                                        <input type="radio"
+                                               id="@id"
+                                               name="location"
+                                               value="@loc"
+                                               @(selectedLocation.Equals(
+                                                                                      loc,
+                                                                                      StringComparison.OrdinalIgnoreCase)
+                                                                                      ? "checked"
+                                                                                      : "") />
+
+                                <label for="@id">
+                                    @loc
+                                </label>
+
+                                    </div>
+                                                        }
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <!-- =========================================
+                         SALARY
+                         ========================================= -->
+
+                    <div class="filter-section">
+
+                        <span class="filter-section-title">
+                            Salary
+                        </span>
+
+                        <div class="salary-values">
+
+                            <span>
+                                Rs. @selectedMinSalary.ToString("N0")
+                            </span>
+
+                            <span>
+                                Rs. @selectedMaxSalary.ToString("N0")
+                            </span>
+
+                        </div>
+
+                        <div class="salary-slider">
+
+                            <div class="salary-track"></div>
+
+                            <input type="range"
+                                   id="minSalary"
+                                   name="minSalary"
+                                   min="@salaryMin"
+                                   max="@salaryMax"
+                                   step="5000"
+                                   value="@selectedMinSalary" />
+
+                            <input type="range"
+                                   id="maxSalary"
+                                   name="maxSalary"
+                                   min="@salaryMin"
+                                   max="@salaryMax"
+                                   step="5000"
+                                   value="@selectedMaxSalary" />
+
+                        </div>
+
+                        <div class="salary-number">
+
+                            Rs. <span id="minSalaryDisplay">
+                                @selectedMinSalary.ToString("N0")
+                            </span>
+
+                            -
+                            Rs. <span id="maxSalaryDisplay">
+                                @selectedMaxSalary.ToString("N0")
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         APPLY FILTERS
+                         ========================================= -->
+
+                    <button type="submit"
+                            class="filter-apply-button">
+
+                        Apply Filters
+
+                    </button>
+
+                </form>
+
+            </aside>
+
+
+            <!-- =================================================
+                 RESULTS
+                 ================================================= -->
+
+            <section class="jobs-results">
+
+
+                <div class="jobs-results-header">
+
+                    <h2 class="jobs-results-title">
+                        All Jobs (@Model.Count())
+                    </h2>
+
+                    <span class="jobs-results-count">
+                        @Model.Count() position@(Model.Count() == 1 ? "" : "s")
+                    </span>
+
+                </div>
+
+
+                @if (!string.IsNullOrWhiteSpace(searchValue))
+                {
+                    <div class="active-search">
+
+                        Showing results for
+                        <strong>@searchValue</strong>
+
+                    </div>
+                }
+
+
+                @if (!Model.Any())
+                {
+                    <div class="empty-jobs">
+
+                        <h4>
+                            No jobs found
+                        </h4>
+
+                        <p>
+                            Try changing your search or filters.
+                        </p>
+
+                    </div>
+                }
+                else
+                {
+
+                    <div class="job-grid">
+
+                        @foreach (var vacancy in Model)
+                        {
+
+                            var alreadyApplied =
+                            appliedVacancyIds.Contains(vacancy.Id);
+
+
+                            <div class="job-card">
+
+
+                                <!-- POSITION -->
+
+                                <div class="job-position-label">
+                                    Open position
+                                </div>
+
+
+                                <!-- TITLE -->
+
+                                <div class="job-title">
+
+                                    @vacancy.JobTitle
+
+                                </div>
+
+
+                                <!-- DETAILS -->
+
+                                <div class="job-details">
+
+                                    @if (!string.IsNullOrWhiteSpace(vacancy.Location))
+                                    {
+                                        <span class="job-detail">
+                                            @vacancy.Location
+                                        </span>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(vacancy.EmploymentType))
+                                    {
+                                        <span class="job-detail">
+                                            @vacancy.EmploymentType
+                                        </span>
+                                    }
+
+                                    <span class="job-detail">
+                                        @vacancy.ClosingDate.ToString("dd MMM")
+                                    </span>
+
+                                </div>
+
+
+                                <!-- SALARY -->
+                                @if (vacancy.Salary.HasValue)
+                                {
+                                    <div class="job-salary">
+
+                                        Rs.
+                                        @vacancy.Salary.Value.ToString("N0")
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="job-salary">
+
+                                        Salary not specified
+
+                                    </div>
+                                }
+
+
+                                <!-- FOOTER -->
+
+                                <div class="job-footer">
+
+                                    <span class="job-closing">
+
+                                        Closes
+                                        @vacancy.ClosingDate.ToString("dd MMM yyyy")
+
+                                    </span>
+
+
+                                    @if (alreadyApplied)
+                                    {
+                                        <span class="already-applied">
+
+                                            Already Applied
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="Apply"
+                                           asp-route-vacancyId="@vacancy.Id"
+                                           class="apply-button">
+
+                                            Apply now →
+
+                                        </a>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                }
+
+            </section>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const minSlider =
+            document.getElementById("minSalary");
+
+        const maxSlider =
+            document.getElementById("maxSalary");
+
+        const minDisplay =
+            document.getElementById("minSalaryDisplay");
+
+        const maxDisplay =
+            document.getElementById("maxSalaryDisplay");
+
+
+        function updateSalary() {
+
+            let min =
+                parseInt(minSlider.value);
+
+            let max =
+                parseInt(maxSlider.value);
+
+
+            // Prevent minimum going above maximum
+
+            if (min > max) {
+
+                min = max;
+
+                minSlider.value = min;
+
+            }
+
+
+            minDisplay.textContent =
+                min.toLocaleString("en-LK");
+
+
+            maxDisplay.textContent =
+                max.toLocaleString("en-LK");
+
+        }
+
+
+        minSlider.addEventListener(
+            "input",
+            updateSalary
+        );
+
+        maxSlider.addEventListener(
+            "input",
+            updateSalary
+        );
+
+
+        updateSalary();
+
+    });
+
+</script>

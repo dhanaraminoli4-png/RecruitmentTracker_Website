@@ -1,0 +1,1795 @@
+﻿@{
+    ViewData["Title"] = "Careers at Altrium";
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .candidate-dashboard {
+        background: #f7f7f5;
+        min-height: calc(100vh - 80px);
+        padding: 20px 35px 80px;
+        overflow: hidden;
+    }
+
+    .dashboard-wrapper {
+        max-width: 1380px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           SCROLL REVEAL
+           ========================================================= */
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(55px);
+        transition: opacity .85s ease, transform .85s cubic-bezier(.22, 1, .36, 1);
+    }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    .reveal-left {
+        opacity: 0;
+        transform: translateX(-55px);
+        transition: opacity .85s ease, transform .85s cubic-bezier(.22, 1, .36, 1);
+    }
+
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+    .reveal-right {
+        opacity: 0;
+        transform: translateX(55px);
+        transition: opacity .85s ease, transform .85s cubic-bezier(.22, 1, .36, 1);
+    }
+
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+    .delay-1 {
+        transition-delay: .08s;
+    }
+
+    .delay-2 {
+        transition-delay: .16s;
+    }
+
+    .delay-3 {
+        transition-delay: .24s;
+    }
+
+    .delay-4 {
+        transition-delay: .32s;
+    }
+
+
+    /* =========================================================
+           HERO
+           ========================================================= */
+
+    .altrium-hero {
+        position: relative;
+        overflow: hidden;
+        min-height: 570px;
+        border-radius: 30px;
+        background: #ffffff;
+        border: 1px solid #e5e8ec;
+        padding: 60px 65px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 105px;
+        box-shadow: 0 20px 60px rgba(16, 35, 63, .06);
+    }
+
+
+    /* =========================================================
+           HERO DECORATIONS
+           ========================================================= */
+
+    .hero-blue {
+        position: absolute;
+        width: 450px;
+        height: 450px;
+        border-radius: 50%;
+        background: #e6f0ff;
+        right: 105px;
+        top: 65px;
+        opacity: .9;
+        animation: floating 8s ease-in-out infinite;
+    }
+
+    .hero-pink {
+        position: absolute;
+        width: 185px;
+        height: 185px;
+        border-radius: 50%;
+        background: #f7dce8;
+        right: 25px;
+        bottom: -65px;
+        animation: floatingReverse 7s ease-in-out infinite;
+    }
+
+    .hero-green {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #dcefe4;
+        left: 53%;
+        top: 40px;
+        animation: floating 6s ease-in-out infinite;
+    }
+
+
+    /* =========================================================
+           HERO CONTENT
+           ========================================================= */
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        width: 56%;
+    }
+
+    .hero-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #6d7b8e;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 28px;
+    }
+
+    .hero-label-line {
+        width: 35px;
+        height: 1px;
+        background: #6d7b8e;
+    }
+
+    .hero-content h1 {
+        margin: 0;
+        color: #10233f;
+        font-size: clamp(65px, 7vw, 105px);
+        line-height: .82;
+        letter-spacing: -6px;
+        font-weight: 900;
+    }
+
+    .hero-line {
+        display: block;
+    }
+
+    .hero-highlight {
+        position: relative;
+        display: inline-block;
+        z-index: 1;
+    }
+
+        .hero-highlight::after {
+            content: "";
+            position: absolute;
+            left: -5px;
+            right: -8px;
+            bottom: 3px;
+            height: 14px;
+            border-radius: 50%;
+            background: #f2b1ce;
+            z-index: -1;
+            transform: rotate(-2deg);
+        }
+
+    .hero-description {
+        max-width: 500px;
+        color: #66768a;
+        font-size: 14px;
+        line-height: 1.85;
+        margin: 38px 0 30px;
+    }
+
+
+    /* =========================================================
+           HERO BUTTONS
+           ========================================================= */
+
+    .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .altrium-primary-btn,
+    .altrium-secondary-btn {
+        height: 48px;
+        padding: 0 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 11px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        transition: .25s ease;
+    }
+
+    .altrium-primary-btn {
+        background: #10233f;
+        color: white;
+    }
+
+        .altrium-primary-btn:hover {
+            background: #294e74;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(16, 35, 63, .15);
+        }
+
+    .altrium-secondary-btn {
+        background: white;
+        color: #10233f;
+        border: 1px solid #dce1e7;
+    }
+
+        .altrium-secondary-btn:hover {
+            background: #f8fafc;
+            color: #10233f;
+            border-color: #10233f;
+            transform: translateY(-3px);
+        }
+
+
+    /* =========================================================
+           HERO ART
+           ========================================================= */
+
+    .hero-art {
+        position: absolute;
+        width: 550px;
+        height: 520px;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 5;
+    }
+
+    .hero-main-circle {
+        position: absolute;
+        width: 370px;
+        height: 370px;
+        border-radius: 50%;
+        background: #edf5ff;
+        right: 55px;
+        top: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: artFloat 6s ease-in-out infinite;
+    }
+
+    .hero-inner-circle {
+        width: 270px;
+        height: 270px;
+        border-radius: 50%;
+        background: white;
+        border: 1px solid #e8edf3;
+        box-shadow: 0 20px 45px rgba(16, 35, 63, .09);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+        .hero-inner-circle::after {
+            content: "";
+            position: absolute;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            background: #f5c7da;
+            right: -28px;
+            bottom: 5px;
+        }
+
+    .hero-logo-text {
+        color: #10233f;
+        font-size: 58px;
+        font-weight: 900;
+        letter-spacing: -5px;
+        transform: rotate(-8deg);
+        position: relative;
+        z-index: 5;
+    }
+
+    .hero-floating-card {
+        position: absolute;
+        z-index: 10;
+        padding: 15px 18px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.95);
+        border: 1px solid #e9edf2;
+        box-shadow: 0 14px 35px rgba(16,35,63,.10);
+        animation: cardFloat 5s ease-in-out infinite;
+    }
+
+        .hero-floating-card.top {
+            left: 20px;
+            top: 95px;
+            transform: rotate(-5deg);
+        }
+
+        .hero-floating-card.bottom {
+            right: 0;
+            bottom: 75px;
+            transform: rotate(5deg);
+            animation-delay: -2s;
+        }
+
+    .floating-label {
+        display: block;
+        color: #8995a5;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .floating-value {
+        color: #10233f;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .hero-star {
+        position: absolute;
+        z-index: 12;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #f2b0cc;
+        color: #10233f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        right: 38px;
+        top: 45px;
+        animation: starFloat 6s ease-in-out infinite;
+    }
+
+        .hero-star.green {
+            width: 40px;
+            height: 40px;
+            right: 350px;
+            bottom: 65px;
+            top: auto;
+            background: #b9e4d0;
+            font-size: 16px;
+            animation-delay: -2s;
+        }
+
+    .hero-pill {
+        position: absolute;
+        left: 80px;
+        bottom: 62px;
+        z-index: 12;
+        padding: 10px 17px;
+        border-radius: 30px;
+        background: #10233f;
+        color: white;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transform: rotate(-5deg);
+    }
+
+
+    /* =========================================================
+           SECTION INTRO
+           ========================================================= */
+
+    .intro-section {
+        display: grid;
+        grid-template-columns: .8fr 1.2fr;
+        gap: 80px;
+        align-items: end;
+        margin-bottom: 30px;
+    }
+
+    .section-label {
+        color: #7c8796;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .section-title {
+        margin: 0;
+        color: #10233f;
+        font-size: 42px;
+        line-height: .95;
+        letter-spacing: -2px;
+        font-weight: 900;
+    }
+
+    .section-description {
+        margin: 0;
+        max-width: 600px;
+        color: #69798c;
+        font-size: 13px;
+        line-height: 1.85;
+    }
+
+
+    /* =========================================================
+           MAIN ACTION CARDS
+           ========================================================= */
+
+    .career-grid {
+        display: grid;
+        grid-template-columns: 1.15fr .85fr;
+        gap: 18px;
+        margin-bottom: 105px;
+    }
+
+    .career-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 305px;
+        padding: 34px;
+        border-radius: 23px;
+        background: white;
+        border: 1px solid #e5e8ec;
+        transition: .3s ease;
+    }
+
+        .career-card.jobs {
+            background: #fffaf3;
+        }
+
+        .career-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 40px rgba(16,35,63,.09);
+        }
+
+        .career-card::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            right: -55px;
+            bottom: -55px;
+            background: #edf4ff;
+        }
+
+        .career-card.applications::after {
+            background: #f5e5ed;
+        }
+
+    .career-number {
+        position: relative;
+        z-index: 5;
+        color: #8a95a4;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        margin-bottom: 50px;
+    }
+
+    .career-card h2 {
+        position: relative;
+        z-index: 5;
+        margin: 0 0 13px;
+        color: #10233f;
+        font-size: 37px;
+        line-height: .92;
+        letter-spacing: -1.8px;
+        font-weight: 900;
+    }
+
+    .career-card p {
+        position: relative;
+        z-index: 5;
+        max-width: 460px;
+        margin: 0 0 22px;
+        color: #68788c;
+        font-size: 11px;
+        line-height: 1.75;
+    }
+
+    .career-link {
+        position: relative;
+        z-index: 6;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: #10233f;
+        text-decoration: none;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+        .career-link:hover {
+            color: #10233f;
+        }
+
+        .career-link span {
+            width: 29px;
+            height: 29px;
+            border-radius: 50%;
+            background: #10233f;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .2s ease;
+        }
+
+        .career-link:hover span {
+            transform: translateX(4px);
+        }
+
+
+    /* =========================================================
+           ABOUT ALTRIUM
+           ========================================================= */
+
+    .about-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 105px;
+    }
+
+    .about-main {
+        position: relative;
+        overflow: hidden;
+        min-height: 330px;
+        padding: 38px;
+        border-radius: 24px;
+        background: #10233f;
+    }
+
+        .about-main::before {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            right: -90px;
+            top: -90px;
+            background: rgba(255,255,255,.07);
+        }
+
+        .about-main::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #f3bfd6;
+            right: 70px;
+            bottom: -35px;
+        }
+
+    .about-label {
+        position: relative;
+        z-index: 5;
+        color: #aebbd0;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        margin-bottom: 45px;
+    }
+
+    .about-main h2 {
+        position: relative;
+        z-index: 5;
+        max-width: 470px;
+        margin: 0 0 16px;
+        color: white;
+        font-size: 38px;
+        line-height: .95;
+        letter-spacing: -1.7px;
+        font-weight: 900;
+    }
+
+    .about-main p {
+        position: relative;
+        z-index: 5;
+        max-width: 460px;
+        color: #aebbd0;
+        font-size: 11px;
+        line-height: 1.8;
+        margin: 0 0 25px;
+    }
+
+    .about-main .altrium-primary-btn {
+        position: relative;
+        z-index: 6;
+        background: white;
+        color: #10233f;
+    }
+
+        .about-main .altrium-primary-btn:hover {
+            background: #edf4ff;
+            color: #10233f;
+        }
+
+
+    .about-side {
+        position: relative;
+        overflow: hidden;
+        min-height: 330px;
+        padding: 38px;
+        border-radius: 24px;
+        background: white;
+        border: 1px solid #e5e8ec;
+    }
+
+    .about-side-label {
+        color: #7c8796;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        margin-bottom: 25px;
+    }
+
+    .about-side h3 {
+        margin: 0 0 15px;
+        color: #10233f;
+        font-size: 30px;
+        line-height: .98;
+        letter-spacing: -1.3px;
+        font-weight: 900;
+    }
+
+    .about-side p {
+        max-width: 400px;
+        margin: 0;
+        color: #69798c;
+        font-size: 11px;
+        line-height: 1.8;
+    }
+
+    .about-side-decoration {
+        position: absolute;
+        width: 145px;
+        height: 145px;
+        border-radius: 50%;
+        background: #e5f0ff;
+        right: -45px;
+        bottom: -45px;
+    }
+
+        .about-side-decoration::after {
+            content: "";
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #d9eee2;
+            left: -25px;
+            top: 25px;
+        }
+
+
+    /* =========================================================
+           WHY ALTRIUM
+           ========================================================= */
+
+    .why-section {
+        margin-bottom: 105px;
+    }
+
+    .section-header {
+        margin-bottom: 25px;
+    }
+
+        .section-header h2 {
+            margin: 0;
+            color: #10233f;
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+        }
+
+    .why-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+    }
+
+    .why-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 235px;
+        padding: 27px;
+        border-radius: 20px;
+        background: white;
+        border: 1px solid #e5e8ec;
+        transition: .3s ease;
+    }
+
+        .why-card:nth-child(2) {
+            background: #fcf7fa;
+        }
+
+        .why-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(16,35,63,.08);
+        }
+
+    .why-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #eaf2ff;
+        color: #10233f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        margin-bottom: 28px;
+    }
+
+    .why-card:nth-child(2) .why-icon {
+        background: #f5d9e7;
+    }
+
+    .why-card:nth-child(3) .why-icon {
+        background: #dcefe4;
+    }
+
+    .why-card h3 {
+        margin: 0 0 8px;
+        color: #10233f;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .why-card p {
+        max-width: 285px;
+        margin: 0;
+        color: #6b7a8d;
+        font-size: 11px;
+        line-height: 1.75;
+    }
+
+    .why-decoration {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        right: -35px;
+        bottom: -35px;
+        background: #f1f5fa;
+    }
+
+
+    /* =========================================================
+           RECRUITMENT JOURNEY
+           ========================================================= */
+
+    .journey-section {
+        margin-bottom: 105px;
+    }
+
+    .journey-box {
+        position: relative;
+        overflow: hidden;
+        border-radius: 25px;
+        background: #10233f;
+        padding: 38px 40px;
+    }
+
+        .journey-box::before {
+            content: "";
+            position: absolute;
+            width: 270px;
+            height: 270px;
+            border-radius: 50%;
+            right: -90px;
+            top: -110px;
+            background: rgba(255,255,255,.06);
+        }
+
+    .journey-header {
+        position: relative;
+        z-index: 5;
+        margin-bottom: 28px;
+    }
+
+        .journey-header small {
+            display: block;
+            color: #aebbd0;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .journey-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+    .journey-steps {
+        position: relative;
+        z-index: 5;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 13px;
+    }
+
+    .journey-step {
+        min-height: 115px;
+        padding: 18px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.09);
+        transition: .25s ease;
+    }
+
+        .journey-step:hover {
+            background: rgba(255,255,255,.12);
+            transform: translateY(-4px);
+        }
+
+    .journey-number {
+        color: #8fa1b8;
+        font-size: 8px;
+        font-weight: 900;
+        margin-bottom: 15px;
+    }
+
+    .journey-step strong {
+        display: block;
+        color: white;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .journey-step span {
+        color: #aebbd0;
+        font-size: 9px;
+    }
+
+
+    /* =========================================================
+           FINAL CTA
+           ========================================================= */
+
+    .final-cta {
+        position: relative;
+        overflow: hidden;
+        min-height: 300px;
+        border-radius: 25px;
+        background: #e6f0ff;
+        padding: 45px 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .final-content {
+        position: relative;
+        z-index: 5;
+    }
+
+        .final-content small {
+            color: #63748b;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.7px;
+            text-transform: uppercase;
+        }
+
+        .final-content h2 {
+            margin: 12px 0 22px;
+            color: #10233f;
+            font-size: 46px;
+            line-height: .9;
+            letter-spacing: -2px;
+            font-weight: 900;
+        }
+
+    .final-decoration {
+        position: absolute;
+        width: 350px;
+        height: 350px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.55);
+        right: 100px;
+        top: -140px;
+        animation: floating 7s ease-in-out infinite;
+    }
+
+    .final-decoration-small {
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: #f3c4d9;
+        right: 45px;
+        bottom: -45px;
+        animation: floatingReverse 6s ease-in-out infinite;
+    }
+
+
+    /* =========================================================
+           ANIMATIONS
+           ========================================================= */
+
+    @@keyframes floating {
+
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-16px);
+        }
+    }
+
+    @@keyframes floatingReverse {
+
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(15px);
+        }
+    }
+
+    @@keyframes artFloat {
+
+        0%, 100% {
+            transform: translateY(0) rotate(0);
+        }
+
+        50% {
+            transform: translateY(-10px) rotate(1deg);
+        }
+    }
+
+    @@keyframes cardFloat {
+
+        0%, 100% {
+            margin-top: 0;
+        }
+
+        50% {
+            margin-top: -9px;
+        }
+    }
+
+    @@keyframes starFloat {
+
+        0%, 100% {
+            transform: rotate(10deg) translateY(0);
+        }
+
+        50% {
+            transform: rotate(20deg) translateY(-8px);
+        }
+    }
+
+
+    /* =========================================================
+           HERO ENTRANCE
+           ========================================================= */
+
+    .hero-load {
+        opacity: 0;
+        animation: heroEnter .9s cubic-bezier(.22,1,.36,1) forwards;
+    }
+
+    .hero-load-1 {
+        animation-delay: .1s;
+    }
+
+    .hero-load-2 {
+        animation-delay: .22s;
+    }
+
+    .hero-load-3 {
+        animation-delay: .35s;
+    }
+
+    .hero-load-4 {
+        animation-delay: .48s;
+    }
+
+    @@keyframes heroEnter {
+
+        from {
+            opacity: 0;
+            transform: translateY(35px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .candidate-dashboard {
+            padding: 20px;
+        }
+
+        .altrium-hero {
+            padding: 45px;
+        }
+
+        .hero-content {
+            width: 57%;
+        }
+
+        .hero-art {
+            right: -120px;
+            transform: translateY(-50%) scale(.8);
+        }
+
+        .intro-section {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+    }
+
+
+    @@media (max-width: 850px) {
+
+        .altrium-hero {
+            min-height: auto;
+            padding: 40px 30px;
+            display: block;
+        }
+
+        .hero-content {
+            width: 100%;
+        }
+
+            .hero-content h1 {
+                font-size: 72px;
+            }
+
+        .hero-art {
+            position: relative;
+            top: auto;
+            right: auto;
+            transform: scale(.72);
+            width: 550px;
+            height: 430px;
+            margin: -15px auto -90px;
+        }
+
+        .career-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-section {
+            grid-template-columns: 1fr;
+        }
+
+        .why-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .journey-steps {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .candidate-dashboard {
+            padding: 12px;
+        }
+
+        .altrium-hero {
+            border-radius: 22px;
+            padding: 32px 23px;
+            margin-bottom: 70px;
+        }
+
+        .hero-content h1 {
+            font-size: 55px;
+            letter-spacing: -3px;
+        }
+
+        .hero-description {
+            font-size: 12px;
+        }
+
+        .hero-actions {
+            flex-direction: column;
+        }
+
+        .altrium-primary-btn,
+        .altrium-secondary-btn {
+            width: 100%;
+        }
+
+        .hero-art {
+            transform: scale(.57);
+            margin-left: -90px;
+            margin-right: -90px;
+            margin-top: -35px;
+            margin-bottom: -140px;
+        }
+
+        .section-title {
+            font-size: 32px;
+        }
+
+        .career-card {
+            min-height: 270px;
+            padding: 27px;
+        }
+
+            .career-card h2 {
+                font-size: 31px;
+            }
+
+        .about-main,
+        .about-side {
+            padding: 28px;
+        }
+
+            .about-main h2 {
+                font-size: 32px;
+            }
+
+        .journey-box {
+            padding: 28px 22px;
+        }
+
+        .journey-steps {
+            grid-template-columns: 1fr;
+        }
+
+        .final-cta {
+            padding: 32px 25px;
+        }
+
+        .final-content h2 {
+            font-size: 37px;
+        }
+    }
+
+
+    /* =========================================================
+           ACCESSIBILITY
+           ========================================================= */
+
+    @@media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
+        }
+
+        .reveal,
+        .reveal-left,
+        .reveal-right {
+            opacity: 1;
+            transform: none;
+        }
+    }
+</style>
+
+<div class="candidate-dashboard">
+
+    ```
+    <div class="dashboard-wrapper">
+
+
+        <!-- =====================================================
+             HERO
+             ===================================================== -->
+
+        <section class="altrium-hero">
+
+            <div class="hero-blue"></div>
+            <div class="hero-pink"></div>
+            <div class="hero-green"></div>
+
+
+            <div class="hero-content">
+
+                <div class="hero-label hero-load hero-load-1">
+
+                    <span class="hero-label-line"></span>
+
+                    Careers at Altrium
+
+                </div>
+
+
+                <h1 class="hero-load hero-load-2">
+
+                    <span class="hero-line">
+                        We're
+                    </span>
+
+                    <span class="hero-line">
+                        <span class="hero-highlight">
+                            hiring.
+                        </span>
+                    </span>
+
+                </h1>
+
+
+                <p class="hero-description hero-load hero-load-3">
+
+                    We're building a team of curious, talented people
+                    who want to solve meaningful problems and create
+                    technology that makes a difference.
+
+                </p>
+
+
+                <div class="hero-actions hero-load hero-load-4">
+
+                    <a asp-controller="Application"
+                       asp-action="Vacancies"
+                       class="altrium-primary-btn">
+
+                        Explore Positions
+
+                        <span>→</span>
+
+                    </a>
+
+
+                    <a asp-controller="Application"
+                       asp-action="MyApplications"
+                       class="altrium-secondary-btn">
+
+                        My Applications
+
+                        <span>↗</span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 HERO VISUAL
+                 ================================================= -->
+
+            <div class="hero-art">
+
+                <div class="hero-main-circle">
+
+                    <div class="hero-inner-circle">
+
+                        <div class="hero-logo-text">
+                            ALT
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hero-floating-card top">
+
+                    <span class="floating-label">
+                        Your next chapter
+                    </span>
+
+                    <span class="floating-value">
+                        Starts here.
+                    </span>
+
+                </div>
+
+
+                <div class="hero-floating-card bottom">
+
+                    <span class="floating-label">
+                        Life at Altrium
+                    </span>
+
+                    <span class="floating-value">
+                        Ingenuity, empowered.
+                    </span>
+
+                </div>
+
+
+                <div class="hero-star">
+                    ✦
+                </div>
+
+
+                <div class="hero-star green">
+                    ✦
+                </div>
+
+
+                <div class="hero-pill">
+                    Find your place
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             INTRO
+             ===================================================== -->
+
+        <section class="intro-section reveal">
+
+            <div>
+
+                <div class="section-label">
+                    Your career at Altrium
+                </div>
+
+                <h2 class="section-title">
+                    Find your place.
+                </h2>
+
+            </div>
+
+
+            <p class="section-description">
+
+                Whether you're starting your career or looking for
+                your next challenge, explore opportunities at Altrium
+                and discover where your skills and ambitions can take you.
+
+            </p>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             CAREER ACTIONS
+             ===================================================== -->
+
+        <section class="career-grid">
+
+
+            <div class="career-card jobs reveal-left">
+
+                <div class="career-number">
+                    01 / OPPORTUNITIES
+                </div>
+
+                <h2>
+                    Find your<br />
+                    next role.
+                </h2>
+
+                <p>
+                    Explore Altrium's current vacancies and discover
+                    positions where you can learn, contribute and grow.
+                </p>
+
+                <a asp-controller="Application"
+                   asp-action="Vacancies"
+                   class="career-link">
+
+                    Explore vacancies
+
+                    <span>→</span>
+
+                </a>
+
+            </div>
+
+
+            <div class="career-card applications reveal-right">
+
+                <div class="career-number">
+                    02 / YOUR JOURNEY
+                </div>
+
+                <h2>
+                    Your<br />
+                    applications.
+                </h2>
+
+                <p>
+                    Keep track of the positions you've applied for
+                    and follow your progress throughout the recruitment process.
+                </p>
+
+                <a asp-controller="Application"
+                   asp-action="MyApplications"
+                   class="career-link">
+
+                    View applications
+
+                    <span>→</span>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             ABOUT ALTRIUM / COMPANY WEBSITE
+             ===================================================== -->
+
+        <section class="about-section">
+
+
+            <div class="about-main reveal-left">
+
+                <div class="about-label">
+                    Get to know Altrium
+                </div>
+
+                <h2>
+                    More than a job.
+                    Build what's next.
+                </h2>
+
+                <p>
+                    Discover more about Altrium, our work, our people
+                    and the ideas that shape the way we build.
+                </p>
+
+
+                <a href="https://www.altrium.io/"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="altrium-primary-btn">
+
+                    Discover Altrium
+
+                    <span>↗</span>
+
+                </a>
+
+            </div>
+
+
+            <div class="about-side reveal-right">
+
+                <div class="about-side-label">
+                    Altrium
+                </div>
+
+                <h3>
+                    Ingenuity,<br />
+                    empowered.
+                </h3>
+
+                <p>
+                    Learn more about the company behind the opportunities,
+                    explore our work and get a better feel for what it
+                    means to be part of Altrium.
+                </p>
+
+                <div class="about-side-decoration"></div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             WHY ALTRIUM
+             ===================================================== -->
+
+        <section class="why-section">
+
+            <div class="section-header reveal">
+
+                <div class="section-label">
+                    Life at Altrium
+                </div>
+
+                <h2>
+                    Why join us?
+                </h2>
+
+            </div>
+
+
+            <div class="why-grid">
+
+
+                <div class="why-card reveal delay-1">
+
+                    <div class="why-icon">
+                        ✦
+                    </div>
+
+                    <h3>
+                        Great people
+                    </h3>
+
+                    <p>
+                        Work with talented people who bring different
+                        ideas, experiences and perspectives to the table.
+                    </p>
+
+                    <div class="why-decoration"></div>
+
+                </div>
+
+
+                <div class="why-card reveal delay-2">
+
+                    <div class="why-icon">
+                        ↗
+                    </div>
+
+                    <h3>
+                        Keep growing
+                    </h3>
+
+                    <p>
+                        Take on meaningful challenges, build your skills
+                        and continue developing throughout your career.
+                    </p>
+
+                    <div class="why-decoration"></div>
+
+                </div>
+
+
+                <div class="why-card reveal delay-3">
+
+                    <div class="why-icon">
+                        ◎
+                    </div>
+
+                    <h3>
+                        Make an impact
+                    </h3>
+
+                    <p>
+                        Bring your ideas forward and contribute to work
+                        that creates meaningful results.
+                    </p>
+
+                    <div class="why-decoration"></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             RECRUITMENT JOURNEY
+             ===================================================== -->
+
+        <section class="journey-section reveal">
+
+            <div class="journey-box">
+
+                <div class="journey-header">
+
+                    <small>
+                        Your recruitment journey
+                    </small>
+
+                    <h2>
+                        From application to opportunity.
+                    </h2>
+
+                </div>
+
+
+                <div class="journey-steps">
+
+
+                    <div class="journey-step reveal delay-1">
+
+                        <div class="journey-number">
+                            01
+                        </div>
+
+                        <strong>
+                            Discover
+                        </strong>
+
+                        <span>
+                            Explore our open positions.
+                        </span>
+
+                    </div>
+
+
+                    <div class="journey-step reveal delay-2">
+
+                        <div class="journey-number">
+                            02
+                        </div>
+
+                        <strong>
+                            Apply
+                        </strong>
+
+                        <span>
+                            Submit your application.
+                        </span>
+
+                    </div>
+
+
+                    <div class="journey-step reveal delay-3">
+
+                        <div class="journey-number">
+                            03
+                        </div>
+
+                        <strong>
+                            Connect
+                        </strong>
+
+                        <span>
+                            Move through the review process.
+                        </span>
+
+                    </div>
+
+
+                    <div class="journey-step reveal delay-4">
+
+                        <div class="journey-number">
+                            04
+                        </div>
+
+                        <strong>
+                            Grow
+                        </strong>
+
+                        <span>
+                            Take your next career step.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             FINAL CTA
+             ===================================================== -->
+
+        <section class="final-cta reveal">
+
+            <div class="final-content">
+
+                <small>
+                    Your next chapter
+                </small>
+
+                <h2>
+                    Ready to find<br />
+                    your place?
+                </h2>
+
+                <a asp-controller="Application"
+                   asp-action="Vacancies"
+                   class="altrium-primary-btn">
+
+                    Explore Altrium Careers
+
+                    <span>→</span>
+
+                </a>
+
+            </div>
+
+
+            <div class="final-decoration"></div>
+            <div class="final-decoration-small"></div>
+
+        </section>
+
+
+    </div>
+    ```
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const elements =
+            document.querySelectorAll(
+                ".reveal, .reveal-left, .reveal-right"
+            );
+
+        const observer =
+            new IntersectionObserver(function (entries, observer) {
+
+                entries.forEach(function (entry) {
+
+                    if (entry.isIntersecting) {
+
+                        entry.target.classList.add("active");
+
+                        observer.unobserve(entry.target);
+
+                    }
+
+                });
+
+            }, {
+                threshold: 0.15,
+                rootMargin: "0px 0px -60px 0px"
+            });
+
+
+        elements.forEach(function (element) {
+
+            observer.observe(element);
+
+        });
+
+    });
+
+</script>

@@ -1,0 +1,871 @@
+@model IEnumerable<RecruitmentTracker.Models.JobApplication>
+
+@{
+    ViewData["Title"] = "Applications";
+
+    var vacancyId = (int)ViewBag.VacancyId;
+    var vacancyTitle = ViewBag.VacancyTitle ?? "Vacancy";
+
+    var applications = Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.JobApplication>();
+}
+
+<div class="container-fluid">
+
+    <!-- ===================================================== -->
+    <!-- HEADER -->
+    <!-- ===================================================== -->
+
+    <div class="page-heading mb-4">
+
+        <div>
+
+            <div class="section-label">
+                VACANCY · RECRUITMENT CAMPAIGN
+            </div>
+
+            <h1>
+                @vacancyTitle
+            </h1>
+
+            <p>
+                All applications for this vacancy
+            </p>
+
+        </div>
+
+
+        <div class="d-flex gap-2">
+
+            <a asp-controller="Vacancy"
+               asp-action="Manage"
+               asp-route-id="@vacancyId"
+               class="btn btn-light">
+                Back to vacancy
+            </a>
+
+            <a asp-controller="HRApplication"
+               asp-action="Management"
+               class="btn btn-outline-primary">
+                Application management
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- PIPELINE -->
+    <!-- ===================================================== -->
+
+    <div class="application-pipeline mb-4">
+
+        <!-- ALL -->
+
+        <a asp-controller="HRApplication"
+           asp-action="Index"
+           asp-route-vacancyId="@vacancyId"
+           class="pipeline-tab active">
+
+            <div>
+
+                <span class="pipeline-label">
+                    ALL APPLICATIONS
+                </span>
+
+                <strong>
+                    @ViewBag.AllCount
+                </strong>
+
+            </div>
+
+        </a>
+
+
+        <!-- PASSED -->
+
+        <a asp-controller="HRApplication"
+           asp-action="Passed"
+           asp-route-vacancyId="@vacancyId"
+           class="pipeline-tab">
+
+            <div>
+
+                <span class="pipeline-label">
+                    PASSED
+                </span>
+
+                <strong>
+                    @ViewBag.PassedCount
+                </strong>
+
+            </div>
+
+            <small>
+                AI score 70+
+            </small>
+
+        </a>
+
+
+        <!-- REVIEW -->
+
+        <a asp-controller="HRApplication"
+           asp-action="Review"
+           asp-route-vacancyId="@vacancyId"
+           class="pipeline-tab">
+
+            <div>
+
+                <span class="pipeline-label">
+                    REVIEW
+                </span>
+
+                <strong>
+                    @ViewBag.ReviewCount
+                </strong>
+
+            </div>
+
+            <small>
+                AI score 50–69
+            </small>
+
+        </a>
+
+
+        <!-- FAILED -->
+
+        <a asp-controller="HRApplication"
+           asp-action="Failed"
+           asp-route-vacancyId="@vacancyId"
+           class="pipeline-tab">
+
+            <div>
+
+                <span class="pipeline-label">
+                    FAILED
+                </span>
+
+                <strong>
+                    @ViewBag.FailedCount
+                </strong>
+
+            </div>
+
+            <small>
+                AI score below 50
+            </small>
+
+        </a>
+
+
+        <!-- SENT TO HM -->
+
+        <a asp-controller="HRApplication"
+           asp-action="SentToHM"
+           asp-route-vacancyId="@vacancyId"
+           class="pipeline-tab">
+
+            <div>
+
+                <span class="pipeline-label">
+                    SENT TO HM
+                </span>
+
+                <strong>
+                    @ViewBag.SentToHMCount
+                </strong>
+
+            </div>
+
+            <small>
+                Sent to Hiring Manager
+            </small>
+
+        </a>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- MESSAGES -->
+    <!-- ===================================================== -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success mb-3">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger mb-3">
+            @TempData["Error"]
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- APPLICATION CARD -->
+    <!-- ===================================================== -->
+
+    <div class="card application-card">
+
+        <!-- HEADER -->
+
+        <div class="card-header application-card-header">
+
+            <div>
+
+                <h4>
+                    Candidate applications
+                </h4>
+
+                <p>
+                    Review candidates screened for this vacancy.
+                </p>
+
+            </div>
+
+            <span class="application-count">
+                @applications.Count candidates
+            </span>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="card-body p-0">
+
+            @if (!applications.Any())
+            {
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        ?
+                    </div>
+
+                    <h5>
+                        No applications found
+                    </h5>
+
+                    <p>
+                        There are currently no applications
+                        for this vacancy.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table application-table mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    CANDIDATE
+                                </th>
+
+                                <th>
+                                    AI SCORE
+                                </th>
+
+                                <th>
+                                    SCREENING
+                                </th>
+
+                                <th>
+                                    HR STATUS
+                                </th>
+
+                                <th>
+                                    APPLIED
+                                </th>
+
+                                <th class="text-end">
+                                    ACTIONS
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var application in applications)
+                            {
+                                var candidateName = application.Candidate?.FullName ?? "Unknown Candidate";
+                                var candidateEmail = application.Candidate?.Email ?? "-";
+                                var firstLetter = candidateName.Substring(0, 1).ToUpper();
+
+                                string screeningClass;
+                                string screeningText;
+
+                                if (application.AIScore >= 70)
+                                {
+                                    screeningClass = "screening-passed";
+                                    screeningText = "Passed";
+                                }
+                                else if (application.AIScore >= 50)
+                                {
+                                    screeningClass = "screening-review";
+                                    screeningText = "Review";
+                                }
+                                else
+                                {
+                                    screeningClass = "screening-failed";
+                                    screeningText = "Failed";
+                                }
+
+                                <tr>
+
+                                    <!-- CANDIDATE -->
+
+                                    <td>
+
+                                        <div class="candidate-info">
+
+                                            <div class="candidate-avatar">
+
+                                                @if (!string.IsNullOrWhiteSpace(candidateName))
+                                                {
+                                                    @candidateName.Substring(0, 1).ToUpper()
+                                                }
+                                                else
+                                                {
+                                                    @:?
+                                                }
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <strong>
+                                                    @candidateName
+                                                </strong>
+
+                                                <small>
+                                                    @candidateEmail
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- AI SCORE -->
+
+                                    <td>
+
+                                        <div class="score">
+
+                                            <strong>
+                                                @application.AIScore.ToString("0.0")
+                                            </strong>
+
+                                            <span>
+                                                / 100
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- SCREENING -->
+
+                                    <td>
+
+                                        <span class="screening-badge @screeningClass">
+                                            @screeningText
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- HR STATUS -->
+
+                                    <td>
+
+                                        @if (application.HRShortlisted)
+                                        {
+                                            <span class="hr-status status-shortlisted">
+                                                Sent to HM
+                                            </span>
+                                        }
+                                        else if (application.Status == "Not Shortlisted")
+                                        {
+                                            <span class="hr-status status-rejected">
+                                                Not shortlisted
+                                            </span>
+                                        }
+                                        else if (application.HRReviewed)
+                                        {
+                                            <span class="hr-status status-reviewed">
+                                                Reviewed
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="hr-status status-pending">
+                                                Needs review
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- DATE -->
+
+                                    <td>
+
+                                        <span class="date-text">
+                                            @application.AppliedDate.ToString("dd MMM yyyy")
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- ACTIONS -->
+
+                                    <td class="text-end">
+
+                                        <div class="action-buttons">
+
+                                            @if (!string.IsNullOrWhiteSpace(application.CVFilePath))
+                                            {
+                                                <a asp-controller="HRApplication"
+                                                   asp-action="ViewCV"
+                                                   asp-route-id="@application.Id"
+                                                   asp-route-vacancyId="@vacancyId"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-outline-secondary">
+
+                                                    CV
+
+                                                </a>
+                                            }
+
+                                            <a asp-controller="HRApplication"
+                                               asp-action="AIAnalysis"
+                                               asp-route-id="@application.Id"
+                                               asp-route-vacancyId="@vacancyId"
+                                               class="btn btn-sm btn-outline-primary">
+
+                                                AI Analysis
+
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    /* ===================================================== */
+    /* HEADER */
+    /* ===================================================== */
+
+    .page-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        color: #718096;
+        margin-bottom: 6px;
+    }
+
+    .page-heading h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 700;
+        color: #172033;
+    }
+
+    .page-heading p {
+        margin: 5px 0 0;
+        color: #718096;
+    }
+
+
+    /* ===================================================== */
+    /* PIPELINE */
+    /* ===================================================== */
+
+    .application-pipeline {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .pipeline-tab {
+        padding: 18px 20px;
+        color: #718096;
+        text-decoration: none;
+        border-right: 1px solid #e5e7eb;
+        transition: all .2s ease;
+    }
+
+        .pipeline-tab:last-child {
+            border-right: none;
+        }
+
+        .pipeline-tab:hover {
+            background: #f8fafc;
+            color: #172033;
+        }
+
+        .pipeline-tab.active {
+            background: #f8fafc;
+            color: #172033;
+            box-shadow: inset 0 -3px 0 #172033;
+        }
+
+        .pipeline-tab > div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+    .pipeline-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .7px;
+    }
+
+    .pipeline-tab strong {
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    .pipeline-tab small {
+        display: block;
+        margin-top: 5px;
+        color: #9aa3b2;
+        font-size: 11px;
+    }
+
+
+    /* ===================================================== */
+    /* APPLICATION CARD */
+    /* ===================================================== */
+
+    .application-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .application-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 22px;
+        background: #ffffff;
+    }
+
+        .application-card-header h4 {
+            margin: 0;
+            color: #172033;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .application-card-header p {
+            margin: 5px 0 0;
+            color: #718096;
+            font-size: 13px;
+        }
+
+    .application-count {
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    /* ===================================================== */
+    /* TABLE */
+    /* ===================================================== */
+
+    .application-table thead th {
+        padding: 13px 18px;
+        background: #f8fafc;
+        color: #718096;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    .application-table tbody td {
+        padding: 16px 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .application-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .application-table tbody tr:hover {
+        background: #fafbfc;
+    }
+
+
+    /* ===================================================== */
+    /* CANDIDATE */
+    /* ===================================================== */
+
+    .candidate-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .candidate-avatar {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #eef2f7;
+        color: #475569;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .candidate-info strong {
+        display: block;
+        color: #172033;
+        font-size: 14px;
+    }
+
+    .candidate-info small {
+        display: block;
+        margin-top: 2px;
+        color: #8a94a6;
+        font-size: 12px;
+    }
+
+
+    /* ===================================================== */
+    /* SCORE */
+    /* ===================================================== */
+
+    .score strong {
+        color: #172033;
+        font-size: 17px;
+    }
+
+    .score span {
+        color: #9aa3b2;
+        font-size: 11px;
+    }
+
+
+    /* ===================================================== */
+    /* SCREENING */
+    /* ===================================================== */
+
+    .screening-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .screening-passed {
+        background: #e8f7ee;
+        color: #18794e;
+    }
+
+    .screening-review {
+        background: #fff5dc;
+        color: #9a6700;
+    }
+
+    .screening-failed {
+        background: #fdecec;
+        color: #b42318;
+    }
+
+
+    /* ===================================================== */
+    /* HR STATUS */
+    /* ===================================================== */
+
+    .hr-status {
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-shortlisted {
+        color: #18794e;
+    }
+
+    .status-rejected {
+        color: #b42318;
+    }
+
+    .status-reviewed {
+        color: #526581;
+    }
+
+    .status-pending {
+        color: #9a6700;
+    }
+
+
+    /* ===================================================== */
+    /* DATE */
+    /* ===================================================== */
+
+    .date-text {
+        color: #64748b;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+
+    /* ===================================================== */
+    /* ACTIONS */
+    /* ===================================================== */
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+    }
+
+
+    /* ===================================================== */
+    /* EMPTY STATE */
+    /* ===================================================== */
+
+    .empty-state {
+        padding: 70px 20px;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .empty-state h5 {
+        color: #475569;
+        margin-bottom: 5px;
+    }
+
+    .empty-state p {
+        color: #94a3b8;
+        margin: 0;
+        font-size: 13px;
+    }
+
+
+    /* ===================================================== */
+    /* RESPONSIVE */
+    /* ===================================================== */
+
+    @@media (max-width: 1100px) {
+
+        .application-pipeline {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+
+    @@media (max-width: 900px) {
+
+        .application-pipeline {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pipeline-tab:nth-child(2) {
+            border-right: none;
+        }
+
+        .page-heading {
+            align-items: flex-start;
+            gap: 15px;
+            flex-direction: column;
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .application-pipeline {
+            grid-template-columns: 1fr;
+        }
+
+        .pipeline-tab {
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+            .pipeline-tab:last-child {
+                border-bottom: none;
+            }
+
+        .application-card-header {
+            align-items: flex-start;
+            gap: 10px;
+            flex-direction: column;
+        }
+    }
+</style>

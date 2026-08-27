@@ -1,0 +1,830 @@
+@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .altrium-register-page {
+        min-height: calc(100vh - 80px);
+        background: #eef5fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 25px;
+        overflow: hidden;
+    }
+
+
+    /* =========================================================
+           CONTAINER
+           ========================================================= */
+
+    .altrium-register-container {
+        width: 100%;
+        max-width: 1120px;
+        min-height: 650px;
+        background: #ffffff;
+        border: 1px solid #dfe8f1;
+        border-radius: 24px;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1.05fr .95fr;
+        box-shadow: 0 25px 70px rgba(11, 31, 58, .08);
+        animation: registerContainerIn .8s ease forwards;
+    }
+
+
+    /* =========================================================
+           LEFT BRANDING
+           ========================================================= */
+
+    .altrium-register-brand {
+        position: relative;
+        overflow: hidden;
+        background: #e7f1fb;
+        padding: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        animation: registerBrandIn .8s ease forwards;
+    }
+
+
+        .altrium-register-brand::before {
+            content: "";
+            position: absolute;
+            width: 430px;
+            height: 430px;
+            border-radius: 50%;
+            border: 1px solid rgba(11,31,58,.07);
+            right: -210px;
+            top: -120px;
+        }
+
+
+        .altrium-register-brand::after {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            border: 1px solid rgba(11,31,58,.06);
+            left: -150px;
+            bottom: -120px;
+        }
+
+
+    /* =========================================================
+           LOGO
+           ========================================================= */
+
+    .register-logo {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 55px;
+    }
+
+
+    .register-logo-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        background: #0b1f3a;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        font-weight: 900;
+        box-shadow: 0 6px 15px rgba(11,31,58,.13);
+    }
+
+
+    .register-logo-name {
+        color: #0b1f3a;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+
+    /* =========================================================
+           BRAND CONTENT
+           ========================================================= */
+
+    .register-eyebrow {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #55708f;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.7px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+
+
+        .register-eyebrow::before {
+            content: "";
+            width: 27px;
+            height: 1px;
+            background: #8da5bd;
+        }
+
+
+    .register-brand-title {
+        position: relative;
+        z-index: 2;
+        color: #0b1f3a;
+        font-size: 43px;
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -1.7px;
+        margin: 0 0 20px;
+    }
+
+
+        .register-brand-title span {
+            color: #55708f;
+        }
+
+
+    .register-brand-description {
+        position: relative;
+        z-index: 2;
+        max-width: 420px;
+        color: #60748b;
+        font-size: 13px;
+        line-height: 1.8;
+        margin: 0;
+    }
+
+
+    /* =========================================================
+           SMALL FEATURES
+           ========================================================= */
+
+    .register-features {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+
+    .register-feature {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 11px;
+        border-radius: 8px;
+        background: rgba(255,255,255,.58);
+        border: 1px solid rgba(11,31,58,.06);
+        color: #526a82;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+    .register-feature-check {
+        color: #0b1f3a;
+        font-size: 10px;
+    }
+
+
+    /* =========================================================
+           FORM AREA
+           ========================================================= */
+
+    .altrium-register-form-area {
+        background: #ffffff;
+        padding: 55px 65px;
+        display: flex;
+        align-items: center;
+        animation: registerFormIn .8s ease .12s both;
+    }
+
+
+    .altrium-register-form {
+        width: 100%;
+        max-width: 405px;
+        margin: auto;
+    }
+
+
+    /* =========================================================
+           FORM HEADING
+           ========================================================= */
+
+    .register-kicker {
+        color: #7a8797;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 9px;
+    }
+
+
+    .register-heading {
+        color: #0b1f3a;
+        font-size: 30px;
+        line-height: 1.15;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin: 0 0 8px;
+    }
+
+
+    .register-subheading {
+        color: #7b8797;
+        font-size: 12px;
+        line-height: 1.7;
+        margin: 0 0 27px;
+    }
+
+
+    /* =========================================================
+           FIELDS
+           ========================================================= */
+
+    .register-field {
+        margin-bottom: 18px;
+    }
+
+
+    .register-label {
+        display: block;
+        color: #26384d;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+
+    .register-input {
+        width: 100%;
+        height: 48px;
+        border: 1px solid #d9e0e8;
+        border-radius: 9px;
+        background: #fbfcfd;
+        color: #172b43;
+        font-size: 12px;
+        padding: 0 15px;
+        outline: none;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+
+        .register-input:hover {
+            border-color: #b9c8d8;
+            background: #ffffff;
+        }
+
+
+        .register-input:focus {
+            border-color: #0b1f3a;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(11,31,58,.07);
+        }
+
+
+        .register-input::placeholder {
+            color: #a4afbc;
+        }
+
+
+    .validation-message {
+        display: block;
+        font-size: 10px;
+        margin-top: 4px;
+    }
+
+
+    /* =========================================================
+           REGISTER BUTTON
+           ========================================================= */
+
+    .register-button {
+        width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 3px;
+        box-shadow: 0 8px 20px rgba(11,31,58,.15);
+        transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+
+        .register-button:hover {
+            background: #163a60;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(11,31,58,.18);
+        }
+
+
+        .register-button:active {
+            transform: translateY(0);
+        }
+
+
+    /* =========================================================
+           SIGN IN
+           ========================================================= */
+
+    .signin-area {
+        text-align: center;
+        margin-top: 22px;
+        padding-top: 20px;
+        border-top: 1px solid #edf0f4;
+        color: #7d8997;
+        font-size: 11px;
+    }
+
+
+    .signin-link {
+        color: #0b1f3a;
+        font-weight: 800;
+        text-decoration: none;
+        margin-left: 3px;
+    }
+
+
+        .signin-link:hover {
+            color: #385a7f;
+            text-decoration: none;
+        }
+
+
+    /* =========================================================
+           EXTERNAL LOGIN
+           ========================================================= */
+
+    .external-login {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #edf0f4;
+    }
+
+
+    .external-login-title {
+        color: #8a96a4;
+        font-size: 10px;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+
+    .external-login button {
+        width: 100%;
+        height: 44px;
+        border-radius: 8px;
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+
+
+    /* =========================================================
+           ANIMATIONS
+           ========================================================= */
+
+    @@keyframes registerContainerIn {
+
+        from {
+            opacity: 0;
+            transform: translateY(25px) scale(.985);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+
+    @@keyframes registerBrandIn {
+
+        from {
+            opacity: 0;
+            transform: translateX(-25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+
+    @@keyframes registerFormIn {
+
+        from {
+            opacity: 0;
+            transform: translateX(25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 900px) {
+
+        .altrium-register-container {
+            grid-template-columns: 1fr;
+            max-width: 620px;
+        }
+
+
+        .altrium-register-brand {
+            padding: 45px;
+        }
+
+
+        .register-logo {
+            margin-bottom: 35px;
+        }
+
+
+        .register-brand-title {
+            font-size: 36px;
+        }
+
+
+        .register-features {
+            display: none;
+        }
+
+
+        .altrium-register-form-area {
+            padding: 45px;
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .altrium-register-page {
+            padding: 20px 15px;
+        }
+
+
+        .altrium-register-container {
+            border-radius: 17px;
+        }
+
+
+        .altrium-register-brand {
+            padding: 35px 28px;
+        }
+
+
+        .register-brand-title {
+            font-size: 31px;
+        }
+
+
+        .register-brand-description {
+            font-size: 12px;
+        }
+
+
+        .altrium-register-form-area {
+            padding: 35px 25px;
+        }
+
+
+        .register-heading {
+            font-size: 27px;
+        }
+    }
+</style>
+
+
+<div class="altrium-register-page">
+
+    <div class="altrium-register-container">
+
+
+        <!-- =====================================================
+             ALTRIUM BRANDING
+             ===================================================== -->
+
+        <section class="altrium-register-brand">
+
+
+            <!-- LOGO -->
+
+            <div class="register-logo">
+
+                <div class="register-logo-mark">
+                    A
+                </div>
+
+                <div class="register-logo-name">
+                    ALTRIUM
+                </div>
+
+            </div>
+
+
+            <!-- EYEBROW -->
+
+            <div class="register-eyebrow">
+                ALTRIUM CAREERS
+            </div>
+
+
+            <!-- TITLE -->
+
+            <h1 class="register-brand-title">
+
+                Start your
+                <br />
+
+                <span>journey.</span>
+
+            </h1>
+
+
+            <!-- DESCRIPTION -->
+
+            <p class="register-brand-description">
+
+                Create your Altrium careers account
+                and explore opportunities with our team.
+
+            </p>
+
+
+            <!-- SMALL FEATURES -->
+
+            <div class="register-features">
+
+                <div class="register-feature">
+
+                    <span class="register-feature-check">
+                        ✓
+                    </span>
+
+                    Explore roles
+
+                </div>
+
+
+                <div class="register-feature">
+
+                    <span class="register-feature-check">
+                        ✓
+                    </span>
+
+                    Apply online
+
+                </div>
+
+
+                <div class="register-feature">
+
+                    <span class="register-feature-check">
+                        ✓
+                    </span>
+
+                    Track applications
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             REGISTER FORM
+             ===================================================== -->
+
+        <section class="altrium-register-form-area">
+
+            <div class="altrium-register-form">
+
+
+                <div class="register-kicker">
+                    Candidate Portal
+                </div>
+
+
+                <h2 class="register-heading">
+                    Create your account
+                </h2>
+
+
+                <p class="register-subheading">
+                    Create an account to start exploring opportunities at Altrium.
+                </p>
+
+
+                <!-- =================================================
+                     REGISTER FORM
+                     ================================================= -->
+
+                <form id="registerForm"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post">
+
+
+                    <!-- VALIDATION -->
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="register-field">
+
+                        <label asp-for="Input.Email"
+                               class="register-label">
+
+                            Email address
+
+                        </label>
+
+
+                        <input asp-for="Input.Email"
+                               class="register-input"
+                               autocomplete="username"
+                               aria-required="true"
+                               placeholder="name@example.com" />
+
+
+                        <span asp-validation-for="Input.Email"
+                              class="text-danger validation-message">
+                        </span>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="register-field">
+
+                        <label asp-for="Input.Password"
+                               class="register-label">
+
+                            Password
+
+                        </label>
+
+
+                        <input asp-for="Input.Password"
+                               class="register-input"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Create a password" />
+
+
+                        <span asp-validation-for="Input.Password"
+                              class="text-danger validation-message">
+                        </span>
+
+                    </div>
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div class="register-field">
+
+                        <label asp-for="Input.ConfirmPassword"
+                               class="register-label">
+
+                            Confirm password
+
+                        </label>
+
+
+                        <input asp-for="Input.ConfirmPassword"
+                               class="register-input"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Confirm your password" />
+
+
+                        <span asp-validation-for="Input.ConfirmPassword"
+                              class="text-danger validation-message">
+                        </span>
+
+                    </div>
+
+
+                    <!-- REGISTER -->
+
+                    <button id="registerSubmit"
+                            type="submit"
+                            class="register-button">
+
+                        Create Account
+
+                    </button>
+
+
+                    <!-- SIGN IN -->
+
+                    <div class="signin-area">
+
+                        <span>
+                            Already have an account?
+                        </span>
+
+                        <a asp-page="./Login"
+                           asp-route-returnUrl="@Model.ReturnUrl"
+                           class="signin-link">
+
+                            Sign In
+
+                        </a>
+
+                    </div>
+
+                </form>
+
+
+                <!-- =================================================
+                     EXTERNAL LOGIN
+                     ================================================= -->
+                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+
+                    <div class="external-login">
+
+                        <div class="external-login-title">
+                            Or register with
+                        </div>
+
+
+                        <form id="external-account"
+                              asp-page="./ExternalLogin"
+                              asp-route-returnUrl="@Model.ReturnUrl"
+                              method="post">
+
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+
+                                <button type="submit"
+                                        class="btn btn-outline-secondary"
+                                        name="provider"
+                                        value="@provider.Name">
+
+                                    @provider.DisplayName
+
+                                </button>
+
+                            }
+
+                        </form>
+
+                    </div>
+
+                }
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

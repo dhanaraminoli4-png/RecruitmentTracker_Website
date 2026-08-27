@@ -1,0 +1,128 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.JobApplication>
+
+<table class="table table-hover align-middle mb-0">
+
+    <thead class="table-light">
+
+        <tr>
+
+            <th>Candidate</th>
+
+            <th>Email</th>
+
+            <th>AI Score</th>
+
+            <th>Status</th>
+
+            <th>Applied Date</th>
+
+            <th class="text-end">
+                Actions
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        @foreach (var application in Model)
+        {
+            <tr>
+
+                <td>
+                    <strong>
+                        @(application.Candidate?.FullName
+                                            ?? "Unknown Candidate")
+                </strong>
+            </td>
+
+
+                <td>
+                    @(application.Candidate?.Email ?? "-")
+                </td>
+
+
+                <td>
+
+                    <strong>
+                        @application.AIScore
+                    </strong>
+
+                </td>
+
+
+                <td>
+
+                @if (application.Status == "Shortlisted")
+                    {
+                        <span class="badge bg-success">
+                            Shortlisted
+                        </span>
+                    }
+                    else if (application.Status == "Not Shortlisted")
+                    {
+                        <span class="badge bg-danger">
+                            Not Shortlisted
+                        </span>
+                    }
+                    else if (application.AIScore >= 70)
+                    {
+                        <span class="badge bg-success">
+                            Passed
+                        </span>
+                    }
+                    else if (application.AIScore >= 50)
+                    {
+                        <span class="badge bg-warning text-dark">
+                            Review
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">
+                            Failed
+                        </span>
+                    }
+
+                </td>
+
+
+                <td>
+                    @application.AppliedDate.ToString("dd MMM yyyy")
+                </td>
+
+
+                <td class="text-end">
+
+                    <a asp-controller="HRApplication"
+                       asp-action="AIAnalysis"
+                       asp-route-id="@application.Id"
+                       asp-route-vacancyId="@ViewBag.VacancyId"
+                       class="btn btn-sm btn-outline-primary">
+
+                        AI Analysis
+
+                    </a>
+
+
+                    <a asp-controller="HRApplication"
+                       asp-action="ViewCV"
+                       asp-route-id="@application.Id"
+                       asp-route-vacancyId="@ViewBag.VacancyId"
+                       target="_blank"
+                       class="btn btn-sm btn-outline-secondary">
+
+                        View CV
+
+                    </a>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>

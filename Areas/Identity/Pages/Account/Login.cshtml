@@ -1,0 +1,958 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .altrium-login-page {
+        min-height: calc(100vh - 80px);
+        background: #eef5fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 45px 25px;
+        overflow: hidden;
+    }
+
+
+    /* =========================================================
+           MAIN CONTAINER
+           ========================================================= */
+
+    .altrium-login-container {
+        width: 100%;
+        max-width: 1120px;
+        min-height: 650px;
+        background: #ffffff;
+        border: 1px solid #dfe8f1;
+        border-radius: 24px;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1.05fr .95fr;
+        box-shadow: 0 25px 70px rgba(11, 31, 58, .08);
+        animation: loginContainerIn .8s ease forwards;
+    }
+
+
+    /* =========================================================
+           LEFT BRANDING PANEL
+           ========================================================= */
+
+    .altrium-brand-panel {
+        position: relative;
+        overflow: hidden;
+        background: #e7f1fb;
+        color: #0b1f3a;
+        padding: 65px 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        animation: brandSlideIn .8s ease forwards;
+    }
+
+
+        /* Large decorative circle */
+
+        .altrium-brand-panel::before {
+            content: "";
+            position: absolute;
+            width: 430px;
+            height: 430px;
+            border-radius: 50%;
+            border: 1px solid rgba(11, 31, 58, .07);
+            right: -210px;
+            top: -120px;
+        }
+
+
+        /* Smaller decorative circle */
+
+        .altrium-brand-panel::after {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            border: 1px solid rgba(11, 31, 58, .06);
+            left: -150px;
+            bottom: -120px;
+        }
+
+
+    /* =========================================================
+           LOGO
+           ========================================================= */
+
+    .altrium-logo {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 55px;
+    }
+
+
+    .altrium-logo-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        background: #0b1f3a;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        font-weight: 900;
+        letter-spacing: -1px;
+        box-shadow: 0 6px 15px rgba(11, 31, 58, .13);
+    }
+
+
+    .altrium-logo-name {
+        color: #0b1f3a;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+
+    /* =========================================================
+           EYEBROW
+           ========================================================= */
+
+    .altrium-eyebrow {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #55708f;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        margin-bottom: 17px;
+    }
+
+
+        .altrium-eyebrow::before {
+            content: "";
+            width: 27px;
+            height: 1px;
+            background: #8da5bd;
+        }
+
+
+    /* =========================================================
+           BRAND TITLE
+           ========================================================= */
+
+    .altrium-brand-title {
+        position: relative;
+        z-index: 2;
+        color: #0b1f3a;
+        font-size: 45px;
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -1.8px;
+        margin: 0 0 22px;
+    }
+
+
+        .altrium-brand-title span {
+            color: #55708f;
+        }
+
+
+    /* =========================================================
+           DESCRIPTION
+           ========================================================= */
+
+    .altrium-brand-description {
+        position: relative;
+        z-index: 2;
+        max-width: 430px;
+        color: #60748b;
+        font-size: 13px;
+        line-height: 1.85;
+        margin: 0;
+    }
+
+
+    /* =========================================================
+           FEATURES
+           ========================================================= */
+
+    .altrium-features {
+        position: relative;
+        z-index: 2;
+        margin: 38px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+
+        .altrium-features li {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #40566f;
+            font-size: 11px;
+            margin-bottom: 15px;
+        }
+
+
+    .feature-check {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,.7);
+        border: 1px solid rgba(11,31,58,.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #0b1f3a;
+    }
+
+
+    /* =========================================================
+           RIGHT LOGIN AREA
+           ========================================================= */
+
+    .altrium-login-form-area {
+        background: #ffffff;
+        padding: 60px 65px;
+        display: flex;
+        align-items: center;
+        animation: formSlideIn .8s ease .12s both;
+    }
+
+
+    .altrium-login-form {
+        width: 100%;
+        max-width: 405px;
+        margin: auto;
+    }
+
+
+    /* =========================================================
+           FORM HEADING
+           ========================================================= */
+
+    .login-kicker {
+        color: #7a8797;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 9px;
+    }
+
+
+    .login-heading {
+        color: #0b1f3a;
+        font-size: 31px;
+        line-height: 1.15;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin: 0 0 9px;
+    }
+
+
+    .login-subheading {
+        color: #7b8797;
+        font-size: 12px;
+        line-height: 1.7;
+        margin: 0 0 32px;
+    }
+
+
+    /* =========================================================
+           INPUTS
+           ========================================================= */
+
+    .login-field {
+        margin-bottom: 22px;
+    }
+
+
+    .login-label {
+        display: block;
+        color: #26384d;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+
+    .login-input-wrapper {
+        position: relative;
+    }
+
+
+    .login-input {
+        width: 100%;
+        height: 49px;
+        border: 1px solid #d9e0e8;
+        border-radius: 9px;
+        background: #fbfcfd;
+        color: #172b43;
+        font-size: 12px;
+        padding: 0 15px;
+        outline: none;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+
+        .login-input:hover {
+            border-color: #b9c8d8;
+            background: #ffffff;
+        }
+
+
+        .login-input:focus {
+            border-color: #0b1f3a;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(11,31,58,.07);
+        }
+
+
+        .login-input::placeholder {
+            color: #a4afbc;
+        }
+
+
+    .validation-message {
+        display: block;
+        font-size: 10px;
+        margin-top: 5px;
+    }
+
+
+    /* =========================================================
+           OPTIONS
+           ========================================================= */
+
+    .login-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2px 0 25px;
+        font-size: 11px;
+    }
+
+
+    .remember-label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #6f7c8c;
+        cursor: pointer;
+    }
+
+
+        .remember-label input {
+            accent-color: #0b1f3a;
+        }
+
+
+    .forgot-link {
+        color: #0b1f3a;
+        text-decoration: none;
+        font-weight: 700;
+        transition: .2s ease;
+    }
+
+
+        .forgot-link:hover {
+            color: #385a7f;
+            text-decoration: none;
+        }
+
+
+    /* =========================================================
+           LOGIN BUTTON
+           ========================================================= */
+
+    .login-button {
+        width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(11,31,58,.15);
+        transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+
+        .login-button:hover {
+            background: #163a60;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(11,31,58,.18);
+        }
+
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+
+    /* =========================================================
+           REGISTER
+           ========================================================= */
+
+    .register-area {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f4;
+        color: #7d8997;
+        font-size: 11px;
+    }
+
+
+    .register-link {
+        color: #0b1f3a;
+        font-weight: 800;
+        text-decoration: none;
+        margin-left: 3px;
+    }
+
+
+        .register-link:hover {
+            color: #385a7f;
+            text-decoration: none;
+        }
+
+
+    /* =========================================================
+           RESEND
+           ========================================================= */
+
+    .resend-area {
+        text-align: center;
+        margin-top: 16px;
+    }
+
+
+    .resend-link {
+        color: #8a96a4;
+        font-size: 10px;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+
+        .resend-link:hover {
+            color: #0b1f3a;
+            text-decoration: none;
+        }
+
+
+    /* =========================================================
+           VALIDATION
+           ========================================================= */
+
+    .login-validation {
+        border-radius: 9px;
+        font-size: 11px;
+        margin-bottom: 20px;
+    }
+
+
+    /* =========================================================
+           EXTERNAL LOGIN
+           ========================================================= */
+
+    .external-login {
+        margin-top: 23px;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f4;
+    }
+
+
+    .external-login-title {
+        text-align: center;
+        color: #8a96a4;
+        font-size: 10px;
+        margin-bottom: 13px;
+    }
+
+
+    .external-login button {
+        width: 100%;
+        height: 44px;
+        border-radius: 8px;
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+
+
+    /* =========================================================
+           ANIMATIONS
+           ========================================================= */
+
+    @@keyframes loginContainerIn {
+
+        from {
+            opacity: 0;
+            transform: translateY(25px) scale(.985);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+
+    @@keyframes brandSlideIn {
+
+        from {
+            opacity: 0;
+            transform: translateX(-25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+
+    @@keyframes formSlideIn {
+
+        from {
+            opacity: 0;
+            transform: translateX(25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 900px) {
+
+        .altrium-login-container {
+            grid-template-columns: 1fr;
+            max-width: 620px;
+        }
+
+
+        .altrium-brand-panel {
+            padding: 45px;
+        }
+
+
+        .altrium-logo {
+            margin-bottom: 35px;
+        }
+
+
+        .altrium-brand-title {
+            font-size: 36px;
+        }
+
+
+        .altrium-features {
+            display: none;
+        }
+
+
+        .altrium-login-form-area {
+            padding: 45px;
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .altrium-login-page {
+            padding: 20px 15px;
+        }
+
+
+        .altrium-login-container {
+            border-radius: 17px;
+        }
+
+
+        .altrium-brand-panel {
+            padding: 35px 28px;
+        }
+
+
+        .altrium-brand-title {
+            font-size: 31px;
+        }
+
+
+        .altrium-brand-description {
+            font-size: 12px;
+        }
+
+
+        .altrium-login-form-area {
+            padding: 35px 25px;
+        }
+
+
+        .login-heading {
+            font-size: 27px;
+        }
+    }
+
+</style>
+
+
+<div class="altrium-login-page">
+
+    <div class="altrium-login-container">
+
+
+        <!-- =====================================================
+             ALTRIUM BRANDING
+             ===================================================== -->
+
+        <section class="altrium-brand-panel">
+
+
+            <!-- LOGO -->
+
+            <div class="altrium-logo">
+
+                <div class="altrium-logo-mark">
+                    A
+                </div>
+
+                <div class="altrium-logo-name">
+                    ALTRIUM
+                </div>
+
+            </div>
+
+
+            <!-- EYEBROW -->
+
+            <div class="altrium-eyebrow">
+                ALTRIUM CAREERS
+            </div>
+
+
+            <!-- TITLE -->
+
+            <h1 class="altrium-brand-title">
+
+                Build your future.
+                <br />
+
+                <span>Make an impact.</span>
+
+            </h1>
+
+
+            <!-- DESCRIPTION -->
+
+            <p class="altrium-brand-description">
+
+                Welcome to Altrium's recruitment portal.
+                Explore opportunities, apply for positions and
+                follow your journey with our team.
+
+            </p>
+
+
+            <!-- FEATURES -->
+
+            <ul class="altrium-features">
+
+                <li>
+
+                    <span class="feature-check">
+                        ✓
+                    </span>
+
+                    Explore current career opportunities
+
+                </li>
+
+
+                <li>
+
+                    <span class="feature-check">
+                        ✓
+                    </span>
+
+                    Submit and manage your applications
+
+                </li>
+
+
+                <li>
+
+                    <span class="feature-check">
+                        ✓
+                    </span>
+
+                    Follow your recruitment journey
+
+                </li>
+
+
+                <li>
+
+                    <span class="feature-check">
+                        ✓
+                    </span>
+
+                    Secure candidate account
+
+                </li>
+
+            </ul>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             LOGIN FORM
+             ===================================================== -->
+
+        <section class="altrium-login-form-area">
+
+            <div class="altrium-login-form">
+
+
+                <div class="login-kicker">
+                    Candidate Portal
+                </div>
+
+
+                <h2 class="login-heading">
+                    Welcome back
+                </h2>
+
+
+                <p class="login-subheading">
+                    Sign in to access your Altrium careers account.
+                </p>
+
+
+                <!-- =================================================
+                     LOGIN FORM
+                     ================================================= -->
+
+                <form id="account"
+                      method="post">
+
+
+                    <!-- VALIDATION -->
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger login-validation"
+                         role="alert">
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="login-field">
+
+                        <label asp-for="Input.Email"
+                               class="login-label">
+
+                            Email address
+
+                        </label>
+
+
+                        <input asp-for="Input.Email"
+                               class="login-input"
+                               autocomplete="username"
+                               aria-required="true"
+                               placeholder="name@example.com" />
+
+
+                        <span asp-validation-for="Input.Email"
+                              class="text-danger validation-message">
+                        </span>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="login-field">
+
+                        <label asp-for="Input.Password"
+                               class="login-label">
+
+                            Password
+
+                        </label>
+
+
+                        <input asp-for="Input.Password"
+                               class="login-input"
+                               autocomplete="current-password"
+                               aria-required="true"
+                               placeholder="Enter your password" />
+
+
+                        <span asp-validation-for="Input.Password"
+                              class="text-danger validation-message">
+                        </span>
+
+                    </div>
+
+
+                    <!-- OPTIONS -->
+
+                    <div class="login-options">
+
+                        <label asp-for="Input.RememberMe"
+                               class="remember-label">
+
+                            <input asp-for="Input.RememberMe"
+                                   class="form-check-input" />
+
+                            <span>
+                                Remember me
+                            </span>
+
+                        </label>
+
+
+                        <a id="forgot-password"
+                           asp-page="./ForgotPassword"
+                           class="forgot-link">
+
+                            Forgot password?
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- SIGN IN -->
+
+                    <button id="login-submit"
+                            type="submit"
+                            class="login-button">
+
+                        Sign In
+
+                    </button>
+
+
+                    <!-- REGISTER -->
+
+                    <div class="register-area">
+
+                        <span>
+                            Don't have an account?
+                        </span>
+
+                        <a asp-page="./Register"
+                           asp-route-returnUrl="@Model.ReturnUrl"
+                           class="register-link">
+
+                            Create an account
+
+                        </a>
+
+                    </div>
+
+                </form>
+
+
+                <!-- RESEND CONFIRMATION -->
+
+                <div class="resend-area">
+
+                    <a id="resend-confirmation"
+                       asp-page="./ResendEmailConfirmation"
+                       class="resend-link">
+
+                        Resend email confirmation
+
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     EXTERNAL LOGIN
+                     ================================================= -->
+                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+
+                    <div class="external-login">
+
+                        <div class="external-login-title">
+                            Or continue with
+                        </div>
+
+
+                        <form id="external-account"
+                              asp-page="./ExternalLogin"
+                              asp-route-returnUrl="@Model.ReturnUrl"
+                              method="post">
+
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+
+                                <button type="submit"
+                                        class="btn btn-outline-secondary"
+                                        name="provider"
+                                        value="@provider.Name"
+                                        title="Log in using your @provider.DisplayName account">
+
+                                    @provider.DisplayName
+
+                                </button>
+
+                            }
+
+                        </form>
+
+                    </div>
+
+                }
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

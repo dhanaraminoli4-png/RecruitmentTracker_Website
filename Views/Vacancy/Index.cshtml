@@ -1,0 +1,1305 @@
+@model IEnumerable<RecruitmentTracker.Models.JobVacancy>
+
+@{
+    ViewData["Title"] = "Job Postings";
+
+    var counts = ViewBag.ApplicationCounts as IDictionary<int, int>
+                 ?? new Dictionary<int, int>();
+
+    var status = ViewBag.Status as string ?? "active";
+
+    var totalCount = ViewBag.TotalCount ?? 0;
+    var liveCount = ViewBag.LiveCount ?? 0;
+    var archivedCount = ViewBag.ArchivedCount ?? 0;
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .job-postings-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 25px 45px 60px;
+    }
+
+    .job-postings-wrapper {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .job-postings-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        gap: 25px;
+    }
+
+        .job-postings-heading h1 {
+            color: #0b1f3a;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 2px 0 3px;
+        }
+
+        .job-postings-heading p {
+            color: #718096;
+            margin: 0;
+            font-size: 12px;
+        }
+
+    .job-postings-label {
+        color: #718096;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .8px;
+    }
+
+
+    /* =========================================================
+           HEADER SEARCH AREA
+           ========================================================= */
+
+    .posting-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 450px;
+    }
+
+    .posting-header-search {
+        flex: 1;
+        position: relative;
+    }
+
+        .posting-header-search input {
+            width: 100%;
+            height: 45px;
+            background: white;
+            border: 1px solid #d8e0ea;
+            border-radius: 9px;
+            padding: 0 14px 0 40px;
+            color: #26374d;
+            font-size: 12px;
+        }
+
+            .posting-header-search input::placeholder {
+                color: #9aa6b5;
+            }
+
+            .posting-header-search input:focus {
+                outline: none;
+                border-color: #0b1f3a;
+                box-shadow: 0 0 0 3px rgba(11, 31, 58, .07);
+            }
+
+    .posting-search-icon {
+        position: absolute;
+        left: 14px;
+        top: 10px;
+        color: #8a96a6;
+        font-size: 18px;
+        z-index: 2;
+    }
+
+    .posting-search-btn {
+        height: 45px;
+        padding: 0 17px;
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+        .posting-search-btn:hover {
+            background: #132f55;
+        }
+
+    .posting-filter-btn {
+        height: 45px;
+        padding: 0 16px;
+        border: 1px solid #d8e0ea;
+        border-radius: 9px;
+        background: white;
+        color: #526174;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .posting-filter-btn:hover {
+            border-color: #0b1f3a;
+            color: #0b1f3a;
+            background: #fafbfd;
+        }
+
+
+    /* =========================================================
+           CREATE BUTTON
+           ========================================================= */
+
+    .create-posting-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #0b1f3a;
+        color: white;
+        border: none;
+        border-radius: 9px;
+        padding: 11px 17px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+        .create-posting-btn:hover {
+            background: #132f55;
+            color: white;
+        }
+
+    .create-top-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 45px;
+        padding: 0 18px;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: white;
+        border: 1px solid #0b1f3a;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: all .2s ease;
+        box-shadow: 0 4px 10px rgba(11, 31, 58, .12);
+    }
+
+        .create-top-btn:hover {
+            background: #163d69;
+            border-color: #163d69;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(11, 31, 58, .18);
+        }
+
+    .create-top-icon {
+        font-size: 18px;
+        line-height: 1;
+        font-weight: 400;
+    }
+
+
+
+
+    /* =========================================================
+           ALERTS
+           ========================================================= */
+
+    .posting-alert {
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+
+    /* =========================================================
+           TABS
+           ========================================================= */
+
+    .posting-tabs {
+        display: flex;
+        gap: 6px;
+        border-bottom: 1px solid #dce3ec;
+        margin-bottom: 18px;
+    }
+
+    .posting-tab {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        color: #718096;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+    }
+
+        .posting-tab:hover {
+            color: #18365f;
+        }
+
+        .posting-tab strong {
+            background: #edf2f7;
+            color: #18365f;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        /*
+           IMPORTANT:
+           No glow / shadow on active tab.
+        */
+
+        .posting-tab.active {
+            color: #0b1f3a;
+            border-bottom-color: #0b1f3a;
+        }
+
+            .posting-tab.active strong {
+                background: #e6edf5;
+                color: #0b1f3a;
+            }
+
+
+    /* =========================================================
+           FILTER PANEL
+           Hidden by default
+           ========================================================= */
+
+    .posting-filter-panel {
+        display: none;
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+        margin-bottom: 20px;
+    }
+
+        .posting-filter-panel.show {
+            display: block;
+        }
+
+    .filter-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .filter-panel-title strong {
+        display: block;
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .filter-panel-title span {
+        display: block;
+        color: #8a96a6;
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .filter-grid {
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+    }
+
+    .date-filter {
+        width: 190px;
+    }
+
+        .date-filter label {
+            display: block;
+            color: #526174;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .date-filter input {
+            width: 100%;
+            height: 38px;
+            border: 1px solid #d8e0ea;
+            border-radius: 8px;
+            padding: 0 10px;
+            color: #26374d;
+            background: white;
+            font-size: 12px;
+        }
+
+            .date-filter input:focus {
+                outline: none;
+                border-color: #0b1f3a;
+                box-shadow: 0 0 0 3px rgba(11, 31, 58, .05);
+            }
+
+    .apply-filter-btn {
+        height: 38px;
+        padding: 0 17px;
+        border: none;
+        border-radius: 8px;
+        background: #0b1f3a;
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+        .apply-filter-btn:hover {
+            background: #132f55;
+        }
+
+    .reset-filter-btn {
+        height: 38px;
+        padding: 0 15px;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        background: white;
+        color: #526174;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+        .reset-filter-btn:hover {
+            border-color: #0b1f3a;
+            color: #0b1f3a;
+        }
+
+
+    /* =========================================================
+           TABLE CARD
+           ========================================================= */
+
+    .posting-card {
+        background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+    }
+
+    .posting-card-header {
+        padding: 21px 24px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .posting-card-header p {
+            color: #8a96a6;
+            font-size: 12px;
+            margin: 0;
+        }
+
+
+    /* =========================================================
+           TABLE
+           ========================================================= */
+
+    .job-postings-table {
+        width: 100%;
+        min-width: 1150px;
+        border-collapse: collapse;
+        background: white;
+    }
+
+        .job-postings-table thead {
+            background: #f8fafc;
+        }
+
+        .job-postings-table th {
+            padding: 13px 15px;
+            text-align: left;
+            color: #718096;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .7px;
+            border-bottom: 1px solid #e4e9ef;
+            white-space: nowrap;
+        }
+
+        .job-postings-table td {
+            padding: 16px 15px;
+            color: #526174;
+            font-size: 12px;
+            border-bottom: 1px solid #edf0f4;
+            vertical-align: middle;
+        }
+
+        .job-postings-table tbody tr {
+            transition: .15s ease;
+        }
+
+            .job-postings-table tbody tr:hover {
+                background: #fafbfd;
+            }
+
+            .job-postings-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+
+    /* =========================================================
+           NUMBER
+           ========================================================= */
+
+    .posting-number {
+        color: #9aa6b5 !important;
+        width: 40px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+           JOB TITLE
+           ========================================================= */
+
+    .job-title-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 220px;
+    }
+
+    .job-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .job-icon-text {
+        color: #0b1f3a;
+    }
+
+    .job-title-cell strong {
+        display: block;
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .job-title-cell span {
+        display: block;
+        color: #9aa6b5;
+        font-size: 10px;
+    }
+
+
+    /* =========================================================
+           OTHER CELLS
+           ========================================================= */
+
+    .table-location {
+        color: #526174;
+        white-space: nowrap;
+    }
+
+    .salary {
+        color: #0b1f3a;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .text-muted {
+        color: #9aa6b5 !important;
+    }
+
+    .application-count {
+        color: #0b1f3a;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .application-count:hover {
+            color: #132f55;
+            text-decoration: underline;
+        }
+
+
+    /* =========================================================
+           TYPE
+           ========================================================= */
+
+    .type-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #f3f6fa;
+        color: #526174;
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+           STATUS
+           ========================================================= */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-live {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .status-unpublish {
+        background: #edf1f5;
+        color: #687789;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+
+    /* =========================================================
+           DEADLINE
+           ========================================================= */
+
+    .deadline-cell strong {
+        display: block;
+        color: #526174;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .deadline-cell span {
+        display: block;
+        color: #9aa6b5;
+        font-size: 9px;
+        margin-top: 2px;
+    }
+
+    .deadline-cell .deadline-expired {
+        color: #c95757;
+    }
+
+
+    /* =========================================================
+           ACTIONS
+           ========================================================= */
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+        min-width: 180px;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 9px;
+        border: 1px solid #dbe2eb;
+        border-radius: 7px;
+        background: white;
+        color: #526174;
+        font-size: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: .2s ease;
+    }
+
+        .action-btn:hover {
+            border-color: #0b1f3a;
+            color: #0b1f3a;
+            background: #f7f9fb;
+        }
+
+    .primary-action {
+        background: #0b1f3a;
+        border-color: #0b1f3a;
+        color: white;
+    }
+
+        .primary-action:hover {
+            background: #132f55;
+            border-color: #132f55;
+            color: white;
+        }
+
+    .delete-action {
+        color: #b64e55;
+        border-color: #efd3d5;
+    }
+
+        .delete-action:hover {
+            background: #fff5f5;
+            border-color: #d99a9f;
+            color: #a43d45;
+        }
+
+
+    /* =========================================================
+           EMPTY STATE
+           ========================================================= */
+
+    .empty-state {
+        padding: 65px 25px;
+        text-align: center;
+        background: white;
+    }
+
+    .empty-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 15px;
+        border-radius: 50%;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .empty-state h4 {
+        color: #0b1f3a;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .empty-state p {
+        color: #718096;
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 900px) {
+
+        .job-postings-page {
+            padding: 25px 20px 50px;
+        }
+
+        .job-postings-heading {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .posting-header-actions {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .posting-filter-panel {
+            width: 100%;
+        }
+
+        .filter-grid {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .date-filter {
+            width: 100%;
+        }
+
+        .posting-card {
+            overflow-x: auto;
+        }
+
+        .posting-tabs {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+
+<div class="job-postings-page">
+
+    <div class="job-postings-wrapper">
+
+
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
+       <div class="posting-header-actions">
+
+    <form method="get"
+          asp-action="Index"
+          class="d-flex gap-2 flex-grow-1">
+
+        <input type="hidden"
+               name="status"
+               value="@status" />
+
+        <div class="posting-header-search">
+
+            <span class="posting-search-icon">
+                ⌕
+            </span>
+
+            <input type="text"
+                   name="search"
+                   value="@ViewBag.Search"
+                   placeholder="Search job postings..." />
+
+        </div>
+
+        <button type="submit"
+                class="posting-search-btn">
+            Search
+        </button>
+
+    </form>
+
+
+    <button type="button"
+            class="posting-filter-btn"
+            onclick="togglePostingFilters()">
+        Filters
+    </button>
+
+
+    <!-- CREATE JOB POSTING -->
+
+    <a asp-action="Create"
+       class="create-top-btn">
+
+        <span class="create-top-icon">+</span>
+
+        Create Job Posting
+
+    </a>
+
+</div>
+
+
+        <!-- =====================================================
+             ALERTS
+             ===================================================== -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success posting-alert">
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger posting-alert">
+                @TempData["Error"]
+            </div>
+        }
+
+
+        <!-- =====================================================
+             TABS
+             ===================================================== -->
+
+        <div class="posting-tabs">
+
+            <a asp-action="Index"
+               asp-route-status="all"
+               class="posting-tab @(status == "all" ? "active" : "")">
+
+                <span>
+                    All
+                </span>
+
+                <strong>
+                    @totalCount
+                </strong>
+
+            </a>
+
+
+            <a asp-action="Index"
+               asp-route-status="active"
+               class="posting-tab @(status == "active" ? "active" : "")">
+
+                <span>
+                    Published
+                </span>
+
+                <strong>
+                    @liveCount
+                </strong>
+
+            </a>
+
+
+            <a asp-action="Index"
+               asp-route-status="closed"
+               class="posting-tab @(status == "closed" ? "active" : "")">
+
+                <span>
+                    Unpublished
+                </span>
+
+                <strong>
+                    @archivedCount
+                </strong>
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             HIDDEN FILTER PANEL
+             ===================================================== -->
+
+        <div id="postingFilterPanel"
+             class="posting-filter-panel">
+
+            <form method="get"
+                  asp-action="Index">
+
+                <input type="hidden"
+                       name="status"
+                       value="@status" />
+
+                <input type="hidden"
+                       name="search"
+                       value="@ViewBag.Search" />
+
+
+                <div class="filter-panel-header">
+
+                    <div class="filter-panel-title">
+
+                        <strong>
+                            Filter job postings
+                        </strong>
+
+                        <span>
+                            Narrow postings by their creation date.
+                        </span>
+
+                    </div>
+
+                    <a asp-action="Index"
+                       class="reset-filter-btn">
+
+                        Reset
+
+                    </a>
+
+                </div>
+
+
+                <div class="filter-grid">
+
+                    <div class="date-filter">
+
+                        <label>
+                            Posted from
+                        </label>
+
+                        <input type="date"
+                               name="fromDate"
+                               value="@ViewBag.FromDate" />
+
+                    </div>
+
+
+                    <div class="date-filter">
+
+                        <label>
+                            Posted to
+                        </label>
+
+                        <input type="date"
+                               name="toDate"
+                               value="@ViewBag.ToDate" />
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="apply-filter-btn">
+
+                        Apply filters
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- =====================================================
+             POSTINGS TABLE
+             ===================================================== -->
+
+        <div class="posting-card">
+
+            <div class="posting-card-header">
+
+                <div>
+
+                    <p>
+                        @totalCount
+                        @(totalCount == 1 ? "position" : "positions")
+                        currently displayed
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        +
+                    </div>
+
+                    <h4>
+                        No job postings found
+                    </h4>
+
+                    <p>
+                        Try changing your search or create a new job posting.
+                    </p>
+
+                    <a asp-action="Create"
+                       class="create-posting-btn">
+
+                        Create Job Posting
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="job-postings-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>JOB POSTING</th>
+
+                                <th>LOCATION</th>
+
+                                <th>SALARY</th>
+
+                                <th>APPLICATIONS</th>
+
+                                <th>TYPE</th>
+
+                                <th>STATUS</th>
+
+                                <th>DEADLINE</th>
+
+                                <th>ACTIONS</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @{
+                                var number = 1;
+                            }
+
+                            @foreach (var vacancy in Model)
+                            {
+                                var appCount =
+                                counts.TryGetValue(
+                                vacancy.Id,
+                                out var c)
+                                ? c
+                                : 0;
+
+                                var expired =
+                                vacancy.ClosingDate.Date < DateTime.Today;
+
+                                var isLive =
+                                vacancy.IsActive && !expired;
+
+
+                                <tr>
+
+                                    <td class="posting-number">
+                                        @number
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="job-title-cell">
+
+                                            <div class="job-icon">
+
+                                                @if (!string.IsNullOrEmpty(vacancy.JobTitle))
+                                                {
+                                                    <span class="job-icon-text">
+                                                        @vacancy.JobTitle.Substring(0, 1).ToUpper()
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="job-icon-text">
+                                                        J
+                                                    </span>
+                                                }
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <strong>
+                                                    @vacancy.JobTitle
+                                                </strong>
+
+                                                <span>
+                                                    @vacancy.JobCode
+                                                    · Posted @vacancy.CreatedDate.ToString("dd MMM yyyy")
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="table-location">
+                                            @vacancy.Location
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (vacancy.Salary.HasValue)
+                                        {
+                                            <span class="salary">
+                                                Rs. @vacancy.Salary.Value.ToString("N0")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not specified
+                                            </span>
+                                        }
+
+                                </td>
+
+
+                                <td>
+
+                                    <a asp-controller="JobApplication"
+                                       asp-action="Index"
+                                       asp-route-vacancyId="@vacancy.Id"
+                                       class="application-count">
+
+                                        @appCount
+                                        @(appCount == 1
+                                                                            ? "application"
+                                                                            : "applications")
+
+                                </a>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="type-badge">
+                                            @vacancy.EmploymentType
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                @if (isLive)
+                                        {
+                                            <span class="status-badge status-live">
+
+                                                <span class="status-dot"></span>
+
+                                                Published
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge status-unpublish">
+
+                                                <span class="status-dot"></span>
+
+                                                Unpublished
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="deadline-cell">
+
+                                            <strong>
+                                                @vacancy.ClosingDate.ToString("dd MMM yyyy")
+                                            </strong>
+
+                                            @if (expired)
+                                            {
+                                                <span class="deadline-expired">
+                                                    Expired
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span>
+                                                    Closing date
+                                                </span>
+                                            }
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="action-buttons">
+
+                                        <a asp-action="Details"
+                                           asp-route-id="@vacancy.Id"
+                                           class="action-btn primary-action">
+
+                                            View
+
+                                        </a>
+
+
+                                       
+
+
+                                        <form asp-action="ToggleStatus"
+                                              method="post"
+                                              class="d-inline">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@vacancy.Id" />
+
+                                            <button type="submit"
+                                                    class="action-btn">
+
+                                                @(vacancy.IsActive
+                                                                                            ? "Unpublish"
+                                                                                            : "Reopen")
+
+                                        </button>
+
+                                            </form>
+
+
+                                    @if (appCount == 0)
+                                            {
+                                                <a asp-action="Delete"
+                                                   asp-route-id="@vacancy.Id"
+                                                   class="action-btn delete-action">
+
+                                                    Delete
+
+                                                </a>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                                number++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function togglePostingFilters() {
+
+        const panel =
+            document.getElementById("postingFilterPanel");
+
+        panel.classList.toggle("show");
+
+    }
+
+</script>
