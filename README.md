@@ -34,23 +34,13 @@ Before running the project, make sure the following are installed:
 ### 1. Run the ASP.NET Core Application
 
 1. Clone or download this repository.
-
 2. Open the project folder.
-
 3. Open `RecruitmentTracker.sln` in Visual Studio 2022.
-
 4. Allow Visual Studio to restore the required NuGet packages.
-
 5. Make sure SQL Server LocalDB is installed.
-
-6. Build the solution using:
-
-   `Build > Build Solution`
-
+6. Build the solution using **Build > Build Solution**.
 7. Run the application using the **Run** button in Visual Studio.
-
 8. ASP.NET Core will start the local development server (Kestrel).
-
 9. The application will open using the localhost URL provided by Visual Studio.
 
 ### 2. Run the Flask AI API
@@ -67,13 +57,11 @@ The project contains an AI API implemented using Flask and Python.
 
    `pip install -r requirements.txt`
 
-4. Start the Flask API using:
+4. Start the AI API:
 
-   `python api.py`
+   `python ai_api.py`
 
-5. The Flask API will start on its configured local host and port.
-
-6. Keep the Flask API terminal running while using the AI-related features of the RecruitmentTracker application.
+5. Keep the Flask API terminal running while using the AI-related features of the RecruitmentTracker application.
 
 ### Important
 
@@ -91,26 +79,38 @@ The database connection is configured in `appsettings.json`.
 
 Entity Framework Core migrations are included in the project to manage the database structure.
 
-If required, the database can be created or updated using the available Entity Framework Core migrations.
+## Demo Accounts
+
+The following accounts can be used to test the system.
+
+### HR Account
+
+* **Email:** `hr@test.com`
+* **Password:** `HRtest123!`
+* **Role:** HR
+
+### Candidate Account
+
+* **Email:** `testcandidate1@gmail.com`
+* **Password:** `TESt123#$`
+* **Role:** Candidate
+
+These accounts are provided for demonstration and testing purposes.
 
 ## Application Execution
 
 The main RecruitmentTracker application runs locally through the ASP.NET Core development server (Kestrel).
 
-The AI functionality runs through a separate Flask development server using the `api.py` file.
+The AI functionality runs through a separate Flask development server using `ai_api.py`.
 
-Therefore, when AI functionality is required, both services should be running:
-
-**ASP.NET Core Application**
-
-Visual Studio → Run → Localhost
-
-**Flask AI API**
-
-Terminal → `python api.py` → Flask local server
+When AI functionality is required, both services should be running.
 
 ## Sprint 1
 
 This repository contains the implementation completed for Sprint 1, including the relevant ASP.NET Core MVC controllers, models, views, database components, user interface, and AI API components.
 
+## Repository
 
+GitHub Repository:
+
+`YOUR-GITHUB-LINK-HERE`
