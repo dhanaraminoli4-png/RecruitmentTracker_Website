@@ -109,8 +109,4 @@ When AI functionality is required, both services should be running.
 
 This repository contains the implementation completed for Sprint 1, including the relevant ASP.NET Core MVC controllers, models, views, database components, user interface, and AI API components.
 
-## Repository
 
-GitHub Repository:
-
-`YOUR-GITHUB-LINK-HERE`
