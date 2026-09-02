@@ -22,5 +22,7 @@ namespace RecruitmentTracker.Models
         public string Status { get; set; } = "";
 
         public string Method { get; set; } = "";
+
+
     }
 }
