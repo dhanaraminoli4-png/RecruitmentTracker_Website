@@ -82,5 +82,8 @@ namespace RecruitmentTracker.Models
 
         public DateTime UpdatedDate { get; set; } =
             DateTime.Now;
+
+
+        
     }
 }

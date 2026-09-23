@@ -665,8 +665,51 @@ namespace RecruitmentTracker.Controllers
 
                 if (interview.JobApplication != null)
                 {
-                    interview.JobApplication.InterviewStageStatus =
-                        "In Progress";
+                    // Check whether another active round exists after
+                    // the round the Hiring Manager just passed.
+                    var hasRemainingRound =
+                        await _context.InterviewRounds
+
+                            .AnyAsync(x =>
+                                x.JobVacancyId ==
+                                    interview.JobApplication.JobVacancyId
+
+                                &&
+
+                                x.IsActive
+
+                                &&
+
+                                x.SequenceNumber >
+                                    (interview.InterviewRound!
+                                        .SequenceNumber));
+
+
+                    if (hasRemainingRound)
+                    {
+                        // Candidate passed this round and can now be
+                        // scheduled for the next one.
+                        interview.JobApplication.InterviewStageStatus =
+                            "In Progress";
+
+                        interview.JobApplication.InterviewProcessCompleted =
+                            false;
+                    }
+                    else
+                    {
+                        // This was the final active required round.
+                        interview.JobApplication.InterviewStageStatus =
+                            "Completed";
+
+                        interview.JobApplication.InterviewProcessCompleted =
+                            true;
+
+                        interview.JobApplication.InterviewDecisionBy =
+                            currentUserName;
+
+                        interview.JobApplication.InterviewDecisionDate =
+                            DateTime.Now;
+                    }
                 }
             }
             else

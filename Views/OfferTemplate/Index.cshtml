@@ -1,4 +1,5 @@
-﻿@model IEnumerable<RecruitmentTracker.Models.OfferTemplate>
+﻿@using System.Text.Json
+@model IEnumerable<RecruitmentTracker.Models.OfferTemplate>
 
 @{
     ViewData["Title"] = "Offer Templates";
@@ -9,9 +10,1215 @@
     var total = templates.Count;
     var active = templates.Count(x => x.IsActive);
     var inactive = templates.Count(x => !x.IsActive);
+
+    var firstTemplate = templates.FirstOrDefault();
 }
 
-<div class="offer-page">
+<style>
+    :root {
+        --offer-blue: #69b7f4;
+        --offer-blue-dark: #4b9ee4;
+        --offer-blue-soft: #eaf5ff;
+        --offer-blue-pale: #f6fbff;
+        --offer-bg: #edf7ff;
+        --offer-surface: rgba(255,255,255,.92);
+        --offer-line: #dceaf6;
+        --offer-line-soft: #edf4f9;
+        --offer-text: #213f5d;
+        --offer-text-2: #54708a;
+        --offer-muted: #8da4b8;
+        --offer-green: #38a878;
+        --offer-green-bg: #eaf8f1;
+        --offer-red: #c4616c;
+        --offer-red-bg: #fff0f2;
+        --offer-shadow: 0 18px 50px rgba(70, 121, 164, .10);
+        --offer-shadow-soft: 0 8px 24px rgba(70, 121, 164, .08);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body.modal-open {
+        overflow: hidden;
+    }
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .offer-studio-page {
+        min-height: calc(100vh - 80px);
+        padding: 22px;
+        background: radial-gradient(circle at 8% 2%, rgba(152, 211, 250, .24), transparent 26%), radial-gradient(circle at 92% 6%, rgba(205, 231, 251, .36), transparent 24%), linear-gradient(180deg, #edf7ff 0%, #f8fbff 100%);
+        color: var(--offer-text);
+    }
+
+    .offer-studio-shell {
+        max-width: 1680px;
+        margin: 0 auto;
+        overflow: hidden;
+        border: 1px solid #d9e8f4;
+        border-radius: 26px;
+        background: rgba(255,255,255,.90);
+        box-shadow: 0 24px 64px rgba(77, 126, 168, .13);
+        backdrop-filter: blur(14px);
+    }
+
+    /* =========================================================
+           TOP BAR
+           ========================================================= */
+
+    .offer-studio-topbar {
+        min-height: 78px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        border-bottom: 1px solid var(--offer-line-soft);
+        background: rgba(255,255,255,.94);
+    }
+
+    .offer-topbar-left,
+    .offer-topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .offer-back-circle {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        border: 1px solid var(--offer-line);
+        background: #fff;
+        color: #7992a8;
+        text-decoration: none;
+        font-size: 18px;
+        transition: .18s ease;
+    }
+
+        .offer-back-circle:hover {
+            background: var(--offer-blue-soft);
+            color: var(--offer-blue-dark);
+            transform: translateX(-2px);
+        }
+
+    .offer-title-copy h1 {
+        margin: 0;
+        color: #1e3d5b;
+        font-size: 18px;
+        font-weight: 850;
+        letter-spacing: -.25px;
+    }
+
+    .offer-title-copy p {
+        margin: 4px 0 0;
+        color: var(--offer-muted);
+        font-size: 10px;
+    }
+
+    .offer-top-btn {
+        min-height: 40px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid #d8e7f4;
+        border-radius: 11px;
+        background: white;
+        color: #5f7890;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+        .offer-top-btn:hover {
+            border-color: #b8d8ee;
+            background: #f8fcff;
+            color: #3f82b2;
+            transform: translateY(-1px);
+        }
+
+        .offer-top-btn.primary {
+            border-color: #76bae9;
+            background: linear-gradient(180deg, #91cdf7, #73b8ea);
+            color: white;
+            box-shadow: 0 8px 18px rgba(115, 184, 234, .22);
+        }
+
+            .offer-top-btn.primary:hover {
+                background: linear-gradient(180deg, #84c6f3, #67afe4);
+                color: white;
+                box-shadow: 0 12px 24px rgba(103, 175, 228, .26);
+            }
+
+    /* =========================================================
+           3-COLUMN STUDIO
+           ========================================================= */
+
+    .offer-studio-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(560px, 1fr) 310px;
+        min-height: 760px;
+    }
+
+    .offer-template-sidebar,
+    .offer-detail-sidebar {
+        background: rgba(250, 253, 255, .88);
+        backdrop-filter: blur(12px);
+    }
+
+    .offer-template-sidebar {
+        border-right: 1px solid var(--offer-line-soft);
+    }
+
+    .offer-detail-sidebar {
+        border-left: 1px solid var(--offer-line-soft);
+    }
+
+    .offer-sidebar-inner {
+        height: 100%;
+        padding: 18px;
+    }
+
+    /* =========================================================
+           LEFT — TEMPLATE LIBRARY
+           ========================================================= */
+
+    .offer-sidebar-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+        padding: 5px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+        background: #eaf4fd;
+    }
+
+    .offer-sidebar-tab {
+        min-height: 35px;
+        border: 0;
+        border-radius: 9px;
+        background: transparent;
+        color: #7b91a5;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+        .offer-sidebar-tab.active {
+            background: white;
+            color: var(--offer-blue-dark);
+            box-shadow: 0 5px 12px rgba(75, 120, 157, .08);
+        }
+
+    .offer-library-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+        .offer-library-title strong {
+            color: #375673;
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: .35px;
+            text-transform: uppercase;
+        }
+
+        .offer-library-title span {
+            min-width: 24px;
+            height: 22px;
+            padding: 0 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: #eaf5ff;
+            color: #5d9bc8;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+    .offer-search-box {
+        height: 42px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        margin-bottom: 13px;
+        border: 1px solid #dbe8f3;
+        border-radius: 11px;
+        background: white;
+    }
+
+        .offer-search-box span {
+            color: #90a7ba;
+            font-size: 14px;
+        }
+
+        .offer-search-box input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: #45627c;
+            font-size: 11px;
+        }
+
+            .offer-search-box input::placeholder {
+                color: #a3b4c3;
+            }
+
+    .offer-template-list {
+        display: grid;
+        gap: 8px;
+        max-height: 610px;
+        overflow-y: auto;
+        padding-right: 3px;
+    }
+
+        .offer-template-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .offer-template-list::-webkit-scrollbar-thumb {
+            background: #c8dceb;
+            border-radius: 999px;
+        }
+
+    .offer-template-item {
+        width: 100%;
+        padding: 11px;
+        display: grid;
+        grid-template-columns: 40px minmax(0,1fr);
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e2edf6;
+        border-radius: 13px;
+        background: rgba(255,255,255,.82);
+        text-align: left;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+        .offer-template-item:hover {
+            transform: translateY(-1px);
+            border-color: #c7e0f2;
+            background: white;
+            box-shadow: 0 7px 16px rgba(75, 120, 157, .08);
+        }
+
+        .offer-template-item.active {
+            border-color: #9dcff1;
+            background: #eef8ff;
+            box-shadow: 0 0 0 2px rgba(105,183,244,.08);
+        }
+
+    .offer-template-icon {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: #e8f4ff;
+        color: #5a9dd0;
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .offer-template-item.active .offer-template-icon {
+        background: #dff1ff;
+        color: #3e8fca;
+    }
+
+    .offer-template-copy {
+        min-width: 0;
+    }
+
+        .offer-template-copy strong {
+            display: block;
+            overflow: hidden;
+            color: #385773;
+            font-size: 11px;
+            font-weight: 850;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .offer-template-copy span {
+            display: block;
+            margin-top: 3px;
+            color: #96a9b9;
+            font-size: 8px;
+        }
+
+    .offer-template-status-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin-right: 4px;
+        border-radius: 50%;
+        background: #b2bdc7;
+    }
+
+        .offer-template-status-dot.active {
+            background: #45b483;
+        }
+
+    .offer-new-template {
+        width: 100%;
+        min-height: 42px;
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px dashed #a8d2ee;
+        border-radius: 12px;
+        background: #f5fbff;
+        color: #4f95c7;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 800;
+        transition: .18s ease;
+    }
+
+        .offer-new-template:hover {
+            background: #ebf7ff;
+            color: #3d85b9;
+        }
+
+    /* =========================================================
+           CENTER — DOCUMENT CANVAS
+           ========================================================= */
+
+    .offer-document-workspace {
+        padding: 34px 28px 46px;
+        background: radial-gradient(circle, rgba(114, 156, 190, .10) 1px, transparent 1px);
+        background-size: 13px 13px;
+        background-color: #f6f9fc;
+        overflow: auto;
+    }
+
+    .offer-document-toolbar {
+        max-width: 780px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .offer-document-toolbar-left {
+        min-width: 0;
+    }
+
+        .offer-document-toolbar-left strong {
+            display: block;
+            overflow: hidden;
+            color: #4a667f;
+            font-size: 11px;
+            font-weight: 850;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .offer-document-toolbar-left span {
+            display: block;
+            margin-top: 3px;
+            color: #98aabc;
+            font-size: 9px;
+        }
+
+    .offer-document-toolbar-actions {
+        display: flex;
+        gap: 7px;
+    }
+
+    .offer-mini-btn {
+        min-height: 34px;
+        padding: 0 11px;
+        border: 1px solid #d8e6f2;
+        border-radius: 9px;
+        background: rgba(255,255,255,.92);
+        color: #698198;
+        font-size: 9px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+        .offer-mini-btn:hover {
+            background: #eef8ff;
+            color: #4c8dbb;
+        }
+
+    .offer-letter-paper {
+        max-width: 780px;
+        min-height: 820px;
+        margin: 0 auto;
+        padding: 42px 46px 52px;
+        border: 1px solid #e1e8ee;
+        background: #ffffff;
+        box-shadow: 0 18px 45px rgba(52, 79, 101, .13);
+        position: relative;
+    }
+
+    .offer-letter-brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #76b9ed;
+    }
+
+    .offer-letter-brand-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .offer-letter-logo {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: linear-gradient(145deg,#dff1ff,#eef8ff);
+        color: #4e95c8;
+        font-weight: 900;
+        font-size: 15px;
+    }
+
+    .offer-letter-company strong {
+        display: block;
+        color: #24435f;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .offer-letter-company span {
+        display: block;
+        margin-top: 2px;
+        color: #8ca0b2;
+        font-size: 8px;
+    }
+
+    .offer-letter-contact {
+        text-align: right;
+        color: #7c93a7;
+        font-size: 8px;
+        line-height: 1.5;
+    }
+
+    .offer-letter-title {
+        margin: 28px 0 24px;
+        text-align: center;
+        color: #1e2f40;
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    .offer-letter-meta {
+        margin-bottom: 22px;
+        color: #526b82;
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .offer-letter-body {
+        color: #35485b;
+        font-size: 10px;
+        line-height: 1.75;
+        white-space: pre-wrap;
+    }
+
+        .offer-letter-body .offer-variable-token {
+            padding: 1px 4px;
+            border-radius: 4px;
+            background: #fff7cc;
+            color: #725f1b;
+            font-weight: 750;
+        }
+
+    .offer-letter-empty {
+        padding: 120px 30px;
+        text-align: center;
+        color: #91a5b6;
+    }
+
+    .offer-letter-empty-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 14px;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        background: #eaf5ff;
+        color: #5e9fd0;
+        font-size: 24px;
+    }
+
+    .offer-letter-empty strong {
+        display: block;
+        color: #49677f;
+        font-size: 13px;
+        font-weight: 850;
+    }
+
+    .offer-letter-empty span {
+        display: block;
+        margin-top: 6px;
+        font-size: 9px;
+    }
+
+    /* =========================================================
+           RIGHT — TEMPLATE DETAILS / GENERATION PANEL
+           ========================================================= */
+
+    .offer-right-section {
+        padding-bottom: 18px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e8f0f6;
+    }
+
+        .offer-right-section:last-child {
+            border-bottom: 0;
+        }
+
+    .offer-right-heading {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 12px;
+    }
+
+    .offer-right-heading-icon {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: #e9f5ff;
+        color: #5d9cc8;
+        font-size: 13px;
+    }
+
+    .offer-right-heading strong {
+        color: #385873;
+        font-size: 11px;
+        font-weight: 850;
+    }
+
+    .offer-detail-grid {
+        display: grid;
+        gap: 10px;
+    }
+
+    .offer-detail-row {
+        display: grid;
+        grid-template-columns: 88px minmax(0,1fr);
+        gap: 10px;
+        align-items: start;
+        color: #70879c;
+        font-size: 9px;
+    }
+
+        .offer-detail-row span:first-child {
+            color: #93a6b7;
+        }
+
+        .offer-detail-row strong {
+            color: #46647e;
+            font-weight: 800;
+            word-break: break-word;
+        }
+
+    .offer-right-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        width: fit-content;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #eef2f5;
+        color: #7b8e9f;
+        font-size: 8px;
+        font-weight: 850;
+    }
+
+        .offer-right-status.active {
+            background: var(--offer-green-bg);
+            color: var(--offer-green);
+        }
+
+    .offer-variable-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .offer-variable-chip {
+        padding: 6px 8px;
+        border-radius: 8px;
+        background: #edf7ff;
+        color: #528fb8;
+        font-size: 8px;
+        font-weight: 750;
+    }
+
+    .offer-variable-empty {
+        color: #9aabb9;
+        font-size: 9px;
+    }
+
+    .offer-generate-card {
+        padding: 14px;
+        border: 1px solid #d8e9f6;
+        border-radius: 15px;
+        background: linear-gradient(145deg, #eef8ff 0%, #fbfdff 100%);
+    }
+
+        .offer-generate-card strong {
+            display: block;
+            color: #315b7d;
+            font-size: 11px;
+            font-weight: 850;
+        }
+
+        .offer-generate-card p {
+            margin: 5px 0 12px;
+            color: #84a0b6;
+            font-size: 9px;
+            line-height: 1.55;
+        }
+
+    .offer-generate-main-btn {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid #74b8e8;
+        border-radius: 11px;
+        background: linear-gradient(180deg,#91cdf7,#73b8ea);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 850;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(115,184,234,.20);
+        transition: .18s ease;
+    }
+
+        .offer-generate-main-btn:hover {
+            background: linear-gradient(180deg,#84c6f3,#67afe4);
+            transform: translateY(-1px);
+        }
+
+    .offer-right-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+        margin-top: 9px;
+    }
+
+    .offer-right-action {
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d8e6f2;
+        border-radius: 10px;
+        background: #fff;
+        color: #6b8297;
+        text-decoration: none;
+        font-size: 9px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+        .offer-right-action:hover {
+            background: #f4faff;
+            color: #4d8dbb;
+        }
+
+    /* =========================================================
+           EMPTY LIBRARY
+           ========================================================= */
+
+    .offer-library-empty {
+        padding: 30px 12px;
+        text-align: center;
+        color: #9bafbf;
+        font-size: 9px;
+    }
+
+    /* =========================================================
+           SUCCESS ALERT
+           ========================================================= */
+
+    .offer-success-message {
+        max-width: 1680px;
+        margin: 0 auto 12px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #c8e8d8;
+        border-radius: 12px;
+        background: #effaf5;
+        color: #438a68;
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+    /* =========================================================
+           GENERATE MODAL
+           ========================================================= */
+
+    .offer-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        padding: 24px;
+        align-items: center;
+        justify-content: center;
+        background: rgba(31, 54, 75, .30);
+        backdrop-filter: blur(8px);
+    }
+
+        .offer-modal-overlay.show {
+            display: flex;
+        }
+
+    .generate-offer-modal {
+        width: min(560px, 100%);
+        max-height: 88vh;
+        overflow: hidden;
+        border: 1px solid #d8e7f3;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 28px 70px rgba(31, 54, 75, .20);
+    }
+
+    .generate-offer-header {
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid #e9f0f6;
+        background: #f8fcff;
+    }
+
+        .generate-offer-header h2 {
+            margin: 0;
+            color: #284d6c;
+            font-size: 18px;
+            font-weight: 850;
+        }
+
+        .generate-offer-header p {
+            margin: 4px 0 0;
+            color: #8da3b6;
+            font-size: 9px;
+        }
+
+    .offer-modal-close {
+        width: 34px;
+        height: 34px;
+        border: 1px solid #dbe8f3;
+        border-radius: 10px;
+        background: white;
+        color: #7c92a7;
+        cursor: pointer;
+    }
+
+    .generate-offer-body {
+        max-height: 58vh;
+        overflow-y: auto;
+        padding: 20px 22px;
+    }
+
+    .generate-description {
+        margin: 0 0 14px;
+        color: #8298ac;
+        font-size: 10px;
+    }
+
+    .generate-field {
+        margin-bottom: 13px;
+    }
+
+        .generate-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: #4a657d;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .generate-field input {
+            width: 100%;
+            height: 43px;
+            padding: 0 12px;
+            border: 1px solid #d8e6f2;
+            border-radius: 10px;
+            background: #fbfdff;
+            color: #395772;
+            font-size: 11px;
+            outline: none;
+        }
+
+            .generate-field input:focus {
+                border-color: #8bc3ed;
+                box-shadow: 0 0 0 4px rgba(105,183,244,.10);
+            }
+
+    .generate-offer-footer {
+        padding: 15px 22px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid #e9f0f6;
+        background: #fbfdff;
+    }
+
+    .offer-cancel-btn,
+    .offer-create-btn {
+        min-height: 40px;
+        padding: 0 15px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .offer-cancel-btn {
+        border: 1px solid #d7e5f0;
+        background: white;
+        color: #6d8498;
+    }
+
+    .offer-create-btn {
+        border: 1px solid #75b9e9;
+        background: linear-gradient(180deg,#91cdf7,#73b8ea);
+        color: white;
+    }
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 1200px) {
+        .offer-studio-layout
+
+    {
+        grid-template-columns: 230px minmax(520px, 1fr);
+    }
+
+    .offer-detail-sidebar {
+        grid-column: 1 / -1;
+        border-left: 0;
+        border-top: 1px solid var(--offer-line-soft);
+    }
+
+        .offer-detail-sidebar .offer-sidebar-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+        }
+
+    .offer-right-section {
+        border-bottom: 0;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    }
+
+    @@media (max-width: 800px) {
+        .offer-studio-page
+
+    {
+        padding: 10px;
+    }
+
+    .offer-studio-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .offer-topbar-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .offer-studio-layout {
+        display: block;
+    }
+
+    .offer-template-sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--offer-line-soft);
+    }
+
+    .offer-template-list {
+        max-height: 260px;
+    }
+
+    .offer-document-workspace {
+        padding: 22px 12px 30px;
+    }
+
+    .offer-letter-paper {
+        padding: 28px 22px 36px;
+    }
+
+    .offer-detail-sidebar .offer-sidebar-inner {
+        display: block;
+    }
+
+    .offer-right-section {
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #e8f0f6;
+    }
+
+    }
+
+    /* =========================================================
+           PROFESSIONAL OFFER LETTER PREVIEW
+           Larger text + light blue HireTrack styling
+           ========================================================= */
+
+    .offer-letter-paper {
+        max-width: 780px !important;
+        min-height: 1020px !important;
+        padding: 0 !important;
+        overflow: hidden;
+        background: #ffffff !important;
+        border: 1px solid #dfe8ef !important;
+        box-shadow: 0 20px 50px rgba(45, 75, 101, .15) !important;
+        position: relative;
+    }
+
+        .offer-letter-paper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 190px;
+            height: 17px;
+            background: #a8d8fa;
+            clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+            z-index: 3;
+        }
+
+        .offer-letter-paper::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 245px;
+            height: 28px;
+            background: #6fb8ee;
+            clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
+            z-index: 3;
+        }
+
+    .offer-letter-inner {
+        min-height: 1020px;
+        padding: 60px 62px 58px;
+        position: relative;
+        background: radial-gradient(circle at 72% 42%, rgba(113, 184, 238, .055), transparent 28%), #ffffff;
+    }
+
+        .offer-letter-inner::before {
+            content: "";
+            position: absolute;
+            right: -55px;
+            top: 260px;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            border: 38px solid rgba(111, 184, 238, .03);
+            pointer-events: none;
+        }
+
+        .offer-letter-inner::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 22px;
+            background: linear-gradient(90deg, #6fb8ee 0 48%, transparent 48% 52%, #a8d8fa 52% 100%);
+            clip-path: polygon(0 0, 45% 0, 49% 100%, 75% 100%, 79% 0, 100% 0, 100% 100%, 0 100%);
+            pointer-events: none;
+        }
+
+    .offer-letter-brand {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 22px !important;
+        padding-bottom: 18px !important;
+        border-bottom: 1px solid #aebdca !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    .offer-letter-logo {
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 13px !important;
+        background: linear-gradient(145deg, #dff1ff, #edf8ff) !important;
+        color: #4f98cc !important;
+        font-size: 20px !important;
+        font-weight: 900 !important;
+    }
+
+    .offer-letter-company strong {
+        color: #233a4d !important;
+        font-size: 16px !important;
+        font-weight: 900 !important;
+    }
+
+    .offer-letter-company span {
+        color: #7d91a2 !important;
+        font-size: 10px !important;
+    }
+
+    .offer-letter-contact {
+        color: #6f8293 !important;
+        font-size: 10px !important;
+        line-height: 1.55 !important;
+    }
+
+    .offer-letter-title {
+        margin: 30px 0 28px !important;
+        text-align: center !important;
+        color: #17212b !important;
+        font-size: 26px !important;
+        font-weight: 900 !important;
+        letter-spacing: .45px;
+        text-transform: uppercase;
+        position: relative;
+        z-index: 1;
+    }
+
+    .offer-letter-meta-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        margin-bottom: 26px;
+        color: #405467;
+        font-size: 12px;
+        line-height: 1.65;
+        position: relative;
+        z-index: 1;
+    }
+
+    .offer-company-block strong,
+    .offer-recipient-block strong {
+        color: #2c4052;
+        font-weight: 900;
+    }
+
+    .offer-letter-date {
+        text-align: right;
+        white-space: nowrap;
+        color: #526678;
+        font-size: 12px;
+    }
+
+    .offer-recipient-block {
+        margin-bottom: 27px;
+        color: #405467;
+        font-size: 12px;
+        line-height: 1.65;
+        position: relative;
+        z-index: 1;
+    }
+
+    .offer-letter-body {
+        color: #33485b !important;
+        font-size: 13px !important;
+        line-height: 1.8 !important;
+        white-space: pre-wrap !important;
+        position: relative;
+        z-index: 1;
+    }
+
+        .offer-letter-body strong {
+            color: #23384b;
+            font-weight: 850;
+        }
+
+        .offer-letter-body .offer-variable-token {
+            padding: 2px 5px !important;
+            border-radius: 5px !important;
+            background: #eef8ff !important;
+            color: #3b7fab !important;
+            font-weight: 850 !important;
+        }
+
+    .offer-letter-signoff {
+        margin-top: 38px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 28px;
+        align-items: end;
+        position: relative;
+        z-index: 1;
+    }
+
+    .offer-signature-block {
+        color: #405467;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .offer-signature-mark {
+        margin: 9px 0 8px;
+        color: #5d7b91;
+        font-family: "Segoe Script", "Brush Script MT", cursive;
+        font-size: 29px;
+        line-height: 1;
+        transform: rotate(-4deg);
+        transform-origin: left center;
+    }
+
+    .offer-footer-contact {
+        min-width: 205px;
+        color: #5f7487;
+        font-size: 10px;
+        line-height: 1.75;
+    }
+
+        .offer-footer-contact span {
+            display: block;
+        }
+
+        .offer-footer-contact b {
+            color: #4e8fbd;
+            display: inline-block;
+            width: 20px;
+        }
+
+</style>
+
+
+<div class="offer-studio-page">
 
     @if (TempData["Success"] != null)
     {
@@ -21,434 +1228,588 @@
         </div>
     }
 
-    <!-- =========================================================
-         HEADER
-         ========================================================= -->
-
-    <div class="offer-page-header">
-
-        <div>
-            <h1>Offer Templates</h1>
-            <p>Manage reusable templates for job offer letters.</p>
-        </div>
-
-        <a asp-controller="OfferTemplate"
-           asp-action="Create"
-           class="offer-add-btn">
-
-            <span>+</span>
-            Add Template
-
-        </a>
-
-    </div>
-
-
-    <!-- =========================================================
-         FILTER
-         ========================================================= -->
-
-    <div class="offer-filter-card">
-
-        <div class="offer-search-row">
-
-            <div class="offer-search">
-
-                <span class="offer-search-icon">⌕</span>
-
-                <input type="text"
-                       id="offerSearch"
-                       placeholder="Search..."
-                       oninput="filterOffers()" />
-
-            </div>
-
-        </div>
-
-
-        <div class="offer-tabs">
-
-            <button type="button"
-                    class="offer-tab active"
-                    onclick="setOfferStatus(this, '')">
-
-                All
-                <span class="offer-count">@total</span>
-
-            </button>
-
-
-            <button type="button"
-                    class="offer-tab"
-                    onclick="setOfferStatus(this, 'Active')">
-
-                Active
-                <span class="offer-count">@active</span>
-
-            </button>
-
-
-            <button type="button"
-                    class="offer-tab"
-                    onclick="setOfferStatus(this, 'Inactive')">
-
-                Inactive
-                <span class="offer-count">@inactive</span>
-
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <!-- =========================================================
-         TABLE
-         ========================================================= -->
-
-    <div class="offer-table-card">
-
-        <div class="offer-table-scroll">
-
-            <table class="offer-table">
-
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Content Preview</th>
-                        <th>Variables</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-
-                <tbody>
-
-                    @if (!templates.Any())
-                    {
-                        <tr>
-                            <td colspan="7">
-
-                                <div class="offer-empty">
-
-                                    <strong>
-                                        No offer templates
-                                    </strong>
-
-                                    <span>
-                                        Create your first reusable offer template.
-                                    </span>
-
-                                </div>
-
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        var number = 1;
-
-                        foreach (var template in templates)
-                        {
-                            var variables = template.Variables
-                            .Split(
-                            ',',
-                            StringSplitOptions.RemoveEmptyEntries)
-                            .Select(x => x.Trim())
-                            .ToList();
-
-                            var status =
-                            template.IsActive
-                            ? "Active"
-                            : "Inactive";
-
-
-                            <tr class="offer-row"
-                                data-status="@status"
-                                data-search="@($"{template.Name} {template.Content}".ToLower())">
-
-                                <!-- NUMBER -->
-
-                                <td>
-                                    @number
-                                </td>
-
-
-                                <!-- NAME -->
-
-                                <td>
-
-                                    <strong class="offer-template-name">
-                                        @template.Name
-                                    </strong>
-
-                                </td>
-
-
-                                <!-- CONTENT -->
-
-                                <td>
-
-                                    <div class="offer-preview">
-                                        @template.Content
-                                    </div>
-
-                                </td>
-
-
-                                <!-- VARIABLES -->
-
-                                <td>
-
-                                    <div class="offer-variables">
-
-                                        @foreach (var variable in variables.Take(3))
-                                        {
-                                            <span>
-                                                @variable
-                                            </span>
-                                        }
-
-                                        @if (variables.Count > 3)
-                                        {
-                                            <small>
-                                                +@(variables.Count - 3) more
-                                            </small>
-                                        }
-
-                                    </div>
-
-                                </td>
-
-
-                                <!-- STATUS -->
-
-                                <td>
-
-                                    <span class="offer-status @status.ToLower()">
-                                        @status
-                                    </span>
-
-                                </td>
-
-
-                                <!-- CREATED -->
-
-                                <td>
-
-                                    <div class="offer-date">
-                                        @template.CreatedDate.ToString("yyyy-MM-dd")
-                                    </div>
-
-                                </td>
-
-
-                                <!-- =================================================
-                                     ACTIONS
-                                     1 VIEW
-                                     2 PREVIEW
-                                     3 GENERATE
-                                     4 EDIT
-                                     ================================================= -->
-
-                                <td>
-
-                                    <div class="offer-actions">
-
-
-                                        <!-- 1. VIEW -->
-
-                                        <a asp-controller="OfferTemplate"
-                                           asp-action="Details"
-                                           asp-route-id="@template.Id"
-                                           class="offer-action-link"
-                                           title="View Template">
-
-                                            <svg viewBox="0 0 24 24"
-                                                 aria-hidden="true">
-
-                                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-
-                                                <circle cx="12"
-                                                        cy="12"
-                                                        r="2.8" />
-
-                                            </svg>
-
-                                        </a>
-
-
-                                        <!-- 2. PREVIEW -->
-
-                                        <button type="button"
-                                                class="offer-icon-btn"
-                                                title="Preview Template"
-                                                onclick="openTemplatePreview(@template.Id)">
-
-                                            <svg viewBox="0 0 24 24"
-                                                 aria-hidden="true">
-
-                                                <path d="M6 2.75h8l4 4V21.25H6Z" />
-
-                                                <path d="M14 2.75v4h4" />
-
-                                                <path d="M9 11h6M9 15h6" />
-
-                                            </svg>
-
-                                        </button>
-
-
-                                        <!-- 3. GENERATE -->
-                                        @if (template.IsActive)
-                                        {
-                                            <button type="button"
-                                                    class="offer-icon-btn"
-                                                    title="Generate Offer"
-                                                    onclick="openGenerateOffer(@template.Id)">
-
-                                                <svg viewBox="0 0 24 24"
-                                                     aria-hidden="true">
-
-                                                    <path d="M12 3v12" />
-
-                                                    <path d="m8 11 4 4 4-4" />
-
-                                                    <path d="M5 19h14" />
-
-                                                </svg>
-
-                                            </button>
-                                        }
-
-
-                                        <!-- 4. EDIT -->
-
-                                        <a asp-controller="OfferTemplate"
-                                           asp-action="Edit"
-                                           asp-route-id="@template.Id"
-                                           class="offer-action-link"
-                                           title="Edit Template">
-
-                                            <svg viewBox="0 0 24 24"
-                                                 aria-hidden="true">
-
-                                                <path d="M4 20h4L19 9l-4-4L4 16Z" />
-
-                                                <path d="m13.5 6.5 4 4" />
-
-                                            </svg>
-
-                                        </a>
-
-                                        <!-- 5. DELETE -->
-
-                                        <form asp-controller="OfferTemplate"
-                                              asp-action="Delete"
-                                              asp-route-id="@template.Id"
-                                              method="post"
-                                              class="offer-delete-form"
-                                              onsubmit="return confirmDeleteTemplate('@template.Name');">
-
-                                            @Html.AntiForgeryToken()
-
-                                            <button type="submit"
-                                                    class="offer-icon-btn offer-delete-btn"
-                                                    title="Delete Template">
-
-                                                <svg viewBox="0 0 24 24"
-                                                     aria-hidden="true">
-
-                                                    <path d="M4 7h16" />
-
-                                                    <path d="M9 7V4h6v3" />
-
-                                                    <path d="M6.5 7l1 13h9l1-13" />
-
-                                                    <path d="M10 11v5" />
-
-                                                    <path d="M14 11v5" />
-
-                                                </svg>
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            number++;
-                        }
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- =============================================================
-     TEMPLATE PREVIEW MODAL
-     ============================================================= -->
-
-<div id="templatePreviewOverlay"
-     class="offer-modal-overlay">
-
-    <div class="template-preview-modal">
-
-        <div class="preview-modal-header">
-
-            <h2 id="previewTemplateTitle">
-                Template Preview
-            </h2>
-
-            <button type="button"
-                    class="offer-modal-close"
-                    onclick="closeTemplatePreview()">
-
-                ×
-
-            </button>
-
-        </div>
-
-
-        <div class="preview-modal-body">
-
-            <div id="previewTemplateContent"
-                 class="preview-template-content">
-            </div>
-
-
-            <div class="preview-variable-section">
-
-                <h3>Available Variables:</h3>
-
-                <div id="previewVariables"
-                     class="preview-variable-list">
+    <div class="offer-studio-shell">
+
+        <!-- =====================================================
+             TOP BAR
+             ===================================================== -->
+
+        <div class="offer-studio-topbar">
+
+            <div class="offer-topbar-left">
+
+                <a asp-controller="Dashboard"
+                   asp-action="HR"
+                   class="offer-back-circle"
+                   title="Back">
+                    ←
+                </a>
+
+                <div class="offer-title-copy">
+                    <h1 id="studioTitle">
+                        @(firstTemplate?.Name ?? "Offer Letter Studio")
+                    </h1>
+
+                    <p>
+                        Build, preview and generate polished candidate offer letters.
+                    </p>
                 </div>
 
             </div>
 
+
+            <div class="offer-topbar-actions">
+
+                @if (firstTemplate != null)
+                {
+                    <a id="topEditButton"
+                       asp-controller="OfferTemplate"
+                       asp-action="Edit"
+                       asp-route-id="@firstTemplate.Id"
+                       class="offer-top-btn">
+                        Edit Template
+                    </a>
+
+                    @if (firstTemplate.IsActive)
+                    {
+                        <button type="button"
+                                id="topGenerateButton"
+                                class="offer-top-btn primary"
+                                onclick="openGenerateOffer(@firstTemplate.Id)">
+                            Generate Offer
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                id="topGenerateButton"
+                                class="offer-top-btn primary"
+                                disabled>
+                            Template Inactive
+                        </button>
+                    }
+                }
+
+                <a asp-controller="OfferTemplate"
+                   asp-action="Create"
+                   class="offer-top-btn">
+                    + New Template
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="offer-studio-layout">
+
+            <!-- =================================================
+                 LEFT SIDEBAR
+                 ================================================= -->
+
+            <aside class="offer-template-sidebar">
+
+                <div class="offer-sidebar-inner">
+
+                    <div class="offer-sidebar-tabs">
+
+                        <button type="button"
+                                class="offer-sidebar-tab active"
+                                onclick="setLibraryFilter(this, 'all')">
+                            Templates
+                        </button>
+
+                        <button type="button"
+                                class="offer-sidebar-tab"
+                                onclick="setLibraryFilter(this, 'active')">
+                            Active
+                        </button>
+
+                    </div>
+
+
+                    <div class="offer-library-title">
+
+                        <strong>
+                            Template Library
+                        </strong>
+
+                        <span>
+                            @total
+                        </span>
+
+                    </div>
+
+
+                    <div class="offer-search-box">
+
+                        <span>⌕</span>
+
+                        <input type="text"
+                               id="templateLibrarySearch"
+                               placeholder="Search templates..."
+                               oninput="filterTemplateLibrary()" />
+
+                    </div>
+
+
+                    <div class="offer-template-list"
+                         id="templateLibrary">
+
+                        @if (!templates.Any())
+                        {
+                            <div class="offer-library-empty">
+                                No templates yet.
+                            </div>
+                        }
+                        else
+                        {
+                            for (var i = 0; i < templates.Count; i++)
+                            {
+                                var template = templates[i];
+
+                                <button type="button"
+                                        class="offer-template-item @(i == 0 ? "active" : "")"
+                                        data-template-id="@template.Id"
+                                        data-template-name="@template.Name.ToLowerInvariant()"
+                                        data-template-status="@(template.IsActive ? "active" : "inactive")"
+                                        onclick="selectTemplate(@template.Id, this)">
+
+                                    <div class="offer-template-icon">
+                                        @((i % 4) switch
+                                        {
+                                            0 => "✦",
+                                            1 => "▤",
+                                            2 => "✓",
+                                            _ => "A"
+                                        })
+                            </div>
+
+
+                                    <div class="offer-template-copy">
+
+                                        <strong>
+                                            @template.Name
+                                        </strong>
+
+                                        <span>
+                                            <span class="offer-template-status-dot @(template.IsActive ? "active" : "")"></span>
+                                            @(template.IsActive ? "Active" : "Inactive")
+                                            · @template.CreatedDate.ToString("dd MMM yyyy")
+                                        </span>
+
+                                    </div>
+
+                                </button>
+                                                }
+                        }
+
+                    </div>
+
+
+                    <a asp-controller="OfferTemplate"
+                       asp-action="Create"
+                       class="offer-new-template">
+                        + Create another template
+                    </a>
+
+                </div>
+
+            </aside>
+
+
+            <!-- =================================================
+                 CENTER DOCUMENT
+                 ================================================= -->
+
+            <main class="offer-document-workspace">
+
+                <div class="offer-document-toolbar">
+
+                    <div class="offer-document-toolbar-left">
+
+                        <strong id="documentTemplateName">
+                            @(firstTemplate?.Name ?? "No template selected")
+                        </strong>
+
+                        <span id="documentTemplateMeta">
+                            @(firstTemplate != null
+                                                        ? $"Updated {firstTemplate.CreatedDate:dd MMM yyyy}"
+                                                        : "Create a template to begin")
+                        </span>
+
+                    </div>
+
+
+                    <div class="offer-document-toolbar-actions">
+
+                        <button type="button"
+                                class="offer-mini-btn"
+                                onclick="window.print()">
+                            Print Preview
+                        </button>
+
+                        <button type="button"
+                                class="offer-mini-btn"
+                                onclick="scrollVariablesIntoView()">
+                            Variables
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="offer-letter-paper"
+                     id="offerLetterPaper">
+
+                    @if (firstTemplate == null)
+                    {
+                        <div class="offer-letter-empty">
+
+                            <div class="offer-letter-empty-icon">
+                                ▤
+                            </div>
+
+                            <strong>
+                                No offer template selected
+                            </strong>
+
+                            <span>
+                                Create a template or select one from the library.
+                            </span>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="offer-letter-inner">
+
+                            <div class="offer-letter-brand">
+
+                                <div class="offer-letter-brand-left">
+
+                                    <div class="offer-letter-logo">
+                                        H
+                                    </div>
+
+                                    <div class="offer-letter-company">
+                                        <strong>HireTrack</strong>
+                                        <span>Recruitment & Hiring</span>
+                                    </div>
+
+                                </div>
+
+                                <div class="offer-letter-contact">
+                                    www.hiretrack.local<br />
+                                    +94 11 000 0000
+                                </div>
+
+                            </div>
+
+
+                            <div class="offer-letter-title">
+                                Job Offer Letter
+                            </div>
+
+
+                            <div class="offer-letter-meta-grid">
+
+                                <div class="offer-company-block">
+                                    <strong>HireTrack Recruitment</strong><br />
+                                    123 Business Avenue<br />
+                                    Colombo, Sri Lanka<br />
+                                    recruitment@hiretrack.local
+                                </div>
+
+                                <div class="offer-letter-date">
+                                    @DateTime.Now.ToString("dd MMMM yyyy")
+                                </div>
+
+                            </div>
+
+
+                            <div class="offer-recipient-block">
+                                <strong>To:</strong><br />
+                                {{candidate_name}}<br />
+                                {{candidate_address}}<br />
+                                {{candidate_email}}
+                            </div>
+
+
+                            <div class="offer-letter-body"
+                                 id="offerLetterContent">
+                                @firstTemplate.Content
+                            </div>
+
+
+                            <div class="offer-letter-signoff">
+
+                                <div class="offer-signature-block">
+
+                                    Warm Regards,
+
+                                    <div class="offer-signature-mark">
+                                        HireTrack HR
+                                    </div>
+
+                                    <strong>Human Resources Manager</strong><br />
+                                    HireTrack Recruitment
+
+                                </div>
+
+
+                                <div class="offer-footer-contact">
+
+                                    <span>
+                                        <b>⌖</b>
+                                        123 Business Avenue, Colombo
+                                    </span>
+
+                                    <span>
+                                        <b>☎</b>
+                                        +94 11 000 0000
+                                    </span>
+
+                                    <span>
+                                        <b>✉</b>
+                                        recruitment@hiretrack.local
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </main>
+
+
+            <!-- =================================================
+                 RIGHT SIDEBAR
+                 ================================================= -->
+
+            <aside class="offer-detail-sidebar">
+
+                <div class="offer-sidebar-inner">
+
+                    <section class="offer-right-section">
+
+                        <div class="offer-right-heading">
+
+                            <div class="offer-right-heading-icon">
+                                i
+                            </div>
+
+                            <strong>
+                                Template Information
+                            </strong>
+
+                        </div>
+
+
+                        <div class="offer-detail-grid">
+
+                            <div class="offer-detail-row">
+                                <span>Name</span>
+                                <strong id="rightTemplateName">
+                                    @(firstTemplate?.Name ?? "—")
+                                </strong>
+                            </div>
+
+                            <div class="offer-detail-row">
+                                <span>Created</span>
+                                <strong id="rightCreatedDate">
+                                    @(firstTemplate?.CreatedDate.ToString("dd MMM yyyy") ?? "—")
+                                </strong>
+                            </div>
+
+                            <div class="offer-detail-row">
+                                <span>Status</span>
+
+                                <strong>
+                                    <span id="rightTemplateStatus"
+                                          class="offer-right-status @(firstTemplate?.IsActive == true ? "active" : "")">
+                                        @(firstTemplate == null
+                                                                                ? "—"
+                                                                                : firstTemplate.IsActive
+                                                                                ? "Active"
+                                                                                : "Inactive")
+                                    </span>
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="offer-right-section"
+                             id="variableSection">
+
+                        <div class="offer-right-heading">
+
+                            <div class="offer-right-heading-icon">
+                                { }
+                            </div>
+
+                            <strong>
+                                Offer Variables
+                            </strong>
+
+                        </div>
+
+
+                        <div class="offer-variable-list"
+                             id="rightVariableList">
+
+                            @if (firstTemplate != null)
+                            {
+                                var firstVariables =
+                                (firstTemplate.Variables ?? "")
+                                .Split(
+                                ',',
+                                StringSplitOptions.RemoveEmptyEntries
+                                )
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                                .ToList();
+
+                                if (firstVariables.Any())
+                                {
+                                    foreach (var variable in firstVariables)
+                                    {
+                                        <span class="offer-variable-chip">
+                                            @variable
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="offer-variable-empty">
+                                        No variables configured.
+                                    </span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="offer-variable-empty">
+                                    No template selected.
+                                </span>
+                            }
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="offer-right-section">
+
+                        <div class="offer-right-heading">
+
+                            <div class="offer-right-heading-icon">
+                                ✦
+                            </div>
+
+                            <strong>
+                                Generate Candidate Offer
+                            </strong>
+
+                        </div>
+
+
+                        <div class="offer-generate-card">
+
+                            <strong>
+                                Ready to create a letter?
+                            </strong>
+
+                            <p>
+                                Fill the template variables with candidate,
+                                position, salary and joining details to generate
+                                a polished offer letter.
+                            </p>
+
+                            <button type="button"
+                                    id="rightGenerateButton"
+                                    class="offer-generate-main-btn"
+                                    @(firstTemplate?.IsActive == true ? "" : "disabled")
+                                    onclick="@(firstTemplate?.IsActive == true
+                                                                            ? $"openGenerateOffer({firstTemplate.Id})"
+                                                                            : "")">
+                                Generate Offer Letter
+                            </button>
+
+
+                            <div class="offer-right-actions">
+
+                                @if (firstTemplate != null)
+                                {
+                                    <a id="rightEditButton"
+                                       asp-controller="OfferTemplate"
+                                       asp-action="Edit"
+                                       asp-route-id="@firstTemplate.Id"
+                                       class="offer-right-action">
+                                        Edit
+                                    </a>
+
+                                    <a id="rightDetailsButton"
+                                       asp-controller="OfferTemplate"
+                                       asp-action="Details"
+                                       asp-route-id="@firstTemplate.Id"
+                                       class="offer-right-action">
+                                        Details
+                                    </a>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </aside>
+
         </div>
 
     </div>
 
 </div>
 
+
+<!-- =============================================================
+     TEMPLATE DATA
+     ============================================================= -->
+
+<script id="offerTemplateData"
+        type="application/json">
+    @Html.Raw(
+        JsonSerializer.Serialize(
+                templates.Select(t => new
+                {
+                        id = t.Id,
+                        name = t.Name,
+                        content = t.Content,
+                        variables = (t.Variables ?? "")
+                                .Split(
+                                        ',',
+                                        StringSplitOptions.RemoveEmptyEntries
+                                )
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                                .ToList(),
+                        isActive = t.IsActive,
+                        createdDate = t.CreatedDate.ToString("dd MMM yyyy")
+                })
+        )
+        )
+</script>
 
 
 <!-- =============================================================
@@ -460,44 +1821,23 @@
 
     <div class="generate-offer-modal">
 
-
         <div class="generate-offer-header">
 
-            <div class="generate-offer-title">
+            <div>
 
-                <div class="generate-offer-icon">
+                <h2>
+                    Generate Offer Letter
+                </h2>
 
-                    <svg viewBox="0 0 24 24"
-                         aria-hidden="true">
-
-                        <path d="M12 3v12" />
-                        <path d="m8 11 4 4 4-4" />
-                        <path d="M5 19h14" />
-
-                    </svg>
-
-                </div>
-
-
-                <div>
-
-                    <h2>
-                        Generate Offer
-                    </h2>
-
-                    <p id="generateTemplateName"></p>
-
-                </div>
+                <p id="generateTemplateName">
+                </p>
 
             </div>
-
 
             <button type="button"
                     class="offer-modal-close"
                     onclick="closeGenerateOffer()">
-
                 ×
-
             </button>
 
         </div>
@@ -509,7 +1849,6 @@
 
             @Html.AntiForgeryToken()
 
-
             <input type="hidden"
                    name="templateId"
                    id="generateTemplateId" />
@@ -518,9 +1857,9 @@
             <div class="generate-offer-body">
 
                 <p class="generate-description">
-                    Fill in the values for the template variables below.
+                    Enter the candidate and offer details below.
+                    HireTrack will insert them into the selected template.
                 </p>
-
 
                 <div id="generateFields">
                 </div>
@@ -533,17 +1872,12 @@
                 <button type="button"
                         class="offer-cancel-btn"
                         onclick="closeGenerateOffer()">
-
                     Cancel
-
                 </button>
-
 
                 <button type="submit"
                         class="offer-create-btn">
-
                     Preview Offer →
-
                 </button>
 
             </div>
@@ -555,312 +1889,709 @@
 </div>
 
 
-
 @section Scripts {
 
     <script>
 
-        let selectedOfferStatus = "";
+        const offerTemplates =
+            JSON.parse(
+                document.getElementById(
+                    "offerTemplateData"
+                ).textContent
+            );
+
+
+        let currentTemplate =
+            offerTemplates.length > 0
+                ? offerTemplates[0]
+                : null;
+
+
+        let currentLibraryFilter =
+            "all";
 
 
         // =========================================================
-        // FILTERS
+        // SELECT TEMPLATE
         // =========================================================
 
-        function setOfferStatus(button, status) {
+        function selectTemplate(
+            templateId,
+            button) {
 
-            selectedOfferStatus = status;
-
-            document
-                .querySelectorAll(".offer-tab")
-                .forEach(x =>
-                    x.classList.remove("active")
+            const template =
+                offerTemplates.find(
+                    x => x.id === templateId
                 );
 
-            button.classList.add("active");
 
-            filterOffers();
+            if (!template) {
+                return;
+            }
+
+
+            currentTemplate =
+                template;
+
+
+            document
+                .querySelectorAll(
+                    ".offer-template-item"
+                )
+                .forEach(x =>
+                    x.classList.remove(
+                        "active"
+                    )
+                );
+
+
+            if (button) {
+                button.classList.add(
+                    "active"
+                );
+            }
+
+
+            updateStudio(
+                template
+            );
         }
 
 
-        function filterOffers() {
+        // =========================================================
+        // UPDATE STUDIO
+        // =========================================================
+
+        function updateStudio(
+            template) {
+
+            document.getElementById(
+                "studioTitle"
+            ).textContent =
+                template.name;
+
+
+            document.getElementById(
+                "documentTemplateName"
+            ).textContent =
+                template.name;
+
+
+            document.getElementById(
+                "documentTemplateMeta"
+            ).textContent =
+                `Created ${template.createdDate}`;
+
+
+            document.getElementById(
+                "rightTemplateName"
+            ).textContent =
+                template.name;
+
+
+            document.getElementById(
+                "rightCreatedDate"
+            ).textContent =
+                template.createdDate;
+
+
+            const status =
+                document.getElementById(
+                    "rightTemplateStatus"
+                );
+
+
+            status.textContent =
+                template.isActive
+                    ? "Active"
+                    : "Inactive";
+
+
+            status.classList.toggle(
+                "active",
+                template.isActive
+            );
+
+
+            renderDocument(
+                template
+            );
+
+
+            renderVariables(
+                template.variables
+            );
+
+
+            updateActionLinks(
+                template
+            );
+        }
+
+
+        // =========================================================
+        // DOCUMENT PREVIEW
+        // =========================================================
+
+        function renderDocument(
+            template) {
+
+            const paper =
+                document.getElementById(
+                    "offerLetterPaper"
+                );
+
+
+            const highlighted =
+                highlightVariables(
+                    escapeHtml(
+                        template.content || ""
+                    )
+                );
+
+
+            paper.innerHTML = `
+                <div class="offer-letter-inner">
+
+                    <div class="offer-letter-brand">
+
+                        <div class="offer-letter-brand-left">
+
+                            <div class="offer-letter-logo">
+                                H
+                            </div>
+
+                            <div class="offer-letter-company">
+                                <strong>HireTrack</strong>
+                                <span>Recruitment & Hiring</span>
+                            </div>
+
+                        </div>
+
+                        <div class="offer-letter-contact">
+                            www.hiretrack.local<br />
+                            +94 11 000 0000
+                        </div>
+
+                    </div>
+
+                    <div class="offer-letter-title">
+                        Job Offer Letter
+                    </div>
+
+                    <div class="offer-letter-meta-grid">
+
+                        <div class="offer-company-block">
+                            <strong>HireTrack Recruitment</strong><br />
+                            123 Business Avenue<br />
+                            Colombo, Sri Lanka<br />
+                            recruitment@hiretrack.local
+                        </div>
+
+                        <div class="offer-letter-date">
+                            ${new Date().toLocaleDateString(
+                                "en-GB",
+                                {
+                                    day: "2-digit",
+                                    month: "long",
+                                    year: "numeric"
+                                }
+                            )}
+                        </div>
+
+                    </div>
+
+                    <div class="offer-recipient-block">
+                        <strong>To:</strong><br />
+                        <span class="offer-variable-token">{{candidate_name}}</span><br />
+                        <span class="offer-variable-token">{{candidate_address}}</span><br />
+                        <span class="offer-variable-token">{{candidate_email}}</span>
+                    </div>
+
+                    <div class="offer-letter-body">
+                        ${highlighted}
+                    </div>
+
+                    <div class="offer-letter-signoff">
+
+                        <div class="offer-signature-block">
+
+                            Warm Regards,
+
+                            <div class="offer-signature-mark">
+                                HireTrack HR
+                            </div>
+
+                            <strong>Human Resources Manager</strong><br />
+                            HireTrack Recruitment
+
+                        </div>
+
+                        <div class="offer-footer-contact">
+
+                            <span>
+                                <b>⌖</b>
+                                123 Business Avenue, Colombo
+                            </span>
+
+                            <span>
+                                <b>☎</b>
+                                +94 11 000 0000
+                            </span>
+
+                            <span>
+                                <b>✉</b>
+                                recruitment@hiretrack.local
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function highlightVariables(
+            value) {
+
+            return value.replace(
+                /\{\{([^}]+)\}\}/g,
+                '<span class="offer-variable-token">{{$1}}</span>'
+            );
+        }
+
+
+        function escapeHtml(
+            value) {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+            div.textContent =
+                value ?? "";
+
+            return div.innerHTML;
+        }
+
+
+        // =========================================================
+        // VARIABLES
+        // =========================================================
+
+        function renderVariables(
+            variables) {
+
+            const list =
+                document.getElementById(
+                    "rightVariableList"
+                );
+
+
+            list.innerHTML =
+                "";
+
+
+            if (!variables ||
+                variables.length === 0) {
+
+                list.innerHTML = `
+                    <span class="offer-variable-empty">
+                        No variables configured.
+                    </span>
+                `;
+
+                return;
+            }
+
+
+            variables.forEach(
+                variable => {
+
+                    const chip =
+                        document.createElement(
+                            "span"
+                        );
+
+                    chip.className =
+                        "offer-variable-chip";
+
+                    chip.textContent =
+                        variable;
+
+                    list.appendChild(
+                        chip
+                    );
+
+                }
+            );
+        }
+
+
+        // =========================================================
+        // ACTION LINKS
+        // =========================================================
+
+        function updateActionLinks(
+            template) {
+
+            const topEdit =
+                document.getElementById(
+                    "topEditButton"
+                );
+
+            const rightEdit =
+                document.getElementById(
+                    "rightEditButton"
+                );
+
+            const rightDetails =
+                document.getElementById(
+                    "rightDetailsButton"
+                );
+
+
+            if (topEdit) {
+                topEdit.href =
+                    `/OfferTemplate/Edit/${template.id}`;
+            }
+
+
+            if (rightEdit) {
+                rightEdit.href =
+                    `/OfferTemplate/Edit/${template.id}`;
+            }
+
+
+            if (rightDetails) {
+                rightDetails.href =
+                    `/OfferTemplate/Details/${template.id}`;
+            }
+
+
+            const topGenerate =
+                document.getElementById(
+                    "topGenerateButton"
+                );
+
+            const rightGenerate =
+                document.getElementById(
+                    "rightGenerateButton"
+                );
+
+
+            [topGenerate, rightGenerate]
+                .filter(Boolean)
+                .forEach(button => {
+
+                    button.disabled =
+                        !template.isActive;
+
+
+                    button.textContent =
+                        template.isActive
+                            ? button.id ===
+                                "topGenerateButton"
+                                ? "Generate Offer"
+                                : "Generate Offer Letter"
+                            : "Template Inactive";
+
+
+                    button.onclick =
+                        template.isActive
+                            ? () =>
+                                openGenerateOffer(
+                                    template.id
+                                )
+                            : null;
+
+                });
+        }
+
+
+        // =========================================================
+        // LIBRARY FILTER
+        // =========================================================
+
+        function setLibraryFilter(
+            button,
+            filter) {
+
+            currentLibraryFilter =
+                filter;
+
+
+            document
+                .querySelectorAll(
+                    ".offer-sidebar-tab"
+                )
+                .forEach(x =>
+                    x.classList.remove(
+                        "active"
+                    )
+                );
+
+
+            button.classList.add(
+                "active"
+            );
+
+
+            filterTemplateLibrary();
+        }
+
+
+        function filterTemplateLibrary() {
 
             const search =
                 document
-                    .getElementById("offerSearch")
+                    .getElementById(
+                        "templateLibrarySearch"
+                    )
                     .value
                     .toLowerCase()
                     .trim();
 
 
             document
-                .querySelectorAll(".offer-row")
-                .forEach(row => {
+                .querySelectorAll(
+                    ".offer-template-item"
+                )
+                .forEach(item => {
 
                     const matchesSearch =
                         !search ||
-                        row.dataset.search.includes(search);
+                        item.dataset
+                            .templateName
+                            .includes(search);
 
-                    const matchesStatus =
-                        !selectedOfferStatus ||
-                        row.dataset.status ===
-                        selectedOfferStatus;
 
-                    row.style.display =
-                        matchesSearch && matchesStatus
+                    const matchesFilter =
+                        currentLibraryFilter ===
+                            "all"
+
+                        ||
+
+                        item.dataset
+                            .templateStatus ===
+                            currentLibraryFilter;
+
+
+                    item.style.display =
+                        matchesSearch &&
+                        matchesFilter
                             ? ""
                             : "none";
                 });
         }
 
 
-
-        // =========================================================
-        // PREVIEW TEMPLATE
-        // =========================================================
-
-        async function openTemplatePreview(templateId) {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/OfferTemplate/GetTemplate?id=${templateId}`
-                    );
-
-                if (!response.ok) {
-                    throw new Error(
-                        "Could not load template."
-                    );
-                }
-
-
-                const template =
-                    await response.json();
-
-
-                document.getElementById(
-                    "previewTemplateTitle"
-                ).textContent =
-                    `Template Preview: ${template.name}`;
-
-
-                document.getElementById(
-                    "previewTemplateContent"
-                ).textContent =
-                    template.content;
-
-
-                const variables =
-                    document.getElementById(
-                        "previewVariables"
-                    );
-
-                variables.innerHTML = "";
-
-
-                template.variables.forEach(variable => {
-
-                    const badge =
-                        document.createElement("span");
-
-                    badge.textContent =
-                        `{{${variable}}}`;
-
-                    variables.appendChild(badge);
-
-                });
-
-
-                document.getElementById(
-                    "templatePreviewOverlay"
-                ).classList.add("show");
-
-
-                document.body.classList.add(
-                    "modal-open"
-                );
-
-            }
-            catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Could not load the template preview."
-                );
-
-            }
-
-        }
-
-
-        function closeTemplatePreview() {
-
-            document.getElementById(
-                "templatePreviewOverlay"
-            ).classList.remove("show");
-
-            document.body.classList.remove(
-                "modal-open"
-            );
-        }
-
-
-
         // =========================================================
         // GENERATE OFFER
         // =========================================================
 
-        async function openGenerateOffer(templateId) {
+        function openGenerateOffer(
+            templateId) {
 
-            try {
-
-                const response =
-                    await fetch(
-                        `/OfferTemplate/GetTemplate?id=${templateId}`
-                    );
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Could not load template."
-                    );
-
-                }
+            const template =
+                offerTemplates.find(
+                    x => x.id === templateId
+                );
 
 
-                const template =
-                    await response.json();
+            if (!template ||
+                !template.isActive) {
+
+                return;
+            }
 
 
+            document.getElementById(
+                "generateTemplateId"
+            ).value =
+                template.id;
+
+
+            document.getElementById(
+                "generateTemplateName"
+            ).textContent =
+                template.name;
+
+
+            const fields =
                 document.getElementById(
-                    "generateTemplateId"
-                ).value =
-                    template.id;
+                    "generateFields"
+                );
 
 
-                document.getElementById(
-                    "generateTemplateName"
-                ).textContent =
-                    template.name;
+            fields.innerHTML =
+                "";
 
 
-                const fields =
-                    document.getElementById(
-                        "generateFields"
-                    );
+            if (!template.variables ||
+                template.variables.length === 0) {
 
-                fields.innerHTML = "";
+                fields.innerHTML = `
+                    <p class="generate-description">
+                        This template does not contain any variables.
+                        You can still continue to preview the offer.
+                    </p>
+                `;
+            }
+            else {
 
+                template.variables
+                    .forEach(variable => {
 
-                template.variables.forEach(variable => {
-
-                    const wrapper =
-                        document.createElement("div");
-
-                    wrapper.className =
-                        "generate-field";
-
-
-                    const label =
-                        document.createElement("label");
-
-                    label.textContent =
-                        formatVariableName(variable);
+                        const wrapper =
+                            document.createElement(
+                                "div"
+                            );
 
 
-                    const input =
-                        document.createElement("input");
-
-                    input.name =
-                        `values[${variable}]`;
-
-                    input.required = true;
+                        wrapper.className =
+                            "generate-field";
 
 
-                    // ---------------------------------------------
-                    // DATE FIELDS
-                    // ---------------------------------------------
-
-                    if (
-                        variable
-                            .toLowerCase()
-                            .includes("date")
-                    ) {
-
-                        input.type = "date";
-
-                    }
-
-                    // ---------------------------------------------
-                    // EVERYTHING ELSE
-                    // ---------------------------------------------
-
-                    else {
-
-                        input.type = "text";
-
-                        input.placeholder =
-                            `Enter ${formatVariableName(variable).toLowerCase()}`;
-
-                    }
+                        const label =
+                            document.createElement(
+                                "label"
+                            );
 
 
-                    wrapper.appendChild(label);
-                    wrapper.appendChild(input);
-
-                    fields.appendChild(wrapper);
-
-                });
+                        label.textContent =
+                            formatVariableName(
+                                variable
+                            );
 
 
-                document.getElementById(
+                        const input =
+                            document.createElement(
+                                "input"
+                            );
+
+
+                        input.name =
+                            `values[${variable}]`;
+
+
+                        input.required =
+                            true;
+
+
+                        if (
+                            variable
+                                .toLowerCase()
+                                .includes("date")
+                        ) {
+
+                            input.type =
+                                "date";
+
+                        }
+                        else if (
+                            variable
+                                .toLowerCase()
+                                .includes("email")
+                        ) {
+
+                            input.type =
+                                "email";
+
+                        }
+                        else if (
+                            variable
+                                .toLowerCase()
+                                .includes("salary")
+                            ||
+                            variable
+                                .toLowerCase()
+                                .includes("amount")
+                        ) {
+
+                            input.type =
+                                "text";
+
+                            input.placeholder =
+                                "e.g. Rs. 200,000";
+
+                        }
+                        else {
+
+                            input.type =
+                                "text";
+
+                            input.placeholder =
+                                `Enter ${formatVariableName(variable).toLowerCase()}`;
+                        }
+
+
+                        wrapper.appendChild(
+                            label
+                        );
+
+
+                        wrapper.appendChild(
+                            input
+                        );
+
+
+                        fields.appendChild(
+                            wrapper
+                        );
+
+                    });
+            }
+
+
+            document
+                .getElementById(
                     "generateOfferOverlay"
-                ).classList.add("show");
+                )
+                .classList
+                .add(
+                    "show"
+                );
 
 
-                document.body.classList.add(
+            document.body
+                .classList
+                .add(
                     "modal-open"
                 );
-
-            }
-            catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Could not load this offer template."
-                );
-
-            }
-
         }
 
 
         function closeGenerateOffer() {
 
-            document.getElementById(
-                "generateOfferOverlay"
-            ).classList.remove("show");
+            document
+                .getElementById(
+                    "generateOfferOverlay"
+                )
+                .classList
+                .remove(
+                    "show"
+                );
 
-            document.body.classList.remove(
-                "modal-open"
-            );
 
+            document.body
+                .classList
+                .remove(
+                    "modal-open"
+                );
         }
 
 
-
-        // =========================================================
-        // VARIABLE LABEL
-        // candidate_name -> Candidate Name
-        // =========================================================
-
-        function formatVariableName(value) {
+        function formatVariableName(
+            value) {
 
             return value
-                .replace(/_/g, " ")
+                .replace(
+                    /_/g,
+                    " "
+                )
                 .replace(
                     /\b\w/g,
                     character =>
@@ -868,53 +2599,234 @@
                 );
         }
 
-                // =========================================================
-        // DELETE TEMPLATE
-        // =========================================================
 
-        function confirmDeleteTemplate(templateName) {
+        function scrollVariablesIntoView() {
 
-            return confirm(
-                `Are you sure you want to delete "${templateName}"?\n\n` +
-                `This action cannot be undone.`
-            );
+            document
+                .getElementById(
+                    "variableSection"
+                )
+                ?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
         }
 
 
+        // =========================================================
+        // CLICK OUTSIDE MODAL
+        // =========================================================
 
+        document
+            .getElementById(
+                "generateOfferOverlay"
+            )
+            .addEventListener(
+                "click",
+                function (event) {
+
+                    if (event.target === this) {
+                        closeGenerateOffer();
+                    }
+                }
+            );
 
 
         // =========================================================
-        // CLICK OUTSIDE MODALS
+        // INITIAL PREVIEW HIGHLIGHTING
         // =========================================================
 
-        document.getElementById(
-            "templatePreviewOverlay"
-        ).addEventListener(
-            "click",
-            function (event) {
-
-                if (event.target === this) {
-                    closeTemplatePreview();
-                }
-
-            }
-        );
-
-
-        document.getElementById(
-            "generateOfferOverlay"
-        ).addEventListener(
-            "click",
-            function (event) {
-
-                if (event.target === this) {
-                    closeGenerateOffer();
-                }
-
-            }
-        );
+        if (currentTemplate) {
+            updateStudio(
+                currentTemplate
+            );
+        }
 
     </script>
 
 }
+
+
+
+<style>
+    /* =========================================================
+           FINAL COLOR BALANCE
+           Strong blue for ACTIONS only — not an all-blue page.
+           ========================================================= */
+
+    :root {
+        --brand-blue: #3f9bf3;
+        --brand-blue-hover: #2f8de8;
+        --brand-blue-soft: #edf7ff;
+        --brand-blue-border: #cfe5f8;
+        --neutral-page: #f7f9fc;
+        --neutral-surface: #ffffff;
+        --neutral-line: #e2e9f0;
+        --neutral-text: #223d57;
+        --neutral-muted: #8195a7;
+    }
+
+    /* Keep the page mostly white / neutral */
+    .offer-studio-page {
+        background: radial-gradient(circle at 8% 2%, rgba(63, 155, 243, .07), transparent 24%), linear-gradient(180deg, #f8fafc 0%, #f4f7fa 100%) !important;
+    }
+
+    .offer-studio-shell,
+    .offer-template-sidebar,
+    .offer-detail-sidebar,
+    .offer-studio-topbar,
+    .offer-letter-paper {
+        background: #ffffff !important;
+    }
+
+    .offer-template-sidebar,
+    .offer-detail-sidebar {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Blue is for primary buttons */
+    .offer-top-btn.primary,
+    .offer-generate-main-btn,
+    .offer-create-btn {
+        background: var(--brand-blue) !important;
+        border-color: var(--brand-blue) !important;
+        color: #ffffff !important;
+        box-shadow: 0 10px 22px rgba(63, 155, 243, .22) !important;
+    }
+
+        .offer-top-btn.primary:hover,
+        .offer-generate-main-btn:hover,
+        .offer-create-btn:hover {
+            background: var(--brand-blue-hover) !important;
+            border-color: var(--brand-blue-hover) !important;
+            box-shadow: 0 13px 26px rgba(47, 141, 232, .26) !important;
+        }
+
+    /* Normal buttons stay white */
+    .offer-top-btn,
+    .offer-mini-btn,
+    .offer-right-action,
+    .offer-cancel-btn {
+        background: #ffffff !important;
+        border-color: #d9e5ef !important;
+        color: #657f96 !important;
+        box-shadow: none !important;
+    }
+
+        .offer-top-btn:hover,
+        .offer-mini-btn:hover,
+        .offer-right-action:hover,
+        .offer-cancel-btn:hover {
+            background: #f8fbfd !important;
+            border-color: #bdd9ee !important;
+            color: #3f7fae !important;
+        }
+
+    /* Soft blue only for selected/active accents */
+    .offer-sidebar-tabs {
+        background: #eef4f9 !important;
+    }
+
+    .offer-sidebar-tab.active {
+        background: #ffffff !important;
+        color: var(--brand-blue-hover) !important;
+        box-shadow: 0 5px 12px rgba(44, 74, 98, .08) !important;
+    }
+
+    .offer-template-item {
+        background: #ffffff !important;
+        border-color: #e3eaf0 !important;
+    }
+
+        .offer-template-item:hover {
+            background: #fbfdff !important;
+            border-color: #cbddea !important;
+        }
+
+        .offer-template-item.active {
+            background: #f8fcff !important;
+            border-color: #9fcef1 !important;
+            box-shadow: 0 0 0 2px rgba(63,155,243,.07) !important;
+        }
+
+    .offer-template-icon,
+    .offer-right-heading-icon,
+    .offer-letter-logo {
+        background: var(--brand-blue-soft) !important;
+        color: var(--brand-blue) !important;
+    }
+
+    .offer-variable-chip,
+    .offer-variable-token {
+        background: #f2f8fd !important;
+        color: #4d7fa6 !important;
+    }
+
+    /* Document should look like a real white letter */
+    .offer-document-workspace {
+        background: radial-gradient(circle, rgba(128, 145, 160, .08) 1px, transparent 1px) !important;
+        background-size: 13px 13px !important;
+        background-color: #f3f5f7 !important;
+    }
+
+    .offer-letter-paper::before {
+        background: #b6dffc !important;
+    }
+
+    .offer-letter-paper::after {
+        background: var(--brand-blue) !important;
+    }
+
+    .offer-letter-inner::after {
+        background: linear-gradient( 90deg, var(--brand-blue) 0 48%, transparent 48% 52%, #b6dffc 52% 100% ) !important;
+    }
+
+    .offer-letter-brand {
+        border-bottom-color: #8ebfe5 !important;
+    }
+
+    /* Keep text dark, not blue */
+    .offer-letter-title {
+        color: #171d24 !important;
+    }
+
+    .offer-letter-body {
+        color: #344556 !important;
+    }
+
+    .offer-letter-company strong,
+    .offer-company-block strong,
+    .offer-recipient-block strong {
+        color: #27394a !important;
+    }
+
+    .offer-letter-meta-grid,
+    .offer-recipient-block,
+    .offer-signature-block {
+        color: #495b6d !important;
+    }
+
+    /* Right-side generate card should remain mostly white */
+    .offer-generate-card {
+        background: #fbfdff !important;
+        border-color: #dce8f1 !important;
+    }
+
+        .offer-generate-card strong {
+            color: #38566f !important;
+        }
+
+    /* Search / fields mostly neutral */
+    .offer-search-box,
+    .generate-field input {
+        background: #ffffff !important;
+        border-color: #dde7ef !important;
+    }
+
+        .generate-field input:focus,
+        .offer-search-box:focus-within {
+            border-color: #8dc5ef !important;
+            box-shadow: 0 0 0 4px rgba(63,155,243,.09) !important;
+        }
+</style>

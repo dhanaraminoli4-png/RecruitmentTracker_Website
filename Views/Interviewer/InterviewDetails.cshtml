@@ -128,9 +128,19 @@
 
                 <div class="candidate-avatar">
 
-                    @(candidateName.Length > 0
-                                        ? candidateName.Substring(0, 1).ToUpper()
-                                        : "?")
+                    @if (!string.IsNullOrWhiteSpace(
+                                        candidate?.ProfileImagePath))
+                    {
+                        <img src="@candidate.ProfileImagePath"
+                             alt="@candidateName"
+                             class="candidate-profile-image" />
+                    }
+                    else
+                    {
+                        @(candidateName.Length > 0
+                                            ? candidateName.Substring(0, 1).ToUpper()
+                                            : "?")
+                                        }
 
                 </div>
 
@@ -181,8 +191,7 @@
                     <span>Date</span>
 
                     <strong>
-                        @Model.InterviewDate
-                        .ToString("dd MMM yyyy")
+                        @Model.InterviewDate.ToString("dd MMM yyyy")
                     </strong>
                 </div>
 
@@ -850,7 +859,7 @@
                                        ?.ToString("yyyy-MM-dd")
                                    ?? DateTime.Today
                                        .ToString("yyyy-MM-dd")
-                                                                                                                                                            )" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )" />
 
                     </div>
 
@@ -1294,6 +1303,7 @@
         justify-content: center;
         font-size: 19px;
         font-weight: 750;
+        overflow: hidden;
     }
 
     .candidate-main h3 {
@@ -1693,8 +1703,8 @@
     }
 
     /* =========================================================
-           CV + AI ANALYSIS
-           ========================================================= */
+                   CV + AI ANALYSIS
+                   ========================================================= */
 
     .candidate-analysis-body {
         padding: 20px 21px;
@@ -1817,8 +1827,8 @@
 
 
     /* =========================================================
-           UPDATED CANDIDATE RESOURCES
-           ========================================================= */
+                   UPDATED CANDIDATE RESOURCES
+                   ========================================================= */
 
     .resource-card {
         overflow: hidden;
@@ -1926,8 +1936,8 @@
 
 
     /* =========================================================
-           CUTE STAR FEEDBACK
-           ========================================================= */
+                   CUTE STAR FEEDBACK
+                   ========================================================= */
 
     .feedback-card {
         border-color: #ebe8fb;
@@ -2090,6 +2100,14 @@
         }
     }
 
+
+
+    .candidate-avatar .candidate-profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
 </style>
 
 <script>
@@ -2133,3 +2151,468 @@
     });
 </script>
 
+
+
+
+<style>
+    :root {
+        --id-blue: #3f9bf3;
+        --id-blue-hover: #2f8de8;
+        --id-blue-soft: rgba(237,247,255,.78);
+        --id-line: rgba(211,225,236,.88);
+        --id-line-soft: rgba(229,238,245,.88);
+        --id-text: #284760;
+        --id-muted: #859bae;
+        --id-green: #3fa477;
+        --id-green-soft: rgba(234,248,241,.84);
+        --id-amber: #b98535;
+        --id-amber-soft: rgba(255,245,231,.86);
+        --id-red: #c76470;
+        --id-red-soft: rgba(255,240,242,.86);
+    }
+
+    .interview-details-page {
+        max-width: 1220px !important;
+        margin: 0 auto !important;
+        padding: 34px !important;
+        border-radius: 28px !important;
+        background: radial-gradient(circle at 8% 4%,rgba(63,155,243,.10),transparent 25%),radial-gradient(circle at 92% 8%,rgba(184,214,237,.13),transparent 22%),linear-gradient(180deg,#f7fbfe 0%,#eef5fa 100%) !important;
+        color: var(--id-text) !important;
+    }
+
+    .details-header {
+        margin-bottom: 22px !important
+    }
+
+    .back-link {
+        margin-bottom: 9px !important;
+        color: #6f879b !important;
+        font-size: 12px !important;
+        font-weight: 750 !important
+    }
+
+        .back-link:hover {
+            color: var(--id-blue-hover) !important
+        }
+
+    .details-header h1 {
+        color: #1f3d59 !important;
+        font-size: 32px !important;
+        font-weight: 850 !important;
+        letter-spacing: -.45px !important
+    }
+
+    .details-header p {
+        max-width: 720px !important;
+        margin-top: 7px !important;
+        color: var(--id-muted) !important;
+        font-size: 14px !important;
+        line-height: 1.6 !important
+    }
+
+    .interview-status-badge {
+        padding: 8px 13px !important;
+        border: 1px solid #cfe3f3 !important;
+        background: rgba(237,247,255,.84) !important;
+        color: #347fb8 !important;
+        font-size: 11px !important;
+        font-weight: 850 !important;
+        backdrop-filter: blur(10px)
+    }
+
+    .details-card {
+        margin-bottom: 24px !important;
+        overflow: hidden !important;
+        border: 1px solid var(--id-line) !important;
+        border-radius: 20px !important;
+        background: rgba(255,255,255,.68) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
+        box-shadow: 0 8px 22px rgba(55,82,104,.07) !important
+    }
+
+        .details-card + .details-card {
+            margin-top: 26px !important
+        }
+
+    .card-heading {
+        padding: 20px 22px !important;
+        gap: 13px !important;
+        border-bottom: 1px solid var(--id-line-soft) !important;
+        background: rgba(255,255,255,.42) !important;
+        backdrop-filter: blur(10px)
+    }
+
+        .card-heading h2 {
+            color: #2b4b66 !important;
+            font-size: 18px !important;
+            font-weight: 850 !important
+        }
+
+        .card-heading p {
+            margin-top: 4px !important;
+            color: var(--id-muted) !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important
+        }
+
+    .heading-icon {
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 12px !important;
+        background: var(--id-blue-soft) !important;
+        color: var(--id-blue-hover) !important;
+        font-size: 14px !important;
+        font-weight: 850 !important;
+        border: 1px solid rgba(199,222,239,.86)
+    }
+
+    .assessment-icon {
+        background: var(--id-green-soft) !important;
+        color: var(--id-green) !important
+    }
+
+    .feedback-icon {
+        background: rgba(255,247,226,.86) !important;
+        color: #d29a35 !important
+    }
+
+    .candidate-summary {
+        padding: 22px !important
+    }
+
+    .candidate-main {
+        gap: 15px !important;
+        margin-bottom: 20px !important
+    }
+
+    .candidate-avatar {
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 15px !important;
+        background: var(--id-blue-soft) !important;
+        color: var(--id-blue-hover) !important;
+        border: 1px solid #d1e6f6 !important;
+        font-size: 19px !important;
+        font-weight: 850 !important
+    }
+
+    .candidate-main h3 {
+        color: #294962 !important;
+        font-size: 18px !important;
+        font-weight: 850 !important
+    }
+
+    .candidate-main span {
+        margin-top: 4px !important;
+        color: #8ba0b2 !important;
+        font-size: 12px !important
+    }
+
+    .candidate-main strong {
+        margin-top: 7px !important;
+        color: #567189 !important;
+        font-size: 14px !important;
+        font-weight: 750 !important
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+        gap: 10px !important;
+        padding: 0 !important;
+        background: transparent !important
+    }
+
+        .summary-grid > div {
+            min-height: 75px;
+            padding: 13px 14px;
+            border: 1px solid var(--id-line-soft);
+            border-radius: 13px;
+            background: rgba(255,255,255,.52);
+            backdrop-filter: blur(10px)
+        }
+
+        .summary-grid span {
+            margin-bottom: 5px !important;
+            color: #8da1b2 !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        .summary-grid strong {
+            color: #405f78 !important;
+            font-size: 13px !important;
+            font-weight: 800 !important
+        }
+
+    .resource-actions {
+        padding: 20px 22px 22px !important;
+        gap: 14px !important;
+        background: transparent !important
+    }
+
+    .resource-item {
+        padding: 16px !important;
+        border: 1px solid var(--id-line-soft) !important;
+        border-radius: 15px !important;
+        background: rgba(255,255,255,.52) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: none !important
+    }
+
+        .resource-item:hover {
+            transform: translateY(-2px) !important;
+            border-color: #c8dfef !important;
+            box-shadow: 0 10px 22px rgba(55,82,104,.08) !important
+        }
+
+    .resource-copy strong {
+        color: #35546e !important;
+        font-size: 14px !important
+    }
+
+    .resource-copy span {
+        color: #8da1b2 !important;
+        font-size: 11px !important;
+        line-height: 1.5 !important
+    }
+
+    .resource-btn {
+        min-height: 40px !important;
+        font-size: 10px !important;
+        font-weight: 850 !important
+    }
+
+        .resource-btn.dark, .resource-btn.purple {
+            background: var(--id-blue) !important;
+            color: #fff !important;
+            box-shadow: 0 7px 16px rgba(63,155,243,.18) !important
+        }
+
+            .resource-btn.dark:hover, .resource-btn.purple:hover {
+                background: var(--id-blue-hover) !important
+            }
+
+    .assessment-information {
+        padding: 20px 22px !important
+    }
+
+        .assessment-information h3 {
+            color: #35536d !important;
+            font-size: 16px !important;
+            font-weight: 850 !important
+        }
+
+        .assessment-information p {
+            color: var(--id-muted) !important;
+            font-size: 12px !important
+        }
+
+    .assessment-badge {
+        padding: 6px 10px !important;
+        font-size: 10px !important;
+        font-weight: 850 !important
+    }
+
+        .assessment-badge.pending {
+            background: var(--id-amber-soft) !important;
+            color: var(--id-amber) !important
+        }
+
+        .assessment-badge.done {
+            background: var(--id-green-soft) !important;
+            color: var(--id-green) !important
+        }
+
+    .assessment-instructions {
+        margin: 0 22px 20px !important;
+        padding: 15px 16px !important;
+        border: 1px solid var(--id-line-soft) !important;
+        border-radius: 12px !important;
+        background: rgba(255,255,255,.48) !important;
+        backdrop-filter: blur(10px)
+    }
+
+        .assessment-instructions strong {
+            color: #405e77 !important;
+            font-size: 12px !important
+        }
+
+        .assessment-instructions p {
+            color: #6f8598 !important;
+            font-size: 12px !important;
+            line-height: 1.6 !important
+        }
+
+    .questions-section, .assessment-result-section, .feedback-content {
+        padding: 22px !important;
+        border-top: 1px solid var(--id-line-soft) !important
+    }
+
+    .section-title {
+        margin-bottom: 16px !important
+    }
+
+        .section-title h3 {
+            color: #38566f !important;
+            font-size: 15px !important;
+            font-weight: 850 !important
+        }
+
+        .section-title span {
+            color: #8fa3b4 !important;
+            font-size: 11px !important
+        }
+
+    .assessment-question {
+        margin-bottom: 15px !important;
+        border: 1px solid var(--id-line-soft) !important;
+        border-radius: 14px !important;
+        background: rgba(255,255,255,.48) !important;
+        backdrop-filter: blur(10px)
+    }
+
+    .question-top {
+        padding: 14px 15px !important;
+        gap: 11px !important;
+        background: rgba(248,252,255,.60) !important;
+        border-bottom: 1px solid var(--id-line-soft) !important
+    }
+
+    .question-number {
+        width: 31px !important;
+        height: 31px !important;
+        border-radius: 9px !important;
+        background: var(--id-blue-soft) !important;
+        color: var(--id-blue-hover) !important;
+        font-size: 12px !important
+    }
+
+    .question-name strong {
+        color: #3a5871 !important;
+        font-size: 13px !important;
+        font-weight: 800 !important
+    }
+
+    .question-meta span {
+        color: #8ba0b2 !important;
+        font-size: 10px !important
+    }
+
+    .question-answer {
+        padding: 15px !important
+    }
+
+        .question-answer input, .question-answer select, .question-answer textarea, .form-field input, .form-field select, .form-field textarea, .feedback-field select, .feedback-field textarea {
+            border: 1px solid #d8e5ef !important;
+            border-radius: 10px !important;
+            background: rgba(255,255,255,.76) !important;
+            color: #3e5b73 !important;
+            font-size: 13px !important;
+            backdrop-filter: blur(8px)
+        }
+
+            .question-answer input:focus, .question-answer select:focus, .question-answer textarea:focus, .form-field input:focus, .form-field select:focus, .form-field textarea:focus, .feedback-field select:focus, .feedback-field textarea:focus {
+                border-color: #8bc4ef !important;
+                box-shadow: 0 0 0 4px rgba(63,155,243,.09) !important
+            }
+
+    .form-field label, .feedback-field label, .star-rating-label {
+        color: #3d5a72 !important;
+        font-size: 13px !important;
+        font-weight: 800 !important
+    }
+
+    .cute-feedback {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 22px !important
+    }
+
+    .star-rating-list {
+        gap: 10px 22px !important;
+        padding: 18px !important;
+        border: 1px solid var(--id-line-soft) !important;
+        border-radius: 14px !important;
+        background: rgba(255,255,255,.50) !important;
+        backdrop-filter: blur(10px)
+    }
+
+    .star-rating-row {
+        padding: 9px 0 !important
+    }
+
+    .rating-star {
+        font-size: 29px !important
+    }
+
+    .rating-value {
+        color: #6f8497 !important;
+        font-size: 12px !important;
+        font-weight: 750 !important
+    }
+
+    .primary-btn {
+        min-height: 42px !important;
+        padding: 0 18px !important;
+        border-radius: 10px !important;
+        background: var(--id-blue) !important;
+        color: #fff !important;
+        font-size: 11px !important;
+        font-weight: 850 !important;
+        box-shadow: 0 8px 18px rgba(63,155,243,.20) !important;
+        transition: .18s ease !important
+    }
+
+        .primary-btn:hover {
+            background: var(--id-blue-hover) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 11px 24px rgba(47,141,232,.24) !important
+        }
+
+    .already-submitted, .feedback-footer span {
+        color: #7f94a6 !important;
+        font-size: 11px !important
+    }
+
+    .decision-note {
+        padding: 16px 18px !important;
+        border: 1px solid var(--id-line) !important;
+        border-radius: 14px !important;
+        background: rgba(255,255,255,.54) !important;
+        backdrop-filter: blur(14px)
+    }
+
+        .decision-note strong {
+            color: #3d5a72 !important;
+            font-size: 13px !important
+        }
+
+        .decision-note p {
+            color: #748a9d !important;
+            font-size: 12px !important;
+            line-height: 1.6 !important
+        }
+
+    .locked-message {
+        border-color: #efd7b4 !important;
+        background: var(--id-amber-soft) !important;
+        color: #a97029 !important
+    }
+
+    @@media(max-width:800px) {
+        .interview-details-page {
+            padding: 18px !important
+        }
+
+        .summary-grid, .result-grid, .rating-grid, .star-rating-list, .resource-actions {
+            grid-template-columns: 1fr !important
+        }
+
+        .details-header {
+            flex-direction: column !important
+        }
+    }
+</style>

@@ -16,8 +16,8 @@
 <style>
 
     /* =========================================================
-           PAGE
-           ========================================================= */
+               PAGE
+               ========================================================= */
 
     .roles-page {
         background: #f5f7fb;
@@ -32,8 +32,8 @@
 
 
     /* =========================================================
-           HEADER
-           ========================================================= */
+               HEADER
+               ========================================================= */
 
     .role-header {
         display: flex;
@@ -66,8 +66,8 @@
 
 
     /* =========================================================
-           SEARCH
-           ========================================================= */
+               SEARCH
+               ========================================================= */
 
     .role-search {
         display: flex;
@@ -115,8 +115,8 @@
 
 
     /* =========================================================
-           TABLE CARD
-           ========================================================= */
+               TABLE CARD
+               ========================================================= */
 
     .roles-table-wrap {
         background: white;
@@ -128,8 +128,8 @@
 
 
     /* =========================================================
-           TABLE TOOLBAR
-           ========================================================= */
+               TABLE TOOLBAR
+               ========================================================= */
 
     .roles-table-toolbar {
         padding: 21px 24px;
@@ -155,8 +155,8 @@
 
 
     /* =========================================================
-           TABLE
-           ========================================================= */
+               TABLE
+               ========================================================= */
 
     .role-table {
         width: 100%;
@@ -203,8 +203,8 @@
 
 
     /* =========================================================
-           EMAIL
-           ========================================================= */
+               EMAIL
+               ========================================================= */
 
     .user-email {
         color: #0b1f3a;
@@ -214,8 +214,8 @@
 
 
     /* =========================================================
-           ROLE BADGE
-           ========================================================= */
+               ROLE BADGE
+               ========================================================= */
 
     .role-badge {
         display: inline-flex;
@@ -231,8 +231,8 @@
 
 
     /* =========================================================
-           ROLE FORM
-           ========================================================= */
+               ROLE FORM
+               ========================================================= */
 
     .role-form {
         display: flex;
@@ -277,8 +277,8 @@
 
 
     /* =========================================================
-           EMPTY STATE
-           ========================================================= */
+               EMPTY STATE
+               ========================================================= */
 
     .empty-state {
         padding: 65px 25px;
@@ -301,8 +301,8 @@
 
 
     /* =========================================================
-           RESPONSIVE
-           ========================================================= */
+               RESPONSIVE
+               ========================================================= */
 
     @@media (max-width: 900px) {
 
@@ -415,146 +415,395 @@
 
             <!-- TABLE TOOLBAR -->
 
-          
+
+        </div>
+
+
+        @if (!users.Any())
+        {
+            <div class="empty-state">
+
+                <h5>
+                    No users found
+                </h5>
+
+                <p>
+                    Try searching with a different email address.
+                </p>
+
             </div>
+        }
+        else
+        {
+
+            <div class="table-responsive">
+
+                <table class="table role-table align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Current Role
+                            </th>
+
+                            <th>
+                                Change Role
+                            </th>
+
+                        </tr>
+
+                    </thead>
 
 
-            @if (!users.Any())
-            {
-                <div class="empty-state">
+                    <tbody>
 
-                    <h5>
-                        No users found
-                    </h5>
+                        @foreach (var user in users)
+                        {
+                            var currentRole =
+                            userRoles.ContainsKey(user.Id)
+                            ? userRoles[user.Id]
+                            : "Candidate";
 
-                    <p>
-                        Try searching with a different email address.
-                    </p>
-
-                </div>
-            }
-            else
-            {
-
-                <div class="table-responsive">
-
-                    <table class="table role-table align-middle">
-
-                        <thead>
 
                             <tr>
 
-                                <th>
-                                    Email
-                                </th>
 
-                                <th>
-                                    Current Role
-                                </th>
+                                <!-- EMAIL -->
 
-                                <th>
-                                    Change Role
-                                </th>
+                                <td>
+
+                                    <div class="user-email">
+                                        @user.Email
+                                    </div>
+
+                                </td>
+
+
+                                <!-- CURRENT ROLE -->
+
+                                <td>
+
+                                    <span class="role-badge">
+                                        @currentRole
+                                    </span>
+
+                                </td>
+
+
+                                <!-- CHANGE ROLE -->
+
+                                <td>
+
+                                    <form asp-action="AssignRole"
+                                          method="post"
+                                          class="role-form">
+
+                                        <input type="hidden"
+                                               name="userId"
+                                               value="@user.Id" />
+
+                                        <select name="role"
+                                                class="role-select">
+
+                                            <option value="Candidate"
+                                                    selected="@(currentRole == "Candidate")">
+                                                Candidate
+                                            </option>
+
+                                            <option value="HR"
+                                                    selected="@(currentRole == "HR")">
+                                                HR
+                                            </option>
+
+                                            <option value="Interviewer"
+                                                    selected="@(currentRole == "Interviewer")">
+                                                Interviewer
+                                            </option>
+
+                                            <option value="HiringManager"
+                                                    selected="@(currentRole == "HiringManager")">
+                                                Hiring Manager
+                                            </option>
+
+                                        </select>
+
+                                        <button type="submit"
+                                                class="assign-btn">
+                                            Assign Role
+                                        </button>
+
+                                    </form>
+
+                                </td>
 
                             </tr>
+                        }
 
-                        </thead>
+                    </tbody>
 
+                </table>
 
-                        <tbody>
+            </div>
 
-                            @foreach (var user in users)
-                            {
-                                var currentRole =
-                                userRoles.ContainsKey(user.Id)
-                                ? userRoles[user.Id]
-                                : "Candidate";
-
-
-                                <tr>
-
-
-                                    <!-- EMAIL -->
-
-                                    <td>
-
-                                        <div class="user-email">
-                                            @user.Email
-                                        </div>
-
-                                    </td>
-
-
-                                    <!-- CURRENT ROLE -->
-
-                                    <td>
-
-                                        <span class="role-badge">
-                                            @currentRole
-                                        </span>
-
-                                    </td>
-
-
-                                    <!-- CHANGE ROLE -->
-
-                                    <td>
-
-                                        <form asp-action="AssignRole"
-                                              method="post"
-                                              class="role-form">
-
-                                            <input type="hidden"
-                                                   name="userId"
-                                                   value="@user.Id" />
-
-                                            <select name="role"
-                                                    class="role-select">
-
-                                                <option value="Candidate"
-                                                        selected="@(currentRole == "Candidate")">
-                                                    Candidate
-                                                </option>
-
-                                                <option value="HR"
-                                                        selected="@(currentRole == "HR")">
-                                                    HR
-                                                </option>
-
-                                                <option value="Interviewer"
-                                                        selected="@(currentRole == "Interviewer")">
-                                                    Interviewer
-                                                </option>
-
-                                                <option value="HiringManager"
-                                                        selected="@(currentRole == "HiringManager")">
-                                                    Hiring Manager
-                                                </option>
-
-                                            </select>
-
-                                            <button type="submit"
-                                                    class="assign-btn">
-                                                Assign Role
-                                            </button>
-
-                                        </form>
-
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            }
-
-        </div>
+        }
 
     </div>
 
 </div>
+
+</div>
+
+
+<style>
+    /* =========================================================
+           FINAL ROLE MANAGEMENT THEME
+           Same soft blue HireTrack system-admin design
+           ========================================================= */
+
+    :root {
+        --rm-blue: #3f9bf3;
+        --rm-blue-hover: #2f8de8;
+        --rm-blue-soft: #edf7ff;
+        --rm-line: #dce8f2;
+        --rm-line-soft: #edf3f7;
+        --rm-text: #263f58;
+        --rm-muted: #8499ab;
+        --rm-shadow: 0 14px 34px rgba(52,83,108,.08);
+        --rm-shadow-soft: 0 8px 22px rgba(52,83,108,.06);
+    }
+
+    .roles-page {
+        min-height: calc(100vh - 80px) !important;
+        padding: 34px 36px 64px !important;
+        background: radial-gradient(circle at 8% 4%, rgba(63,155,243,.10), transparent 24%), radial-gradient(circle at 92% 7%, rgba(180,216,243,.14), transparent 21%), linear-gradient(180deg,#f8fbfe 0%,#eef5fa 100%) !important;
+    }
+
+    .roles-wrapper {
+        max-width: 1450px !important;
+    }
+
+    .role-header {
+        margin-bottom: 24px !important;
+    }
+
+    .role-heading-label {
+        color: var(--rm-blue) !important;
+        font-size: 11px !important;
+        font-weight: 850 !important;
+        letter-spacing: .12em !important;
+    }
+
+    .role-header h1 {
+        margin: 4px 0 6px !important;
+        color: #1f3d59 !important;
+        font-size: 34px !important;
+        font-weight: 850 !important;
+        letter-spacing: -.45px !important;
+    }
+
+    .role-header p {
+        color: var(--rm-muted) !important;
+        font-size: 14px !important;
+        line-height: 1.55 !important;
+    }
+
+    .role-search {
+        min-width: 470px !important;
+        gap: 9px !important;
+    }
+
+        .role-search input {
+            height: 46px !important;
+            border: 1px solid #d8e5ef !important;
+            border-radius: 11px !important;
+            background: rgba(255,255,255,.80) !important;
+            backdrop-filter: blur(10px);
+            color: #405b72 !important;
+            font-size: 13px !important;
+        }
+
+            .role-search input:focus {
+                border-color: #8bc4ef !important;
+                box-shadow: 0 0 0 4px rgba(63,155,243,.09) !important;
+            }
+
+    .search-btn {
+        height: 46px !important;
+        padding: 0 18px !important;
+        border-radius: 11px !important;
+        background: var(--rm-blue) !important;
+        color: white !important;
+        font-size: 12px !important;
+        font-weight: 850 !important;
+        box-shadow: 0 8px 18px rgba(63,155,243,.18) !important;
+    }
+
+        .search-btn:hover {
+            background: var(--rm-blue-hover) !important;
+        }
+
+    .roles-table-wrap {
+        overflow: hidden !important;
+        border: 1px solid var(--rm-line) !important;
+        border-radius: 20px !important;
+        background: rgba(255,255,255,.76) !important;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: var(--rm-shadow-soft) !important;
+    }
+
+    .roles-table-toolbar {
+        padding: 20px 22px !important;
+        border-bottom: 1px solid var(--rm-line-soft) !important;
+        background: rgba(255,255,255,.44) !important;
+    }
+
+        .roles-table-toolbar strong {
+            color: #2d4b65 !important;
+            font-size: 18px !important;
+            font-weight: 850 !important;
+        }
+
+        .roles-table-toolbar span {
+            color: #8da0b1 !important;
+            font-size: 12px !important;
+        }
+
+    .role-table {
+        min-width: 820px !important;
+    }
+
+        .role-table thead {
+            background: #f2f7fb !important;
+        }
+
+        .role-table th {
+            padding: 14px 20px !important;
+            color: #6f879a !important;
+            font-size: 10px !important;
+            font-weight: 850 !important;
+            letter-spacing: .06em !important;
+            border-bottom: 1px solid #dfe9f1 !important;
+        }
+
+        .role-table td {
+            padding: 17px 20px !important;
+            color: #566f85 !important;
+            font-size: 13px !important;
+            border-bottom: 1px solid var(--rm-line-soft) !important;
+        }
+
+        .role-table tbody tr:hover {
+            background: rgba(248,252,255,.74) !important;
+        }
+
+    .user-email {
+        color: #304f68 !important;
+        font-size: 13px !important;
+        font-weight: 850 !important;
+    }
+
+    .role-badge {
+        padding: 6px 10px !important;
+        border: 1px solid #cfe4f4 !important;
+        background: var(--rm-blue-soft) !important;
+        color: #4d83aa !important;
+        font-size: 10px !important;
+        font-weight: 850 !important;
+    }
+
+    .role-form {
+        gap: 9px !important;
+    }
+
+    .role-select {
+        height: 40px !important;
+        min-width: 180px !important;
+        border: 1px solid #d8e5ef !important;
+        border-radius: 9px !important;
+        background: rgba(255,255,255,.92) !important;
+        color: #405b72 !important;
+        font-size: 12px !important;
+    }
+
+        .role-select:focus {
+            border-color: #8bc4ef !important;
+            box-shadow: 0 0 0 4px rgba(63,155,243,.08) !important;
+        }
+
+    .assign-btn {
+        height: 40px !important;
+        padding: 0 14px !important;
+        border: 1px solid var(--rm-blue) !important;
+        border-radius: 9px !important;
+        background: var(--rm-blue) !important;
+        color: white !important;
+        font-size: 10px !important;
+        font-weight: 850 !important;
+        box-shadow: 0 6px 14px rgba(63,155,243,.16);
+    }
+
+        .assign-btn:hover {
+            background: var(--rm-blue-hover) !important;
+            border-color: var(--rm-blue-hover) !important;
+        }
+
+    .empty-state {
+        padding: 60px 25px !important;
+        background: transparent !important;
+    }
+
+        .empty-state h5 {
+            color: #2f4e67 !important;
+            font-size: 18px !important;
+            font-weight: 850 !important;
+        }
+
+        .empty-state p {
+            color: #8ba0b1 !important;
+            font-size: 12px !important;
+        }
+
+    @@media(max-width:900px) {
+        .roles-page {
+            padding: 24px 18px 50px !important;
+        }
+
+        .role-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+
+        .role-search {
+            min-width: 0 !important;
+            width: 100% !important;
+        }
+    }
+
+    @@media(max-width:600px) {
+        .role-header h1 {
+            font-size: 28px !important;
+        }
+
+        .role-search {
+            flex-direction: column !important;
+        }
+
+        .search-btn,
+        .role-select,
+        .assign-btn {
+            width: 100% !important;
+        }
+
+        .role-form {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+    }
+</style>

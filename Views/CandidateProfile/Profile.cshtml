@@ -1057,3 +1057,553 @@
     }
 
 </style>
+
+
+<style>
+    /* =========================================================
+           CANDIDATE PROFILE — CUTE CAREERS THEME
+           Inspired by the uploaded careers references
+           ========================================================= */
+
+    :root {
+        --cp-navy: #10284a;
+        --cp-navy-2: #173a63;
+        --cp-blue: #3f9bf3;
+        --cp-blue-soft: #e8f2ff;
+        --cp-blue-pale: #f3f8ff;
+        --cp-pink: #f4b5d0;
+        --cp-pink-soft: #fdeaf2;
+        --cp-mint: #dff4ea;
+        --cp-cream: #fff9f1;
+        --cp-text: #2f4962;
+        --cp-muted: #8295a8;
+        --cp-line: #dfe7ee;
+        --cp-line-soft: #edf2f6;
+        --cp-shadow: 0 18px 42px rgba(43,68,90,.08);
+        --cp-shadow-soft: 0 8px 22px rgba(43,68,90,.06);
+    }
+
+    .candidate-profile-page {
+        max-width: 1460px !important;
+        margin: 0 auto !important;
+        padding: 30px !important;
+        border-radius: 30px !important;
+        background: radial-gradient(circle at 91% 5%, rgba(223,244,234,.58), transparent 18%), radial-gradient(circle at 97% 17%, rgba(244,181,208,.26), transparent 14%), linear-gradient(180deg,#fbfdff 0%,#f5f7f9 100%) !important;
+        color: var(--cp-text) !important;
+    }
+
+    /* =========================================================
+           HERO HEADER
+           ========================================================= */
+
+    .profile-page-header {
+        position: relative !important;
+        min-height: 290px !important;
+        margin-bottom: 26px !important;
+        padding: 38px 40px !important;
+        align-items: center !important;
+        overflow: hidden !important;
+        border: 1px solid var(--cp-line) !important;
+        border-radius: 28px !important;
+        background: radial-gradient(circle at 75% 50%, rgba(227,239,255,.95) 0 20%, transparent 20.5%), radial-gradient(circle at 81% 50%, rgba(240,246,255,.98) 0 31%, transparent 31.5%), radial-gradient(circle at 91% 71%, rgba(244,181,208,.72) 0 7%, transparent 7.5%), radial-gradient(circle at 84% 17%, rgba(223,244,234,.92) 0 5%, transparent 5.5%), #ffffff !important;
+        box-shadow: var(--cp-shadow) !important;
+    }
+
+        .profile-page-header::before {
+            content: "";
+            position: absolute;
+            left: 40px;
+            top: 152px;
+            width: 88px;
+            height: 11px;
+            border-radius: 999px;
+            background: var(--cp-pink);
+            transform: rotate(-3deg);
+            opacity: .95;
+        }
+
+        .profile-page-header::after {
+            content: "Build your next chapter";
+            position: absolute;
+            right: 140px;
+            bottom: 34px;
+            padding: 9px 15px;
+            border-radius: 999px;
+            background: var(--cp-navy);
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .05em;
+            transform: rotate(-4deg);
+        }
+
+        .profile-page-header > div {
+            position: relative;
+            z-index: 2;
+            max-width: 640px;
+        }
+
+    .profile-eyebrow {
+        margin-bottom: 10px !important;
+        color: #70839a !important;
+        font-size: 11px !important;
+        font-weight: 900 !important;
+        letter-spacing: .15em !important;
+    }
+
+    .profile-page-header h1 {
+        margin: 0 !important;
+        max-width: 580px;
+        color: var(--cp-navy) !important;
+        font-size: 54px !important;
+        line-height: .98 !important;
+        font-weight: 900 !important;
+        letter-spacing: -.055em !important;
+    }
+
+    .profile-page-header p {
+        max-width: 620px !important;
+        margin-top: 16px !important;
+        color: #73889e !important;
+        font-size: 15px !important;
+        line-height: 1.7 !important;
+    }
+
+    .profile-jobs-btn {
+        position: relative;
+        z-index: 3;
+        min-height: 46px !important;
+        padding: 0 19px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid var(--cp-navy) !important;
+        border-radius: 11px !important;
+        background: var(--cp-navy) !important;
+        color: white !important;
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        box-shadow: 0 10px 22px rgba(16,40,74,.16) !important;
+        transition: .18s ease !important;
+    }
+
+        .profile-jobs-btn:hover {
+            background: var(--cp-navy-2) !important;
+            color: #fff !important;
+            transform: translateY(-1px);
+        }
+
+    /* =========================================================
+           ALERTS
+           ========================================================= */
+
+    .profile-alert {
+        border-radius: 12px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        box-shadow: var(--cp-shadow-soft);
+    }
+
+    /* =========================================================
+           MAIN LAYOUT
+           ========================================================= */
+
+    .profile-layout {
+        grid-template-columns: 300px minmax(0,1fr) !important;
+        gap: 24px !important;
+    }
+
+    .profile-sidebar {
+        gap: 16px !important;
+    }
+
+    .profile-avatar-section,
+    .profile-completion-card,
+    .profile-card,
+    .profile-save-area {
+        border: 1px solid var(--cp-line) !important;
+        border-radius: 20px !important;
+        background: rgba(255,255,255,.94) !important;
+        box-shadow: var(--cp-shadow-soft) !important;
+    }
+
+    /* =========================================================
+           PROFILE SUMMARY — like mini "your journey" card
+           ========================================================= */
+
+    .profile-avatar-section {
+        position: relative;
+        overflow: hidden;
+        padding: 28px 22px !important;
+    }
+
+        .profile-avatar-section::before {
+            content: "";
+            position: absolute;
+            top: -34px;
+            right: -24px;
+            width: 108px;
+            height: 108px;
+            border-radius: 50%;
+            background: var(--cp-blue-soft);
+        }
+
+        .profile-avatar-section::after {
+            content: "";
+            position: absolute;
+            left: -22px;
+            bottom: -38px;
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: var(--cp-pink-soft);
+        }
+
+    .candidate-large-avatar {
+        position: relative;
+        z-index: 2;
+        width: 112px !important;
+        height: 112px !important;
+        margin-bottom: 16px !important;
+        border: 5px solid #f7fbff !important;
+        background: var(--cp-blue-soft) !important;
+        color: var(--cp-blue) !important;
+        font-size: 30px !important;
+        box-shadow: 0 12px 28px rgba(63,155,243,.13) !important;
+    }
+
+    .profile-avatar-section h2 {
+        position: relative;
+        z-index: 2;
+        color: var(--cp-navy) !important;
+        font-size: 21px !important;
+        font-weight: 900 !important;
+    }
+
+    .profile-avatar-section > span {
+        position: relative;
+        z-index: 2;
+        margin-top: 5px !important;
+        color: #8a9dad !important;
+        font-size: 11px !important;
+    }
+
+    .profile-avatar-section p {
+        position: relative;
+        z-index: 2;
+        color: #61798f !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+    }
+
+    .photo-upload-btn {
+        position: relative;
+        z-index: 2;
+        margin-top: 16px !important;
+        padding: 8px 13px !important;
+        border: 1px solid #cfe2f0 !important;
+        border-radius: 9px !important;
+        background: #f9fcff !important;
+        color: #4e82a8 !important;
+        font-size: 11px !important;
+        font-weight: 850 !important;
+        transition: .18s ease;
+    }
+
+        .photo-upload-btn:hover {
+            transform: translateY(-1px);
+            background: var(--cp-blue-pale) !important;
+        }
+
+    .profile-completion-card {
+        padding: 18px !important;
+        background: linear-gradient(145deg, rgba(255,255,255,.97), rgba(245,249,253,.97)) !important;
+    }
+
+    .completion-label {
+        font-size: 9px !important;
+        color: #8ea0b0 !important;
+        font-weight: 900 !important;
+        letter-spacing: .1em !important;
+    }
+
+    .profile-completion-card strong {
+        font-size: 15px !important;
+        font-weight: 900 !important;
+    }
+
+    .profile-completion-card > span:last-child {
+        font-size: 10px !important;
+        line-height: 1.55 !important;
+    }
+
+    .complete-text {
+        color: #3f9e73 !important;
+    }
+
+    .incomplete-text {
+        color: #b67b30 !important;
+    }
+
+    /* =========================================================
+           MAIN PROFILE CARDS
+           ========================================================= */
+
+    .profile-main {
+        gap: 18px !important;
+    }
+
+    .profile-card {
+        position: relative;
+        overflow: hidden;
+        padding: 24px !important;
+    }
+
+        .profile-card:nth-of-type(1) {
+            background: radial-gradient(circle at 96% 100%, rgba(232,242,255,.80) 0 14%, transparent 14.5%), #fff !important;
+        }
+
+        .profile-card:nth-of-type(2) {
+            background: radial-gradient(circle at 96% 100%, rgba(253,234,242,.80) 0 13%, transparent 13.5%), #fff !important;
+        }
+
+        .profile-card:nth-of-type(3) {
+            background: radial-gradient(circle at 96% 100%, rgba(223,244,234,.80) 0 13%, transparent 13.5%), #fff !important;
+        }
+
+        .profile-card:nth-of-type(4) {
+            background: radial-gradient(circle at 96% 100%, rgba(255,249,241,.98) 0 15%, transparent 15.5%), #fff !important;
+        }
+
+    .profile-card-heading {
+        margin-bottom: 20px !important;
+        padding-bottom: 15px !important;
+        border-bottom: 1px solid var(--cp-line-soft) !important;
+    }
+
+        .profile-card-heading span {
+            color: #8295a7 !important;
+            font-size: 10px !important;
+            font-weight: 900 !important;
+            letter-spacing: .11em !important;
+        }
+
+        .profile-card-heading h2 {
+            margin-top: 5px !important;
+            color: var(--cp-navy) !important;
+            font-size: 23px !important;
+            font-weight: 900 !important;
+            letter-spacing: -.025em !important;
+        }
+
+        .profile-card-heading p {
+            color: #8b9cac !important;
+            font-size: 11px !important;
+            line-height: 1.5 !important;
+        }
+
+    /* =========================================================
+           FORM
+           ========================================================= */
+
+    .profile-form-grid {
+        gap: 17px !important;
+    }
+
+    .profile-field label {
+        margin-bottom: 7px !important;
+        color: #4b667e !important;
+        font-size: 12px !important;
+        font-weight: 850 !important;
+    }
+
+    .profile-control {
+        min-height: 47px !important;
+        padding: 10px 13px !important;
+        border: 1px solid #d9e5ee !important;
+        border-radius: 11px !important;
+        background: rgba(255,255,255,.96) !important;
+        color: #3d5870 !important;
+        font-size: 13px !important;
+        transition: .18s ease !important;
+    }
+
+        .profile-control:focus {
+            border-color: #8bc4ef !important;
+            box-shadow: 0 0 0 4px rgba(63,155,243,.09) !important;
+        }
+
+        .profile-control.readonly {
+            background: #f7f9fb !important;
+            color: #8ea0af !important;
+        }
+
+    .profile-textarea {
+        min-height: 120px !important;
+        line-height: 1.6 !important;
+    }
+
+    .profile-field small {
+        margin-top: 6px !important;
+        color: #8fa2b3 !important;
+        font-size: 10px !important;
+    }
+
+    /* =========================================================
+           CV CARD
+           ========================================================= */
+
+    .current-cv-card {
+        padding: 15px !important;
+        border: 1px solid #dfe9f1 !important;
+        border-radius: 13px !important;
+        background: #f8fbfd !important;
+    }
+
+    .cv-icon {
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 10px !important;
+        background: var(--cp-blue-soft) !important;
+        color: var(--cp-blue) !important;
+        font-size: 10px !important;
+        font-weight: 900 !important;
+    }
+
+    .cv-info strong {
+        color: #38556d !important;
+        font-size: 12px !important;
+        font-weight: 850 !important;
+    }
+
+    .cv-info span {
+        color: #8d9fae !important;
+        font-size: 10px !important;
+    }
+
+    .view-cv-btn {
+        min-height: 35px !important;
+        padding: 0 11px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        border: 1px solid #cfe2f0 !important;
+        border-radius: 8px !important;
+        background: white !important;
+        color: #4d82a8 !important;
+        font-size: 10px !important;
+        font-weight: 850 !important;
+    }
+
+    /* =========================================================
+           SAVE AREA — like cute CTA card
+           ========================================================= */
+
+    .profile-save-area {
+        position: relative;
+        overflow: hidden;
+        padding: 20px 22px !important;
+        background: radial-gradient(circle at 94% 50%, rgba(232,242,255,.88) 0 13%, transparent 13.5%), linear-gradient(90deg,#ffffff,#f8fbff) !important;
+    }
+
+        .profile-save-area::after {
+            content: "";
+            position: absolute;
+            right: -28px;
+            bottom: -40px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--cp-pink-soft);
+        }
+
+        .profile-save-area > div,
+        .save-profile-btn {
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-save-area strong {
+            color: var(--cp-navy) !important;
+            font-size: 14px !important;
+            font-weight: 900 !important;
+        }
+
+        .profile-save-area span {
+            margin-top: 4px !important;
+            color: #8b9cac !important;
+            font-size: 10px !important;
+            line-height: 1.5 !important;
+        }
+
+    .save-profile-btn {
+        min-height: 44px !important;
+        padding: 0 19px !important;
+        border-radius: 10px !important;
+        background: var(--cp-blue) !important;
+        color: white !important;
+        font-size: 11px !important;
+        font-weight: 900 !important;
+        box-shadow: 0 9px 20px rgba(63,155,243,.18) !important;
+        transition: .18s ease !important;
+    }
+
+        .save-profile-btn:hover {
+            background: #2f8de8 !important;
+            transform: translateY(-1px);
+        }
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media(max-width:900px) {
+        .profile-page-header {
+            min-height: auto !important;
+        }
+
+            .profile-page-header::after {
+                display: none;
+            }
+
+            .profile-page-header h1 {
+                font-size: 42px !important;
+            }
+
+        .profile-layout {
+            grid-template-columns: 1fr !important;
+        }
+
+        .profile-sidebar {
+            position: static !important;
+        }
+    }
+
+    @@media(max-width:600px) {
+        .candidate-profile-page {
+            padding: 16px !important;
+        }
+
+        .profile-page-header {
+            padding: 26px 20px !important;
+        }
+
+            .profile-page-header h1 {
+                font-size: 36px !important;
+            }
+
+        .profile-page-header,
+        .profile-save-area {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+
+        .profile-form-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .profile-field.full {
+            grid-column: auto !important;
+        }
+    }
+</style>
+

@@ -24,5 +24,7 @@ namespace RecruitmentTracker.Models
 
         public bool InterviewerProfileCompleted { get; set; } = false;
 
+        public CandidateProfile? CandidateProfile { get; set; }
+
     }
 }

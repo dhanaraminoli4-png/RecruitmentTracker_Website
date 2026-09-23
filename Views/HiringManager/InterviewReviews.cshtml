@@ -90,26 +90,7 @@
     <div class="hm-filter-card">
 
 
-        <div class="hm-filter-heading">
-
-            <div>
-
-                <span class="hm-filter-label">
-                    JOB VACANCY
-                </span>
-
-                <h3>
-                    Filter Interview Reviews
-                </h3>
-
-                <p>
-                    Select a vacancy to view only interviews
-                    belonging to that recruitment campaign.
-                </p>
-
-            </div>
-
-        </div>
+       
 
 
 
@@ -435,7 +416,7 @@
                 roundResult.ToLower();
 
 
-                <div class="hm-review-card">
+                <div class="hm-review-card @roundResultClass">
 
 
                     <!-- =============================================
@@ -543,8 +524,7 @@
                             </span>
 
                             <strong>
-                                @interview.InterviewDate
-                                .ToString("dd MMM yyyy")
+                                @interview.InterviewDate.ToString("dd MMM yyyy")
                             </strong>
 
                         </div>
@@ -725,8 +705,8 @@
 
 
     /* =========================================================
-           PAGE
-        ========================================================= */
+               PAGE
+            ========================================================= */
 
     .hm-review-page {
         max-width: 1450px;
@@ -749,8 +729,8 @@
 
 
     /* =========================================================
-           HEADER
-        ========================================================= */
+               HEADER
+            ========================================================= */
 
     .hm-header {
         display: flex;
@@ -820,8 +800,8 @@
 
 
     /* =========================================================
-           FILTER CARD
-        ========================================================= */
+               FILTER CARD
+            ========================================================= */
 
     .hm-filter-card {
         position: relative;
@@ -883,8 +863,8 @@
 
 
     /* =========================================================
-           FILTER FORM
-        ========================================================= */
+               FILTER FORM
+            ========================================================= */
 
     .hm-filter-form {
         position: relative;
@@ -937,8 +917,8 @@
 
 
     /* =========================================================
-           SELECTED JOB
-        ========================================================= */
+               SELECTED JOB
+            ========================================================= */
 
     .hm-selected-job {
         position: relative;
@@ -1002,8 +982,8 @@
 
 
     /* =========================================================
-           STATS
-        ========================================================= */
+               STATS
+            ========================================================= */
 
     .hm-stats {
         display: grid;
@@ -1074,8 +1054,8 @@
 
 
     /* =========================================================
-           ALERTS
-        ========================================================= */
+               ALERTS
+            ========================================================= */
 
     .hm-alert {
         margin-bottom: 20px;
@@ -1102,8 +1082,8 @@
 
 
     /* =========================================================
-           LIST HEADING
-        ========================================================= */
+               LIST HEADING
+            ========================================================= */
 
     .hm-list-heading {
         display: flex;
@@ -1131,8 +1111,8 @@
 
 
     /* =========================================================
-           INTERVIEW LIST
-        ========================================================= */
+               INTERVIEW LIST
+            ========================================================= */
 
     .hm-review-list {
         display: flex;
@@ -1143,8 +1123,8 @@
 
 
     /* =========================================================
-           INTERVIEW CARD
-        ========================================================= */
+               INTERVIEW CARD
+            ========================================================= */
 
     .hm-review-card {
         overflow: hidden;
@@ -1165,8 +1145,8 @@
 
 
     /* =========================================================
-           CANDIDATE TOP
-        ========================================================= */
+               CANDIDATE TOP
+            ========================================================= */
 
     .hm-card-top {
         display: flex;
@@ -1239,8 +1219,8 @@
 
 
     /* =========================================================
-           RESULT BADGES
-        ========================================================= */
+               RESULT BADGES
+            ========================================================= */
 
     .hm-result-badge {
         padding: 8px 14px;
@@ -1272,8 +1252,8 @@
 
 
     /* =========================================================
-           INTERVIEW DETAILS
-        ========================================================= */
+               INTERVIEW DETAILS
+            ========================================================= */
 
     .hm-card-grid {
         display: grid;
@@ -1318,8 +1298,8 @@
 
 
     /* =========================================================
-           REVIEW DATA
-        ========================================================= */
+               REVIEW DATA
+            ========================================================= */
 
     .hm-review-data {
         display: grid;
@@ -1368,8 +1348,8 @@
 
 
     /* =========================================================
-           CARD FOOTER
-        ========================================================= */
+               CARD FOOTER
+            ========================================================= */
 
     .hm-card-footer {
         display: flex;
@@ -1413,8 +1393,8 @@
 
 
     /* =========================================================
-           REVIEW BUTTON
-        ========================================================= */
+               REVIEW BUTTON
+            ========================================================= */
 
     .hm-view-btn {
         min-height: 42px;
@@ -1442,8 +1422,8 @@
 
 
     /* =========================================================
-           EMPTY STATE
-        ========================================================= */
+               EMPTY STATE
+            ========================================================= */
 
     .hm-empty {
         padding: 60px 25px;
@@ -1487,8 +1467,8 @@
 
 
     /* =========================================================
-           RESPONSIVE - TABLET
-        ========================================================= */
+               RESPONSIVE - TABLET
+            ========================================================= */
 
     @@media (max-width: 1000px) {
 
@@ -1518,8 +1498,8 @@
 
 
     /* =========================================================
-           RESPONSIVE - MOBILE
-        ========================================================= */
+               RESPONSIVE - MOBILE
+            ========================================================= */
 
     @@media (max-width: 700px) {
 
@@ -1623,8 +1603,8 @@
 
 
     /* =========================================================
-           SMALL MOBILE
-        ========================================================= */
+               SMALL MOBILE
+            ========================================================= */
 
     @@media (max-width: 480px) {
 
@@ -1659,4 +1639,438 @@
         }
     }
 
+</style>
+
+
+<style>
+    /* =========================================================
+           FINAL INTERVIEW REVIEW CARD THEME
+           Inspired by the pastel-gradient card reference.
+           ========================================================= */
+
+    :root {
+        --hm-blue: #3f9bf3;
+        --hm-blue-hover: #2f8de8;
+        --hm-text: #223f5a;
+        --hm-muted: #8198ab;
+        --hm-green: #58b98d;
+        --hm-green-soft: #e9faf2;
+        --hm-amber: #d6a252;
+        --hm-amber-soft: #fff4e6;
+        --hm-red: #d97782;
+        --hm-red-soft: #fff0f2;
+    }
+
+    .hm-review-page {
+        background: radial-gradient(circle at 8% 5%, rgba(103, 182, 242, .10), transparent 25%), radial-gradient(circle at 92% 8%, rgba(181, 211, 235, .12), transparent 22%), linear-gradient(180deg, #f7fafc 0%, #f3f7fa 100%) !important;
+    }
+
+    /* Keep filter + stat cards soft and slightly blurred */
+    .hm-filter-card,
+    .hm-stat-card,
+    .hm-empty {
+        background: rgba(255,255,255,.72) !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-color: rgba(216,228,238,.88) !important;
+    }
+
+    /* =========================================================
+           REVIEW CARDS
+           ========================================================= */
+
+    .hm-review-card {
+        position: relative !important;
+        overflow: hidden !important;
+        background: rgba(255,255,255,.88) !important;
+        border: 1px solid #dfe8ef !important;
+        border-radius: 18px !important;
+        box-shadow: 0 12px 30px rgba(51, 79, 101, .08) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: transform .20s ease, box-shadow .20s ease, border-color .20s ease !important;
+    }
+
+        .hm-review-card:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 18px 38px rgba(51,79,101,.12) !important;
+        }
+
+        /* Pastel gradient strip across the top, like the reference */
+        .hm-review-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .hm-review-card.pending::before {
+            background: linear-gradient( 180deg, rgba(255, 216, 171, .72) 0%, rgba(255, 239, 219, .36) 58%, rgba(255,255,255,0) 100% );
+        }
+
+        .hm-review-card.passed::before {
+            background: linear-gradient( 180deg, rgba(181, 242, 214, .72) 0%, rgba(226, 250, 239, .38) 58%, rgba(255,255,255,0) 100% );
+        }
+
+        .hm-review-card.failed::before {
+            background: linear-gradient( 180deg, rgba(252, 197, 205, .72) 0%, rgba(255, 231, 235, .38) 58%, rgba(255,255,255,0) 100% );
+        }
+
+    .hm-card-top,
+    .hm-card-grid,
+    .hm-review-data,
+    .hm-card-footer {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hm-card-top {
+        background: transparent !important;
+        border-bottom: 1px solid #edf2f6 !important;
+    }
+
+    /* Candidate avatar */
+    .hm-avatar {
+        background: #edf7ff !important;
+        color: #3f8fc9 !important;
+        border: 1px solid #d4e8f7;
+        box-shadow: none !important;
+    }
+
+    /* Result chips */
+    .hm-result-badge {
+        border: 1px solid transparent;
+        backdrop-filter: blur(8px);
+    }
+
+        .hm-result-badge.pending {
+            background: rgba(255,244,230,.86) !important;
+            color: #b67b2c !important;
+            border-color: #efd6b2 !important;
+        }
+
+        .hm-result-badge.passed {
+            background: rgba(235,249,242,.88) !important;
+            color: #3f976f !important;
+            border-color: #c8e8d8 !important;
+        }
+
+        .hm-result-badge.failed {
+            background: rgba(255,239,242,.88) !important;
+            color: #bd5b67 !important;
+            border-color: #efcbd0 !important;
+        }
+
+    /* Details and metrics become more like the clean reference cards */
+    .hm-card-grid,
+    .hm-review-data {
+        background: rgba(255,255,255,.42) !important;
+    }
+
+        .hm-card-grid > div,
+        .hm-data-item {
+            min-height: 84px !important;
+            border-color: #edf2f6 !important;
+        }
+
+            .hm-card-grid span,
+            .hm-data-item > span {
+                color: #8ca1b3 !important;
+                font-size: 10px !important;
+                font-weight: 800 !important;
+            }
+
+            .hm-card-grid strong,
+            .hm-data-item strong {
+                color: #3f5d76 !important;
+                font-size: 13px !important;
+                font-weight: 750 !important;
+            }
+
+    /* Status messages */
+    .hm-ready-badge {
+        background: #eaf8f1 !important;
+        color: #41916b !important;
+    }
+
+    .hm-waiting-badge {
+        background: #fff4e7 !important;
+        color: #b47a30 !important;
+    }
+
+    .hm-decided-badge {
+        background: #eef3f7 !important;
+        color: #6f8496 !important;
+    }
+
+    /* Blue only for the primary review action */
+    .hm-view-btn {
+        background: var(--hm-blue) !important;
+        color: #fff !important;
+        border-radius: 10px !important;
+        box-shadow: 0 8px 18px rgba(63,155,243,.19) !important;
+    }
+
+        .hm-view-btn:hover {
+            background: var(--hm-blue-hover) !important;
+            color: #fff !important;
+            box-shadow: 0 11px 23px rgba(47,141,232,.24) !important;
+        }
+
+    /* Filter stays neutral; focus can use blue */
+    .hm-job-select {
+        background: rgba(255,255,255,.82) !important;
+        border-color: #d8e5ef !important;
+    }
+
+        .hm-job-select:focus {
+            border-color: #8fc7ef !important;
+            box-shadow: 0 0 0 4px rgba(63,155,243,.09) !important;
+        }
+
+    /* Small animation only */
+    .hm-review-card,
+    .hm-view-btn,
+    .hm-back-btn {
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease !important;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .hm-review-card, .hm-view-btn, .hm-back-btn
+
+    {
+        transition: none !important;
+    }
+
+    }
+</style>
+
+
+
+<style>
+    /* =========================================================
+           COMPACT PASTEL INTERVIEW CARDS
+           3-column shape inspired by the reference image
+           ========================================================= */
+
+    .hm-review-list {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 18px !important;
+        align-items: stretch !important;
+    }
+
+    .hm-review-card {
+        min-width: 0 !important;
+        border-radius: 17px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background: rgba(255,255,255,.90) !important;
+        box-shadow: 0 10px 24px rgba(57, 82, 104, .08) !important;
+    }
+
+        .hm-review-card::before {
+            height: 54px !important;
+        }
+
+    /* Top section becomes compact */
+    .hm-card-top {
+        min-height: 118px !important;
+        padding: 16px 16px 12px !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        border-bottom: 1px solid #edf2f6 !important;
+        background: transparent !important;
+    }
+
+    .hm-card-candidate {
+        min-width: 0 !important;
+        padding: 0 !important;
+        gap: 11px !important;
+        align-items: flex-start !important;
+    }
+
+    .hm-avatar {
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 11px !important;
+        font-size: 14px !important;
+        flex: 0 0 42px !important;
+    }
+
+    .hm-card-candidate > div:last-child {
+        min-width: 0 !important;
+    }
+
+    .hm-card-candidate h3 {
+        margin: 0 !important;
+        font-size: 14px !important;
+        line-height: 1.25 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 180px !important;
+    }
+
+    .hm-card-candidate span {
+        margin-top: 3px !important;
+        font-size: 10px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 180px !important;
+    }
+
+    .hm-card-candidate strong {
+        margin-top: 6px !important;
+        font-size: 11px !important;
+        line-height: 1.25 !important;
+    }
+
+    .hm-card-candidate small {
+        margin-top: 2px !important;
+        font-size: 9px !important;
+    }
+
+    .hm-result-badge {
+        flex-shrink: 0 !important;
+        padding: 5px 8px !important;
+        font-size: 9px !important;
+    }
+
+    /* Details become two-column compact information rows */
+    .hm-card-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        border-bottom: 1px solid #edf2f6 !important;
+    }
+
+        .hm-card-grid > div {
+            min-height: 66px !important;
+            padding: 12px 14px !important;
+            border-right: 1px solid #edf2f6 !important;
+            border-bottom: 1px solid #edf2f6 !important;
+        }
+
+            .hm-card-grid > div:nth-child(2n) {
+                border-right: 0 !important;
+            }
+
+            .hm-card-grid > div:nth-last-child(-n+2) {
+                border-bottom: 0 !important;
+            }
+
+        .hm-card-grid span,
+        .hm-data-item > span {
+            margin-bottom: 5px !important;
+            font-size: 8px !important;
+            letter-spacing: .04em !important;
+        }
+
+        .hm-card-grid strong,
+        .hm-data-item strong {
+            font-size: 11px !important;
+            line-height: 1.3 !important;
+        }
+
+    /* Review data becomes metrics strip similar to Issues / Interventions / Success */
+    .hm-review-data {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+        background: rgba(249,252,254,.72) !important;
+        border-bottom: 1px solid #edf2f6 !important;
+    }
+
+    .hm-data-item {
+        min-height: 74px !important;
+        padding: 11px 9px !important;
+        text-align: center !important;
+        border-right: 1px solid #edf2f6 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+        .hm-data-item:last-child {
+            border-right: 0 !important;
+        }
+
+        .hm-data-item small {
+            margin-top: 3px !important;
+            font-size: 8px !important;
+        }
+
+    /* Footer like the reference card */
+    .hm-card-footer {
+        margin-top: auto !important;
+        padding: 11px 13px !important;
+        gap: 10px !important;
+        background: rgba(255,255,255,.92) !important;
+        min-height: 58px !important;
+    }
+
+    .hm-ready-badge,
+    .hm-waiting-badge,
+    .hm-decided-badge {
+        padding: 5px 8px !important;
+        font-size: 8px !important;
+        white-space: nowrap !important;
+    }
+
+    .hm-view-btn {
+        min-height: 36px !important;
+        padding: 0 12px !important;
+        border-radius: 9px !important;
+        font-size: 10px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Keep the heading width aligned to the cards */
+    .hm-list-heading {
+        margin-bottom: 13px !important;
+    }
+
+    /* Tablet */
+    @@media (max-width: 1200px) {
+        .hm-review-list {
+            grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+        }
+    }
+
+    /* Mobile */
+    @@media (max-width: 760px) {
+        .hm-review-list {
+            grid-template-columns: 1fr !important;
+        }
+
+        .hm-card-candidate h3,
+        .hm-card-candidate span {
+            max-width: 220px !important;
+        }
+
+        .hm-review-data {
+            grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+        }
+
+        .hm-data-item:nth-child(2n) {
+            border-right: 0 !important;
+        }
+
+        .hm-card-footer {
+            flex-direction: row !important;
+            align-items: center !important;
+        }
+
+        .hm-view-btn {
+            width: auto !important;
+        }
+    }
 </style>

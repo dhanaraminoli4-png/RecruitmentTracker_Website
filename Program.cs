@@ -36,6 +36,12 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient();
 
+if (Environment.GetEnvironmentVariable("PLAYWRIGHT_QA_MODE") == "1")
+{
+    // Registration creates test accounts; QA never sends a real email.
+    builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, QaNoOpEmailSender>();
+}
+
 var app = builder.Build();
 
 // ==========================================
@@ -72,6 +78,14 @@ app.MapRazorPages();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+
+    // Only the Playwright runner enables this flag. Its connection string points
+    // to a separate QA database, so normal application data is not changed.
+    if (Environment.GetEnvironmentVariable("PLAYWRIGHT_QA_MODE") == "1")
+    {
+        var qaDatabase = services.GetRequiredService<ApplicationDbContext>();
+        await qaDatabase.Database.EnsureCreatedAsync();
+    }
 
     await CreateRoles(services);
 
@@ -196,4 +210,10 @@ async Task CreateSystemAdmin(IServiceProvider serviceProvider)
             admin,
             "SystemAdmin");
     }
+}
+
+sealed class QaNoOpEmailSender : Microsoft.AspNetCore.Identity.UI.Services.IEmailSender
+{
+    public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        => Task.CompletedTask;
 }

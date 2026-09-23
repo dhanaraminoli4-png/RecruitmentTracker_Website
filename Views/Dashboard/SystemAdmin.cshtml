@@ -1,3 +1,329 @@
-@{ ViewData["Title"] = "System Admin Dashboard"; }
-<div class="page-heading"><div><div class="section-label">SYSTEM ADMINISTRATION</div><h1>Platform administration</h1><p>Manage access and keep the recruitment system controlled and auditable.</p></div><a asp-controller="Role" asp-action="Index" class="btn btn-primary">Manage roles</a></div>
-<div class="row g-3"><div class="col-lg-4"><div class="card h-100"><div class="card-body"><div class="stat-icon mb-3">◎</div><h5>User & role management</h5><p class="text-muted">Control application roles for HR, Candidates, Hiring Managers and other system users.</p><a asp-controller="Role" asp-action="Index" class="btn btn-outline-primary">Open role management</a></div></div></div><div class="col-lg-8"><div class="hero-panel h-100"><div class="section-label" style="color:#9fb4d0">ADMIN PRINCIPLE</div><h2 class="mt-2">Keep recruitment data controlled.</h2><p>HR owns recruitment operations, Hiring Managers receive shortlisted candidates, and candidates only see their own application status.</p></div></div></div>
+@{
+    ViewData["Title"] = "System Admin Dashboard";
+}
+
+<style>
+    :root {
+        --sa-blue: #3f9bf3;
+        --sa-blue-hover: #2f8de8;
+        --sa-blue-soft: #edf7ff;
+        --sa-blue-soft-2: #dff1ff;
+        --sa-bg: #eef5fa;
+        --sa-surface: rgba(255,255,255,.76);
+        --sa-surface-strong: rgba(255,255,255,.92);
+        --sa-line: #dce8f2;
+        --sa-line-soft: #edf3f7;
+        --sa-text: #213f5a;
+        --sa-text-2: #587189;
+        --sa-muted: #879bac;
+        --sa-shadow: 0 14px 34px rgba(52,83,108,.08);
+        --sa-shadow-soft: 0 8px 22px rgba(52,83,108,.06);
+    }
+
+    .admin-dashboard-page {
+        min-height: calc(100vh - 80px);
+        padding: 34px;
+        background: radial-gradient(circle at 8% 4%, rgba(63,155,243,.10), transparent 24%), radial-gradient(circle at 92% 7%, rgba(180,216,243,.14), transparent 21%), linear-gradient(180deg,#f8fbfe 0%,#eef5fa 100%);
+        color: var(--sa-text);
+    }
+
+    .admin-dashboard-shell {
+        max-width: 1320px;
+        margin: 0 auto;
+    }
+
+    .admin-page-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .admin-section-label {
+        margin-bottom: 7px;
+        color: var(--sa-blue);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .admin-page-heading h1 {
+        margin: 0;
+        color: #1f3d59;
+        font-size: 34px;
+        font-weight: 850;
+        letter-spacing: -.45px;
+    }
+
+    .admin-page-heading p {
+        max-width: 680px;
+        margin: 8px 0 0;
+        color: var(--sa-muted);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .admin-primary-btn,
+    .admin-secondary-btn {
+        min-height: 44px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 850;
+        transition: .18s ease;
+    }
+
+    .admin-primary-btn {
+        border: 1px solid var(--sa-blue);
+        background: var(--sa-blue);
+        color: white;
+        box-shadow: 0 9px 20px rgba(63,155,243,.19);
+    }
+
+        .admin-primary-btn:hover {
+            background: var(--sa-blue-hover);
+            border-color: var(--sa-blue-hover);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .admin-secondary-btn {
+        border: 1px solid #cfe2f0;
+        background: rgba(255,255,255,.78);
+        color: #4d7fa5;
+    }
+
+        .admin-secondary-btn:hover {
+            color: var(--sa-blue-hover);
+            background: white;
+            transform: translateY(-1px);
+        }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: minmax(0,.8fr) minmax(0,1.6fr);
+        gap: 20px;
+    }
+
+    .admin-card,
+    .admin-hero {
+        border: 1px solid var(--sa-line);
+        border-radius: 22px;
+        background: var(--sa-surface);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: var(--sa-shadow-soft);
+    }
+
+    .admin-card {
+        padding: 24px;
+    }
+
+    .admin-card-icon {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 18px;
+        border-radius: 13px;
+        background: var(--sa-blue-soft);
+        color: var(--sa-blue-hover);
+        font-size: 20px;
+        font-weight: 850;
+        border: 1px solid #d2e7f7;
+    }
+
+    .admin-card h2 {
+        margin: 0;
+        color: #2d4b65;
+        font-size: 20px;
+        font-weight: 850;
+    }
+
+    .admin-card p {
+        margin: 9px 0 20px;
+        color: #74899d;
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .admin-hero {
+        position: relative;
+        overflow: hidden;
+        min-height: 290px;
+        padding: 30px 32px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: radial-gradient(circle at 80% 40%, rgba(224,240,255,.95) 0 20%, transparent 20.5%), radial-gradient(circle at 88% 72%, rgba(219,240,231,.78) 0 8%, transparent 8.5%), linear-gradient(135deg,rgba(255,255,255,.90),rgba(241,248,254,.92));
+    }
+
+        .admin-hero::after {
+            content: "";
+            position: absolute;
+            right: -28px;
+            bottom: -38px;
+            width: 125px;
+            height: 125px;
+            border-radius: 50%;
+            background: rgba(173,215,247,.34);
+        }
+
+        .admin-hero .admin-section-label {
+            color: #5a8eb6;
+        }
+
+        .admin-hero h2 {
+            max-width: 650px;
+            margin: 5px 0 10px;
+            color: #23445f;
+            font-size: 29px;
+            font-weight: 850;
+            letter-spacing: -.3px;
+        }
+
+        .admin-hero p {
+            max-width: 700px;
+            margin: 0;
+            color: #6f8598;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+    .admin-principles {
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .admin-principle {
+        padding: 13px 14px;
+        border: 1px solid rgba(214,228,239,.88);
+        border-radius: 13px;
+        background: rgba(255,255,255,.62);
+        backdrop-filter: blur(10px);
+    }
+
+        .admin-principle strong {
+            display: block;
+            color: #3e5d75;
+            font-size: 12px;
+            font-weight: 850;
+        }
+
+        .admin-principle span {
+            display: block;
+            margin-top: 4px;
+            color: #8ba0b1;
+            font-size: 10px;
+            line-height: 1.45;
+        }
+
+    @@media(max-width:900px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-page-heading {
+            flex-direction: column;
+        }
+
+        .admin-principles {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media(max-width:600px) {
+        .admin-dashboard-page {
+            padding: 20px 14px 45px;
+        }
+
+        .admin-page-heading h1 {
+            font-size: 28px;
+        }
+    }
+</style>
+
+<div class="admin-dashboard-page">
+    <div class="admin-dashboard-shell">
+
+        <div class="admin-page-heading">
+            <div>
+                <div class="admin-section-label">SYSTEM ADMINISTRATION</div>
+                <h1>Platform administration</h1>
+                <p>
+                    Manage access, user roles and platform permissions while keeping the
+                    recruitment system controlled and auditable.
+                </p>
+            </div>
+
+            <a asp-controller="Role"
+               asp-action="Index"
+               class="admin-primary-btn">
+                Manage Roles
+            </a>
+        </div>
+
+        <div class="admin-grid">
+
+            <section class="admin-card">
+                <div class="admin-card-icon">◎</div>
+
+                <h2>User & role management</h2>
+
+                <p>
+                    Control application roles for HR, Candidates, Hiring Managers,
+                    Interviewers and other system users.
+                </p>
+
+                <a asp-controller="Role"
+                   asp-action="Index"
+                   class="admin-secondary-btn">
+                    Open Role Management
+                </a>
+            </section>
+
+            <section class="admin-hero">
+
+                <div class="admin-section-label">ADMIN PRINCIPLE</div>
+
+                <h2>
+                    Keep recruitment data controlled.
+                </h2>
+
+                <p>
+                    HR owns recruitment operations, Hiring Managers receive shortlisted
+                    candidates, Interviewers access only assigned interviews, and candidates
+                    only see their own application progress.
+                </p>
+
+                <div class="admin-principles">
+                    <div class="admin-principle">
+                        <strong>Role-based access</strong>
+                        <span>Users see only the tools required for their role.</span>
+                    </div>
+
+                    <div class="admin-principle">
+                        <strong>Controlled workflow</strong>
+                        <span>Recruitment actions remain separated by responsibility.</span>
+                    </div>
+
+                    <div class="admin-principle">
+                        <strong>Audit-friendly</strong>
+                        <span>Access and responsibilities stay clear across the platform.</span>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+</div>

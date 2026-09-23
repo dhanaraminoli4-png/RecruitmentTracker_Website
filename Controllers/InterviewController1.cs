@@ -54,6 +54,117 @@ namespace RecruitmentTracker.Controllers
                     .ToListAsync();
 
 
+            // =====================================================
+            // INTERVIEWER DIRECTORY FOR BOARD CARDS
+            // =====================================================
+            //
+            // Interview.InterviewerIds stores the exact interviewer
+            // assignments for each candidate + round. The board uses
+            // this directory only to translate those IDs into names,
+            // job titles and seniority labels.
+            // =====================================================
+
+            var interviewerIds =
+                interviews
+
+                    .Where(x =>
+                        !string.IsNullOrWhiteSpace(
+                            x.InterviewerIds))
+
+                    .SelectMany(x =>
+                        x.InterviewerIds!
+                            .Split(
+                                ',',
+                                StringSplitOptions.RemoveEmptyEntries
+                            ))
+
+                    .Select(x =>
+                        x.Trim())
+
+                    .Where(x =>
+                        !string.IsNullOrWhiteSpace(x))
+
+                    .Distinct()
+
+                    .ToList();
+
+
+            var interviewerDirectory =
+                await _context.Users
+
+                    .Where(x =>
+                        interviewerIds.Contains(x.Id))
+
+                    .ToDictionaryAsync(
+                        x => x.Id,
+                        x => x
+                    );
+
+
+            ViewBag.InterviewerDirectory =
+                interviewerDirectory;
+
+
+            // =====================================================
+            // ACTIVE ROUND DEFINITIONS BY VACANCY
+            // =====================================================
+            //
+            // Used by the board to determine whether the candidate
+            // has passed ALL required interview rounds.
+            // This also fixes existing/older candidates whose final
+            // round was already passed before InterviewProcessCompleted
+            // started being updated.
+            // =====================================================
+
+            var vacancyIds =
+                interviews
+
+                    .Where(x =>
+                        x.JobApplication != null)
+
+                    .Select(x =>
+                        x.JobApplication!.JobVacancyId)
+
+                    .Distinct()
+
+                    .ToList();
+
+
+            var activeRoundIdsByVacancy =
+                await _context.InterviewRounds
+
+                    .Where(x =>
+                        vacancyIds.Contains(
+                            x.JobVacancyId)
+
+                        &&
+
+                        x.IsActive)
+
+                    .GroupBy(x =>
+                        x.JobVacancyId)
+
+                    .ToDictionaryAsync(
+                        group =>
+                            group.Key,
+
+                        group =>
+                            group
+
+                                .OrderBy(x =>
+                                    x.SequenceNumber)
+
+                                .Select(x =>
+                                    x.Id)
+
+                                .ToList()
+                    );
+
+
+            ViewBag.ActiveRoundIdsByVacancy =
+                activeRoundIdsByVacancy;
+
+
             return View(interviews);
         }
 
@@ -368,38 +479,27 @@ namespace RecruitmentTracker.Controllers
 
 
                     var conflict =
-    await _context.InterviewerSchedules
-        .AnyAsync(x =>
+                        await _context.InterviewerSchedules
 
-            x.InterviewerId ==
-                interviewerId
+                            .AnyAsync(x =>
 
-            &&
+                                x.InterviewerId ==
+                                    interviewerId
 
-            !x.IsDeleted
+                                &&
 
-            &&
+                                !x.IsDeleted
 
-            x.IsSystemGenerated
+                                &&
 
-            &&
+                                x.StartDateTime <
+                                    interviewEnd
 
-            x.ScheduleType == "Interview"
+                                &&
 
-            &&
-
-            x.InterviewId != null
-
-            &&
-
-            x.StartDateTime <
-                interviewEnd
-
-            &&
-
-            x.EndDateTime >
-                interviewStart
-        );
+                                x.EndDateTime >
+                                    interviewStart
+                            );
 
 
                     if (conflict)
@@ -1615,39 +1715,28 @@ namespace RecruitmentTracker.Controllers
                 // =================================================
 
                 var hasConflict =
-    await _context
-        .InterviewerSchedules
-        .AnyAsync(schedule =>
+                    await _context
+                        .InterviewerSchedules
 
-            schedule.InterviewerId ==
-                interviewer.Id
+                        .AnyAsync(schedule =>
 
-            &&
+                            schedule.InterviewerId ==
+                                interviewer.Id
 
-            !schedule.IsDeleted
+                            &&
 
-            &&
+                            !schedule.IsDeleted
 
-            schedule.IsSystemGenerated
+                            &&
 
-            &&
+                            schedule.StartDateTime <
+                                interviewEnd
 
-            schedule.ScheduleType == "Interview"
+                            &&
 
-            &&
-
-            schedule.InterviewId != null
-
-            &&
-
-            schedule.StartDateTime <
-                interviewEnd
-
-            &&
-
-            schedule.EndDateTime >
-                interviewStart
-        );
+                            schedule.EndDateTime >
+                                interviewStart
+                        );
 
 
                 if (hasConflict)
@@ -2472,4 +2561,4 @@ namespace RecruitmentTracker.Controllers
         }
     }
 }
-    
+

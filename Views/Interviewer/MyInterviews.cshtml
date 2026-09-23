@@ -93,7 +93,6 @@
     <!-- =========================================================
          ALERTS
          ========================================================= -->
-
     @if (TempData["Success"] != null)
     {
         <div class="page-alert success">
@@ -113,7 +112,6 @@
     <!-- =========================================================
          INTERVIEWS
          ========================================================= -->
-
     @if (!interviews.Any())
     {
         <div class="empty-interviews">
@@ -138,37 +136,37 @@
             @foreach (var interview in interviews)
             {
                 var application =
-                    interview.JobApplication;
+                interview.JobApplication;
 
                 var candidate =
-                    application?.Candidate;
+                application?.Candidate;
 
                 var vacancy =
-                    application?.JobVacancy;
+                application?.JobVacancy;
 
                 var candidateName =
-                    candidate?.FullName
-                    ?? "Unknown Candidate";
+                candidate?.FullName
+                ?? "Unknown Candidate";
 
                 var firstLetter =
-                    !string.IsNullOrWhiteSpace(candidateName)
-                        ? candidateName.Substring(0, 1).ToUpper()
-                        : "?";
+                !string.IsNullOrWhiteSpace(candidateName)
+                ? candidateName.Substring(0, 1).ToUpper()
+                : "?";
 
                 var assessment =
-                    interview.Assessments?
-                        .FirstOrDefault();
+                interview.Assessments?
+                .FirstOrDefault();
 
                 var statusClass =
-                    (interview.Status ?? "Scheduled")
-                        .ToLower()
-                        .Replace(" ", "-");
+                (interview.Status ?? "Scheduled")
+                .ToLower()
+                .Replace(" ", "-");
 
                 var isPast =
-                    interview.InterviewDate.Date < today;
+                interview.InterviewDate.Date < today;
 
 
-                <div class="interview-card">
+                <div class="interview-card @(assessment?.Status == "Submitted" || interview.Status == "Completed" ? "done-card" : "todo-card")">
 
                     <!-- CANDIDATE -->
 
@@ -193,47 +191,47 @@
                             <div class="job-title">
 
                                 @(vacancy?.JobTitle
-                                    ?? "Unknown Position")
+                                                        ?? "Unknown Position")
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                    vacancy?.JobCode))
+                        @if (!string.IsNullOrWhiteSpace(
+                                                vacancy?.JobCode))
                                 {
                                     <small>
                                         @vacancy.JobCode
                                     </small>
                                 }
 
-                            </div>
-
                         </div>
 
                     </div>
 
-
-                    <!-- INTERVIEW INFORMATION -->
-
-                    <div class="interview-information">
-
-                        <div class="info-item">
-
-                            <span>Round</span>
-
-                            <strong>
-                                @(interview.InterviewRound?.Name
-                                    ?? "—")
-                            </strong>
-
-                        </div>
+                </div>
 
 
-                        <div class="info-item">
+                <!-- INTERVIEW INFORMATION -->
 
-                            <span>Type</span>
+                <div class="interview-information">
 
-                            <strong>
-                                @(interview.InterviewType?.Name
-                                    ?? "—")
-                            </strong>
+                    <div class="info-item">
+
+                        <span>Round</span>
+
+                        <strong>
+                            @(interview.InterviewRound?.Name
+                                                    ?? "—")
+                                                       </strong>
+
+                    </div>
+
+
+                    <div class="info-item">
+
+                        <span>Type</span>
+
+                        <strong>
+                            @(interview.InterviewType?.Name
+                                                    ?? "—")
+                    </strong>
 
                         </div>
 
@@ -243,8 +241,7 @@
                             <span>Date</span>
 
                             <strong>
-                                @interview.InterviewDate
-                                    .ToString("dd MMM yyyy")
+                                @interview.InterviewDate.ToString("dd MMM yyyy")
                             </strong>
 
                         </div>
@@ -272,7 +269,7 @@
                         </span>
 
 
-                        @if (assessment != null)
+                @if (assessment != null)
                         {
                             <div class="assessment-box">
 
@@ -280,15 +277,15 @@
 
                                     <strong>
                                         @(assessment
-                                            .AssessmentTemplate
-                                            ?.Name
-                                            ?? "Assessment")
-                                    </strong>
+                                                                    .AssessmentTemplate
+                                                                    ?.Name
+                                                                    ?? "Assessment")
+                        </strong>
 
 
                                     <span>
-                                        @if (assessment.Status ==
-                                             "Submitted")
+                            @if (assessment.Status ==
+                                                        "Submitted")
                                         {
                                             @("Assessment submitted")
                                         }
@@ -318,26 +315,26 @@
                             </div>
                         }
 
-                    </div>
+                </div>
 
 
-                    <!-- FOOTER -->
+                <!-- FOOTER -->
 
-                    <div class="interview-card-footer">
+                <div class="interview-card-footer">
 
-                        <div class="footer-left">
+                    <div class="footer-left">
 
-                            <span class="interview-status @statusClass">
+                        <span class="interview-status @statusClass">
 
-                                @(interview.Status
-                                    ?? "Scheduled")
+                            @(interview.Status
+                                                    ?? "Scheduled")
 
-                            </span>
+                    </span>
 
 
-                            @if (isPast &&
-                                 interview.Status ==
-                                 "Scheduled")
+                    @if (isPast &&
+                                        interview.Status ==
+                                        "Scheduled")
                             {
                                 <small class="past-label">
                                     Interview date passed
@@ -387,18 +384,18 @@
         margin-bottom: 25px;
     }
 
-    .interview-page-header h1 {
-        margin: 0;
-        font-size: 30px;
-        font-weight: 750;
-        color: #111827;
-    }
+        .interview-page-header h1 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 750;
+            color: #111827;
+        }
 
-    .interview-page-header p {
-        margin: 7px 0 0;
-        color: #7b8495;
-        font-size: 14px;
-    }
+        .interview-page-header p {
+            margin: 7px 0 0;
+            color: #7b8495;
+            font-size: 14px;
+        }
 
     .calendar-btn {
         background: white;
@@ -416,8 +413,7 @@
 
     .interview-stats {
         display: grid;
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 15px;
         margin-bottom: 24px;
     }
@@ -429,17 +425,17 @@
         padding: 17px 19px;
     }
 
-    .stat-card span {
-        display: block;
-        color: #7b8495;
-        font-size: 12px;
-        margin-bottom: 6px;
-    }
+        .stat-card span {
+            display: block;
+            color: #7b8495;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
 
-    .stat-card strong {
-        font-size: 25px;
-        color: #111827;
-    }
+        .stat-card strong {
+            font-size: 25px;
+            color: #111827;
+        }
 
 
     /* ALERT */
@@ -451,17 +447,17 @@
         font-size: 13px;
     }
 
-    .page-alert.success {
-        background: #ecfdf3;
-        border: 1px solid #abefc6;
-        color: #067647;
-    }
+        .page-alert.success {
+            background: #ecfdf3;
+            border: 1px solid #abefc6;
+            color: #067647;
+        }
 
-    .page-alert.error {
-        background: #fef3f2;
-        border: 1px solid #fecdca;
-        color: #b42318;
-    }
+        .page-alert.error {
+            background: #fef3f2;
+            border: 1px solid #fecdca;
+            color: #b42318;
+        }
 
 
     /* INTERVIEW LIST */
@@ -524,19 +520,18 @@
         font-weight: 600;
     }
 
-    .job-title small {
-        margin-left: 7px;
-        color: #98a2b3;
-        font-weight: 500;
-    }
+        .job-title small {
+            margin-left: 7px;
+            color: #98a2b3;
+            font-weight: 500;
+        }
 
 
     /* INFORMATION */
 
     .interview-information {
         display: grid;
-        grid-template-columns:
-            repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 15px;
         padding: 17px 20px;
         border-bottom: 1px solid #edf0f3;
@@ -574,18 +569,18 @@
         margin-top: 6px;
     }
 
-    .assessment-box strong {
-        display: block;
-        font-size: 13px;
-        color: #273248;
-    }
+        .assessment-box strong {
+            display: block;
+            font-size: 13px;
+            color: #273248;
+        }
 
-    .assessment-box div span {
-        display: block;
-        margin-top: 3px;
-        color: #8a94a6;
-        font-size: 12px;
-    }
+        .assessment-box div span {
+            display: block;
+            margin-top: 3px;
+            color: #8a94a6;
+            font-size: 12px;
+        }
 
     .assessment-status {
         border-radius: 999px;
@@ -594,15 +589,15 @@
         font-weight: 650;
     }
 
-    .assessment-status.pending {
-        background: #fffaeb;
-        color: #b54708;
-    }
+        .assessment-status.pending {
+            background: #fffaeb;
+            color: #b54708;
+        }
 
-    .assessment-status.submitted {
-        background: #ecfdf3;
-        color: #067647;
-    }
+        .assessment-status.submitted {
+            background: #ecfdf3;
+            color: #067647;
+        }
 
     .no-assessment {
         color: #98a2b3;
@@ -635,25 +630,25 @@
         color: #475467;
     }
 
-    .interview-status.scheduled {
-        background: #eff8ff;
-        color: #175cd3;
-    }
+        .interview-status.scheduled {
+            background: #eff8ff;
+            color: #175cd3;
+        }
 
-    .interview-status.in-progress {
-        background: #fff6ed;
-        color: #c4320a;
-    }
+        .interview-status.in-progress {
+            background: #fff6ed;
+            color: #c4320a;
+        }
 
-    .interview-status.completed {
-        background: #ecfdf3;
-        color: #067647;
-    }
+        .interview-status.completed {
+            background: #ecfdf3;
+            color: #067647;
+        }
 
-    .interview-status.cancelled {
-        background: #fef3f2;
-        color: #b42318;
-    }
+        .interview-status.cancelled {
+            background: #fef3f2;
+            color: #b42318;
+        }
 
     .past-label {
         color: #b54708;
@@ -670,10 +665,10 @@
         font-weight: 650;
     }
 
-    .view-interview-btn:hover {
-        color: white;
-        opacity: .9;
-    }
+        .view-interview-btn:hover {
+            color: white;
+            opacity: .9;
+        }
 
 
     /* EMPTY */
@@ -725,7 +720,584 @@
         .interview-page-header {
             flex-direction: column;
         }
-
     }
 
+</style>
+
+
+<style>
+    /* =========================================================
+               FINAL MY INTERVIEWS DESIGN
+               HireTrack blue theme + very compact cards
+               ========================================================= */
+
+    :root {
+        --iv-blue: #3f9bf3;
+        --iv-blue-hover: #2f8de8;
+        --iv-blue-soft: #edf7ff;
+        --iv-blue-soft-2: #dff1ff;
+        --iv-page: #f3f8fc;
+        --iv-surface: #ffffff;
+        --iv-line: #dce8f2;
+        --iv-line-soft: #edf3f7;
+        --iv-text: #284760;
+        --iv-muted: #8ba0b2;
+        --iv-green: #3fa477;
+        --iv-green-soft: #eaf8f1;
+        --iv-amber: #b98535;
+        --iv-amber-soft: #fff5e7;
+        --iv-red: #c76470;
+        --iv-red-soft: #fff0f2;
+    }
+
+    .my-interviews-page {
+        max-width: 1380px !important;
+        margin: 0 auto !important;
+        padding: 28px !important;
+        border-radius: 26px !important;
+        background: radial-gradient(circle at 8% 5%, rgba(63,155,243,.09), transparent 24%), radial-gradient(circle at 92% 8%, rgba(180,216,243,.12), transparent 22%), linear-gradient(180deg, #f7fbfe 0%, #eef5fb 100%) !important;
+        color: var(--iv-text) !important;
+    }
+
+    /* HEADER */
+    .interview-page-header {
+        margin-bottom: 18px !important;
+    }
+
+        .interview-page-header h1 {
+            color: #1f3d59 !important;
+            font-size: 30px !important;
+            font-weight: 850 !important;
+            letter-spacing: -.4px !important;
+        }
+
+        .interview-page-header p {
+            margin-top: 6px !important;
+            color: #8ca1b2 !important;
+            font-size: 12px !important;
+        }
+
+    .calendar-btn {
+        min-height: 40px !important;
+        padding: 0 14px !important;
+        border-radius: 11px !important;
+        background: #ffffff !important;
+        border: 1px solid #d8e6f2 !important;
+        color: #5f7a92 !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 6px 16px rgba(67,102,131,.05) !important;
+        transition: .18s ease !important;
+    }
+
+        .calendar-btn:hover {
+            background: #f8fcff !important;
+            color: var(--iv-blue-hover) !important;
+            border-color: #bcdcf2 !important;
+            transform: translateY(-1px) !important;
+        }
+
+    /* SMALL STATS */
+    .interview-stats {
+        gap: 10px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .stat-card {
+        min-height: 72px !important;
+        padding: 11px 13px !important;
+        border: 1px solid var(--iv-line) !important;
+        border-radius: 13px !important;
+        background: rgba(255,255,255,.80) !important;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 6px 16px rgba(67,102,131,.05) !important;
+    }
+
+        .stat-card span {
+            margin-bottom: 2px !important;
+            color: #8da1b3 !important;
+            font-size: 8px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .stat-card strong {
+            color: #31536e !important;
+            font-size: 20px !important;
+            font-weight: 850 !important;
+        }
+
+    /* VERY SMALL CARDS */
+    .interview-list {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 13px !important;
+        align-items: stretch !important;
+    }
+
+    .interview-card {
+        min-width: 0 !important;
+        min-height: 0 !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        position: relative !important;
+        background: rgba(255,255,255,.94) !important;
+        border: 1px solid #dfe9f2 !important;
+        box-shadow: 0 7px 17px rgba(55,86,112,.07) !important;
+        transition: .18s ease !important;
+    }
+
+        .interview-card:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 11px 23px rgba(55,86,112,.10) !important;
+            border-color: #c8e0f2 !important;
+        }
+
+        .interview-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 7px;
+            z-index: 2;
+        }
+
+        .interview-card.todo-card::before {
+            background: linear-gradient(90deg, #dff1ff, #a9d9fa);
+        }
+
+        .interview-card.done-card::before {
+            background: linear-gradient(90deg, #9ecdf1, #3f9bf3);
+        }
+
+    /* CANDIDATE */
+    .candidate-section {
+        gap: 9px !important;
+        padding: 15px 13px 11px !important;
+        border-bottom: 1px solid var(--iv-line-soft) !important;
+        background: transparent !important;
+    }
+
+    .candidate-avatar {
+        width: 38px !important;
+        height: 38px !important;
+        flex: 0 0 38px !important;
+        border-radius: 11px !important;
+        background: var(--iv-blue-soft) !important;
+        color: #3d88c2 !important;
+        font-size: 13px !important;
+        font-weight: 850 !important;
+    }
+
+    .done-card .candidate-avatar {
+        background: #dff1ff !important;
+        color: var(--iv-blue-hover) !important;
+    }
+
+    .candidate-details {
+        min-width: 0 !important;
+    }
+
+        .candidate-details h3 {
+            margin: 0 !important;
+            color: #294861 !important;
+            font-size: 12px !important;
+            font-weight: 850 !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        .candidate-details > span {
+            margin-top: 2px !important;
+            color: #91a4b4 !important;
+            font-size: 8px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+    .job-title {
+        margin-top: 5px !important;
+        color: #58728a !important;
+        font-size: 9px !important;
+        font-weight: 750 !important;
+    }
+
+        .job-title small {
+            margin-left: 4px !important;
+            color: #9babb9 !important;
+            font-size: 8px !important;
+        }
+
+    /* COMPACT 2x2 DETAILS */
+    .interview-information {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+        gap: 0 !important;
+        padding: 0 !important;
+        border-bottom: 1px solid var(--iv-line-soft) !important;
+    }
+
+    .info-item {
+        min-height: 51px !important;
+        padding: 9px 11px !important;
+        border-right: 1px solid var(--iv-line-soft) !important;
+        border-bottom: 1px solid var(--iv-line-soft) !important;
+    }
+
+        .info-item:nth-child(2n) {
+            border-right: 0 !important;
+        }
+
+        .info-item:nth-last-child(-n+2) {
+            border-bottom: 0 !important;
+        }
+
+        .info-item span,
+        .section-label {
+            margin-bottom: 3px !important;
+            color: #91a4b4 !important;
+            font-size: 7px !important;
+            font-weight: 800 !important;
+            letter-spacing: .04em !important;
+            text-transform: uppercase !important;
+        }
+
+        .info-item strong {
+            color: #405e77 !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+        }
+
+    /* ASSESSMENT */
+    .assessment-section {
+        padding: 10px 11px !important;
+        background: rgba(248,252,255,.72) !important;
+        border-bottom: 1px solid var(--iv-line-soft) !important;
+    }
+
+    .assessment-box {
+        margin-top: 4px !important;
+        gap: 7px !important;
+    }
+
+        .assessment-box strong {
+            color: #36556f !important;
+            font-size: 9px !important;
+            font-weight: 800 !important;
+        }
+
+        .assessment-box div span {
+            margin-top: 2px !important;
+            color: #94a6b6 !important;
+            font-size: 8px !important;
+        }
+
+    .assessment-status {
+        flex-shrink: 0 !important;
+        padding: 4px 7px !important;
+        font-size: 7px !important;
+        font-weight: 800 !important;
+    }
+
+        .assessment-status.pending {
+            background: var(--iv-amber-soft) !important;
+            color: var(--iv-amber) !important;
+        }
+
+        .assessment-status.submitted {
+            background: var(--iv-green-soft) !important;
+            color: var(--iv-green) !important;
+        }
+
+    .no-assessment {
+        color: #98a9b7 !important;
+        font-size: 8px !important;
+    }
+
+    /* FOOTER */
+    .interview-card-footer {
+        margin-top: auto !important;
+        padding: 9px 10px !important;
+        gap: 7px !important;
+        background: #ffffff !important;
+    }
+
+    .footer-left {
+        gap: 6px !important;
+        min-width: 0 !important;
+    }
+
+    .interview-status {
+        padding: 4px 7px !important;
+        font-size: 7px !important;
+        font-weight: 800 !important;
+    }
+
+        .interview-status.scheduled {
+            background: var(--iv-blue-soft) !important;
+            color: #347eb6 !important;
+        }
+
+        .interview-status.in-progress {
+            background: var(--iv-amber-soft) !important;
+            color: var(--iv-amber) !important;
+        }
+
+        .interview-status.completed {
+            background: var(--iv-green-soft) !important;
+            color: var(--iv-green) !important;
+        }
+
+        .interview-status.cancelled {
+            background: var(--iv-red-soft) !important;
+            color: var(--iv-red) !important;
+        }
+
+    .past-label {
+        color: #b47c33 !important;
+        font-size: 7px !important;
+    }
+
+    .view-interview-btn {
+        min-height: 31px !important;
+        padding: 0 9px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        background: var(--iv-blue) !important;
+        color: #ffffff !important;
+        border: 1px solid var(--iv-blue) !important;
+        font-size: 8px !important;
+        font-weight: 850 !important;
+        box-shadow: 0 6px 13px rgba(63,155,243,.18) !important;
+    }
+
+        .view-interview-btn:hover {
+            background: var(--iv-blue-hover) !important;
+            border-color: var(--iv-blue-hover) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px) !important;
+        }
+
+    .done-card .view-interview-btn {
+        background: #ffffff !important;
+        color: var(--iv-blue-hover) !important;
+        border-color: #cfe3f3 !important;
+        box-shadow: none !important;
+    }
+
+        .done-card .view-interview-btn:hover {
+            background: var(--iv-blue-soft) !important;
+            color: #2779b7 !important;
+        }
+
+    /* EMPTY */
+    .empty-interviews {
+        background: rgba(255,255,255,.86) !important;
+        border-color: #d9e5ee !important;
+    }
+
+    .empty-icon {
+        background: var(--iv-blue-soft) !important;
+        color: var(--iv-blue) !important;
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 1200px) {
+        .interview-list {
+            grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .interview-list {
+            grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+        }
+    }
+
+    @@media (max-width: 620px) {
+        .my-interviews-page {
+            padding: 16px !important;
+        }
+
+        .interview-list {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+
+
+<style>
+    /* FINAL READABILITY UPDATE */
+    .interview-page-header h1 {
+        font-size: 32px !important;
+    }
+
+    .interview-page-header p {
+        font-size: 14px !important;
+        line-height: 1.55 !important;
+    }
+
+    .calendar-btn {
+        min-height: 42px !important;
+        padding: 0 15px !important;
+        font-size: 12px !important;
+    }
+
+    .stat-card {
+        min-height: 82px !important;
+        padding: 13px 15px !important;
+    }
+
+        .stat-card span {
+            font-size: 10px !important;
+            margin-bottom: 4px !important;
+        }
+
+        .stat-card strong {
+            font-size: 23px !important;
+        }
+
+    .candidate-section {
+        padding: 16px 14px 12px !important;
+        gap: 10px !important;
+    }
+
+    .candidate-avatar {
+        width: 42px !important;
+        height: 42px !important;
+        flex: 0 0 42px !important;
+        font-size: 15px !important;
+    }
+
+    .candidate-details h3 {
+        font-size: 14px !important;
+        line-height: 1.3 !important;
+    }
+
+    .candidate-details > span {
+        font-size: 10px !important;
+        line-height: 1.35 !important;
+    }
+
+    .job-title {
+        font-size: 11px !important;
+        line-height: 1.35 !important;
+    }
+
+        .job-title small {
+            font-size: 9px !important;
+        }
+
+    .info-item {
+        min-height: 59px !important;
+        padding: 10px 12px !important;
+    }
+
+        .info-item span,
+        .section-label {
+            font-size: 9px !important;
+            margin-bottom: 4px !important;
+        }
+
+        .info-item strong {
+            font-size: 12px !important;
+            line-height: 1.35 !important;
+        }
+
+    .assessment-section {
+        padding: 12px !important;
+    }
+
+    .assessment-box {
+        gap: 9px !important;
+    }
+
+        .assessment-box strong {
+            font-size: 11px !important;
+            line-height: 1.35 !important;
+        }
+
+        .assessment-box div span {
+            font-size: 9px !important;
+            line-height: 1.35 !important;
+        }
+
+    .assessment-status {
+        padding: 5px 8px !important;
+        font-size: 9px !important;
+    }
+
+    .no-assessment {
+        font-size: 10px !important;
+    }
+
+    .interview-card-footer {
+        padding: 10px 11px !important;
+        gap: 8px !important;
+    }
+
+    .interview-status {
+        padding: 5px 8px !important;
+        font-size: 9px !important;
+    }
+
+    .past-label {
+        font-size: 9px !important;
+    }
+
+    .view-interview-btn {
+        min-height: 34px !important;
+        padding: 0 11px !important;
+        font-size: 10px !important;
+    }
+
+    .interview-list {
+        gap: 15px !important;
+    }
+
+    .interview-card {
+        border-radius: 17px !important;
+    }
+
+    @@media (max-width: 620px) {
+        .candidate-details h3 {
+            font-size: 15px !important;
+        }
+
+        .candidate-details > span,
+        .job-title {
+            font-size: 11px !important;
+        }
+
+        .info-item span,
+        .section-label {
+            font-size: 10px !important;
+        }
+
+        .info-item strong {
+            font-size: 13px !important;
+        }
+
+        .assessment-box strong {
+            font-size: 12px !important;
+        }
+
+        .assessment-box div span {
+            font-size: 10px !important;
+        }
+
+        .view-interview-btn,
+        .interview-status,
+        .assessment-status {
+            font-size: 10px !important;
+        }
+    }
 </style>

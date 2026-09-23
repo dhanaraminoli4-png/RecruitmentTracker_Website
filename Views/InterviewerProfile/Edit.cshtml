@@ -795,3 +795,304 @@
     </script>
 
 }
+
+
+<style>
+    /* =========================================================
+           FINAL EDIT PROFILE THEME
+           Bigger text + neat spacing + soft blue glass design
+           ========================================================= */
+
+    :root {
+        --ep-blue: #3f9bf3;
+        --ep-blue-hover: #2f8de8;
+        --ep-blue-soft: rgba(237,247,255,.82);
+        --ep-line: rgba(211,225,236,.90);
+        --ep-line-soft: rgba(229,238,245,.90);
+        --ep-text: #263f58;
+        --ep-text-2: #536e86;
+        --ep-muted: #8499ac;
+        --ep-green: #3fa477;
+        --ep-red: #c76470;
+        --ep-shadow-soft: 0 8px 22px rgba(55,82,104,.07);
+    }
+
+    .edit-profile-page {
+        min-height: calc(100vh - 70px) !important;
+        padding: 34px 36px 64px !important;
+        background: radial-gradient(circle at 8% 4%, rgba(63,155,243,.10), transparent 24%), radial-gradient(circle at 92% 8%, rgba(184,214,237,.13), transparent 22%), linear-gradient(180deg, #f8fbfe 0%, #eef5fa 100%) !important;
+        color: var(--ep-text) !important;
+    }
+
+    .edit-profile-wrapper {
+        max-width: 1180px !important;
+    }
+
+    /* HEADER */
+    .edit-profile-header {
+        margin-bottom: 24px !important;
+    }
+
+        .edit-profile-header h1 {
+            color: #1f3d59 !important;
+            font-size: 34px !important;
+            font-weight: 850 !important;
+            letter-spacing: -.45px !important;
+        }
+
+        .edit-profile-header p {
+            margin-top: 7px !important;
+            color: var(--ep-muted) !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+        }
+
+    .back-btn {
+        min-height: 43px !important;
+        padding: 0 16px !important;
+        border: 1px solid var(--ep-line) !important;
+        border-radius: 11px !important;
+        background: rgba(255,255,255,.72) !important;
+        backdrop-filter: blur(12px);
+        color: #627b92 !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 6px 16px rgba(55,82,104,.05) !important;
+        transition: .18s ease !important;
+    }
+
+        .back-btn:hover {
+            color: var(--ep-blue-hover) !important;
+            border-color: #bcdcf2 !important;
+            background: rgba(255,255,255,.90) !important;
+            transform: translateY(-1px);
+        }
+
+    /* MAIN FORM CARD */
+    .edit-card {
+        padding: 30px !important;
+        border: 1px solid var(--ep-line) !important;
+        border-radius: 22px !important;
+        background: rgba(255,255,255,.68) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
+        box-shadow: var(--ep-shadow-soft) !important;
+    }
+
+    /* SECTION SEPARATION */
+    .edit-section {
+        margin-bottom: 30px !important;
+        padding: 22px !important;
+        border: 1px solid var(--ep-line-soft);
+        border-radius: 17px;
+        background: rgba(255,255,255,.46);
+        backdrop-filter: blur(10px);
+    }
+
+        .edit-section:last-child {
+            margin-bottom: 0 !important;
+        }
+
+    .edit-section-header {
+        margin-bottom: 20px !important;
+        padding-bottom: 14px !important;
+        border-bottom: 1px solid var(--ep-line-soft) !important;
+    }
+
+        .edit-section-header h2 {
+            color: #2d4b65 !important;
+            font-size: 20px !important;
+            font-weight: 850 !important;
+            letter-spacing: -.2px !important;
+        }
+
+        .edit-section-header p {
+            margin-top: 5px !important;
+            color: var(--ep-muted) !important;
+            font-size: 12px !important;
+            line-height: 1.55 !important;
+        }
+
+    /* PROFILE PHOTO */
+    .profile-photo-section {
+        gap: 24px !important;
+        margin-bottom: 0 !important;
+        padding: 18px !important;
+        border: 1px solid var(--ep-line-soft) !important;
+        border-radius: 15px !important;
+        background: rgba(255,255,255,.52) !important;
+        backdrop-filter: blur(10px);
+    }
+
+    .profile-photo-preview {
+        width: 120px !important;
+        height: 120px !important;
+        flex: 0 0 120px !important;
+        border: 5px solid rgba(255,255,255,.88) !important;
+        background: var(--ep-blue-soft) !important;
+        color: var(--ep-blue-hover) !important;
+        box-shadow: 0 10px 24px rgba(63,155,243,.12) !important;
+    }
+
+    .photo-upload-info strong {
+        color: #36556e !important;
+        font-size: 15px !important;
+        font-weight: 850 !important;
+        margin-bottom: 7px !important;
+    }
+
+    .photo-upload-info span {
+        color: #8da1b2 !important;
+        font-size: 11px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 12px !important;
+    }
+
+    .photo-input {
+        font-size: 12px !important;
+    }
+
+    /* FORM GRID */
+    .edit-grid {
+        gap: 18px !important;
+    }
+
+    .form-group {
+        gap: 8px !important;
+        padding: 14px !important;
+        border: 1px solid var(--ep-line-soft);
+        border-radius: 13px;
+        background: rgba(255,255,255,.44);
+        backdrop-filter: blur(8px);
+    }
+
+    .form-label {
+        color: #4b667d !important;
+        font-size: 13px !important;
+        font-weight: 800 !important;
+    }
+
+    .form-control-custom {
+        min-height: 48px !important;
+        padding: 0 14px !important;
+        border: 1px solid #d8e5ef !important;
+        border-radius: 10px !important;
+        background: rgba(255,255,255,.80) !important;
+        color: #3e5b73 !important;
+        font-size: 14px !important;
+        transition: .18s ease !important;
+    }
+
+    textarea.form-control-custom {
+        min-height: 125px !important;
+        padding: 13px 14px !important;
+        line-height: 1.6 !important;
+    }
+
+    .form-control-custom:focus {
+        border-color: #8bc4ef !important;
+        box-shadow: 0 0 0 4px rgba(63,155,243,.09) !important;
+        background: #fff !important;
+    }
+
+    .form-control-custom[readonly] {
+        background: rgba(244,247,250,.82) !important;
+        color: #8798a8 !important;
+    }
+
+    .validation-text {
+        color: var(--ep-red) !important;
+        font-size: 11px !important;
+    }
+
+    .helper-text {
+        color: #8fa2b3 !important;
+        font-size: 11px !important;
+        line-height: 1.45 !important;
+    }
+
+    /* ACTIONS */
+    .edit-actions {
+        margin-top: 28px !important;
+        padding-top: 22px !important;
+        border-top: 1px solid var(--ep-line-soft) !important;
+        gap: 10px !important;
+    }
+
+    .cancel-btn,
+    .save-btn {
+        min-height: 44px !important;
+        padding: 0 18px !important;
+        border-radius: 10px !important;
+        font-size: 12px !important;
+        font-weight: 850 !important;
+        transition: .18s ease !important;
+    }
+
+    .cancel-btn {
+        border: 1px solid var(--ep-line) !important;
+        background: rgba(255,255,255,.72) !important;
+        color: #637d93 !important;
+    }
+
+        .cancel-btn:hover {
+            color: var(--ep-blue-hover) !important;
+            border-color: #bddcf1 !important;
+            background: rgba(255,255,255,.92) !important;
+        }
+
+    .save-btn {
+        border: 1px solid var(--ep-blue) !important;
+        background: var(--ep-blue) !important;
+        color: #fff !important;
+        box-shadow: 0 8px 18px rgba(63,155,243,.20) !important;
+    }
+
+        .save-btn:hover {
+            background: var(--ep-blue-hover) !important;
+            border-color: var(--ep-blue-hover) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 11px 24px rgba(47,141,232,.24) !important;
+        }
+
+    @@media(max-width:760px) {
+        .edit-profile-page {
+            padding: 20px 14px 45px !important;
+        }
+
+        .edit-profile-header {
+            align-items: flex-start !important;
+            flex-direction: column !important;
+        }
+
+            .edit-profile-header h1 {
+                font-size: 28px !important;
+            }
+
+        .edit-card {
+            padding: 20px 16px !important;
+        }
+
+        .edit-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .form-group.full {
+            grid-column: auto !important;
+        }
+
+        .profile-photo-section {
+            align-items: flex-start !important;
+            flex-direction: column !important;
+        }
+
+        .edit-actions {
+            flex-direction: column-reverse !important;
+        }
+
+        .cancel-btn,
+        .save-btn {
+            width: 100% !important;
+        }
+    }
+</style>

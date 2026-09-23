@@ -14,183 +14,248 @@
 }
 
 <style>
+    :root {
+        --page-blue: #eaf5ff;
+        --page-blue-2: #dfefff;
+        --surface: #ffffff;
+        --surface-soft: #f7fbff;
+        --surface-blue: #eef6ff;
+        --line: #dceafa;
+        --line-strong: #cfe1f5;
+        --text: #1f3b5b;
+        --text-2: #49657f;
+        --muted: #89a1b8;
+        --blue: #3d98f4;
+        --blue-dark: #2e87df;
+        --blue-soft: #e7f3ff;
+        --blue-pale: #f3f9ff;
+        --green: #24b47e;
+        --green-soft: #e9f8f2;
+        --amber: #b98635;
+        --amber-soft: #fff6e8;
+        --red: #c55c68;
+        --red-soft: #fff0f2;
+        --shadow: 0 18px 50px rgba(94, 144, 189, .10);
+        --shadow-soft: 0 8px 24px rgba(94, 144, 189, .08);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
 
     /* =========================================================
-               PAGE
-               ========================================================= */
+           PAGE
+           ========================================================= */
 
     .candidates-page {
-        background: #f5f7fb;
         min-height: calc(100vh - 80px);
-        padding: 25px 45px 60px;
+        padding: 40px 34px 70px;
+        background: linear-gradient(180deg, #eaf5ff 0%, #e4f2ff 38%, #f5faff 100%);
+        color: var(--text);
     }
 
     .candidates-wrapper {
         max-width: 1500px;
         margin: 0 auto;
+        background: rgba(255,255,255,.94);
+        border: 1px solid rgba(207, 225, 245, .78);
+        border-radius: 34px;
+        padding: 38px 36px 42px;
+        box-shadow: 0 20px 60px rgba(91, 140, 183, .12);
+        backdrop-filter: blur(8px);
     }
 
-
     /* =========================================================
-               HEADER
-               ========================================================= */
+           HEADER
+           ========================================================= */
 
     .candidate-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 18px;
-        gap: 20px;
+        gap: 28px;
+        margin-bottom: 26px;
     }
 
     .candidate-heading-label {
-        color: #718096;
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: .8px;
+        color: #3b91e8;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+        margin-bottom: 7px;
     }
 
     .candidate-header h1 {
-        color: #0b1f3a;
-        font-size: 26px;
-        font-weight: 700;
-        margin: 2px 0 3px;
+        margin: 0;
+        color: #1d3958;
+        font-size: 31px;
+        line-height: 1.15;
+        font-weight: 850;
+        letter-spacing: -.45px;
     }
 
     .candidate-header p {
-        color: #718096;
-        margin: 0;
-        font-size: 12px;
+        margin: 8px 0 0;
+        color: #829bb3;
+        font-size: 13px;
+        line-height: 1.55;
     }
 
-
     /* =========================================================
-               SEARCH
-               ========================================================= */
+           SEARCH AREA
+           ========================================================= */
 
     .candidate-search {
         display: flex;
         align-items: center;
-        gap: 8px;
-        min-width: 430px;
+        gap: 10px;
+        min-width: 510px;
     }
 
         .candidate-search form {
             flex: 1;
+            padding: 14px;
+            border: 1px solid #e1edf8;
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: var(--shadow-soft);
         }
 
         .candidate-search input {
-            height: 45px;
-            background: white;
-            border: 1px solid #d8e0ea;
-            border-radius: 9px;
-            padding: 0 14px;
-            color: #26374d;
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border: 1px solid #d7e7f6;
+            border-radius: 13px;
+            background: #f9fcff;
+            color: #35516d;
             font-size: 12px;
         }
 
             .candidate-search input::placeholder {
-                color: #9aa6b5;
+                color: #9ab0c4;
             }
 
             .candidate-search input:focus {
                 outline: none;
-                border-color: #0b1f3a;
-                box-shadow: 0 0 0 3px rgba(11, 31, 58, .08);
+                border-color: #79bdf6;
+                box-shadow: 0 0 0 4px rgba(61, 152, 244, .10);
             }
 
-    .search-btn {
-        height: 45px;
-        padding: 0 17px;
-        border: none;
-        border-radius: 9px;
-        background: #0b1f3a;
-        color: white;
+    .search-btn,
+    .filter-button {
+        height: 48px;
+        border-radius: 13px;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+    .search-btn {
+        min-width: 94px;
+        padding: 0 20px;
+        border: none;
+        background: linear-gradient(180deg, #4aa3f8, #338fe9);
+        color: white;
+        box-shadow: 0 10px 22px rgba(51, 143, 233, .22);
     }
 
         .search-btn:hover {
-            background: #132f55;
+            background: linear-gradient(180deg, #409cf1, #2b83da);
+            transform: translateY(-1px);
         }
 
     .filter-button {
-        height: 45px;
-        padding: 0 16px;
-        border: 1px solid #d8e0ea;
-        border-radius: 9px;
+        min-width: 100px;
+        padding: 0 18px;
+        border: 1px solid #d7e6f5;
         background: white;
-        color: #526174;
-        font-size: 12px;
-        font-weight: 600;
+        color: #617c95;
     }
 
         .filter-button:hover {
-            border-color: #0b1f3a;
-            color: #0b1f3a;
+            color: #2f86dc;
+            border-color: #9ecdf5;
+            background: #fbfdff;
         }
 
-
     /* =========================================================
-               TABS
-               ========================================================= */
+           TABS
+           ========================================================= */
 
     .pipeline-tabs {
-        display: flex;
-        gap: 6px;
-        border-bottom: 1px solid #dce3ec;
-        margin-bottom: 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px;
+        margin-bottom: 22px;
+        border-radius: 16px;
+        background: #e9f3fd;
+        border: 1px solid #e1edf8;
+        box-shadow: none;
+        overflow-x: auto;
     }
 
     .pipeline-tab {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 7px;
-        padding: 9px 16px;
-        color: #718096;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 0 17px;
+        border-radius: 12px;
+        color: #6f889f;
         text-decoration: none;
         font-size: 12px;
-        font-weight: 600;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -1px;
+        font-weight: 800;
+        white-space: nowrap;
+        transition: .18s ease;
     }
 
         .pipeline-tab:hover {
-            color: #18365f;
+            color: #2f86dc;
+            background: rgba(255,255,255,.55);
         }
 
         .pipeline-tab.active {
-            color: #0b1f3a;
-            border-bottom-color: #0b1f3a;
+            color: #2f86dc;
+            background: #ffffff;
+            box-shadow: 0 6px 16px rgba(94, 144, 189, .10);
         }
 
     .pipeline-count {
-        background: #edf2f7;
-        color: #18365f;
-        padding: 3px 8px;
-        border-radius: 20px;
+        min-width: 24px;
+        height: 22px;
+        padding: 0 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: rgba(255,255,255,.72);
+        color: #6f889f;
         font-size: 10px;
-        font-weight: 700;
+        font-weight: 850;
     }
 
     .pipeline-tab.active .pipeline-count {
-        background: #e6edf5;
-        color: #0b1f3a;
+        background: #eef7ff;
+        color: #2f86dc;
     }
 
-
     /* =========================================================
-               FILTER PANEL
-               ========================================================= */
+           FILTER PANEL
+           ========================================================= */
 
     .filter-panel {
         display: none;
-        background: white;
-        border: 1px solid #e8edf3;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
-        margin-bottom: 20px;
+        margin-bottom: 22px;
+        padding: 24px;
+        border: 1px solid #dfeaf5;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: var(--shadow-soft);
     }
 
         .filter-panel.show {
@@ -201,159 +266,183 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 18px;
+        gap: 18px;
+        margin-bottom: 20px;
     }
 
         .filter-title strong {
-            color: #0b1f3a;
-            font-size: 13px;
+            display: block;
+            color: #284866;
+            font-size: 14px;
+            font-weight: 850;
         }
 
         .filter-title span {
             display: block;
-            color: #8a96a6;
+            margin-top: 4px;
+            color: #8fa5b8;
             font-size: 11px;
-            margin-top: 3px;
         }
 
     .form-label {
-        color: #526174;
+        margin-bottom: 6px;
+        color: #59738c;
         font-size: 11px;
-        font-weight: 700;
-        margin-bottom: 5px;
+        font-weight: 800;
     }
 
     .filter-panel .form-control {
-        height: 38px;
-        border: 1px solid #d8e0ea;
-        border-radius: 8px;
+        height: 44px;
+        border: 1px solid #d8e7f5;
+        border-radius: 12px;
+        color: #35516d;
         font-size: 12px;
-        color: #26374d;
+        background: #fbfdff;
     }
 
         .filter-panel .form-control:focus {
-            border-color: #0b1f3a;
-            box-shadow: 0 0 0 3px rgba(11, 31, 58, .06);
+            border-color: #79bdf6;
+            box-shadow: 0 0 0 4px rgba(61, 152, 244, .10);
         }
 
+    .filter-panel .btn-primary {
+        height: 44px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #4aa3f8, #338fe9);
+        font-size: 12px;
+        font-weight: 800;
+        box-shadow: 0 8px 18px rgba(51, 143, 233, .18);
+    }
+
+    .filter-panel .btn-light {
+        border-radius: 11px;
+        border: 1px solid #dce9f5;
+        background: white;
+        color: #71889d;
+        font-size: 11px;
+        font-weight: 750;
+    }
 
     /* =========================================================
-               TABLE CARD
-               ========================================================= */
+           TABLE WRAP
+           ========================================================= */
 
     .table-wrap {
-        background: white;
-        border: 1px solid #e8edf3;
-        border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
+        border: 1px solid #dce9f5;
+        border-radius: 24px;
+        background: white;
+        box-shadow: var(--shadow-soft);
     }
-
-
-    /* =========================================================
-               TABLE TOOLBAR
-               ========================================================= */
 
     .table-toolbar {
-        padding: 21px 24px;
-        border-bottom: 1px solid #edf0f4;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-        .table-toolbar strong {
-            display: block;
-            color: #0b1f3a;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 3px;
-        }
-
-        .table-toolbar span {
-            display: block;
-            color: #8a96a6;
-            font-size: 12px;
-        }
-
-
-    /* =========================================================
-               SELECTION TOOLBAR
-               ========================================================= */
-
-    .candidate-selection-toolbar {
-        padding: 18px 24px;
-        border-bottom: 1px solid #edf0f4;
+        padding: 23px 25px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 20px;
-        background: white;
+        border-bottom: 1px solid #eef4f9;
+        background: #ffffff;
+    }
+
+        .table-toolbar strong {
+            display: block;
+            color: #284866;
+            font-size: 18px;
+            font-weight: 850;
+            margin-bottom: 4px;
+        }
+
+        .table-toolbar span {
+            color: #8fa5b8;
+            font-size: 12px;
+        }
+
+    /* =========================================================
+           SELECTION TOOLBAR
+           ========================================================= */
+
+    .candidate-selection-toolbar {
+        padding: 18px 22px;
+        border-bottom: 1px solid #e9f2f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        background: #f7fbff;
     }
 
         .candidate-selection-toolbar strong {
             display: block;
-            color: #0b1f3a;
+            color: #294b69;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 850;
         }
 
         .candidate-selection-toolbar span {
             display: block;
             margin-top: 3px;
-            color: #8a96a6;
+            color: #8fa5b8;
             font-size: 11px;
         }
 
     .selection-actions {
         display: flex;
         align-items: center;
-        gap: 7px;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .selection-btn {
-        height: 35px;
-        padding: 0 13px;
-        border-radius: 7px;
-        border: 1px solid #d8e0ea;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 10px;
+        border: 1px solid #d7e6f4;
         background: white;
-        color: #526174;
+        color: #607b93;
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 800;
         cursor: pointer;
     }
 
         .selection-btn:hover {
-            border-color: #0b1f3a;
-            color: #0b1f3a;
+            color: #2f86dc;
+            border-color: #9bcaf2;
+            background: #fbfdff;
         }
 
     .pass-btn {
-        border-color: #a9d8c2;
-        color: #287a5b;
+        color: #31906a;
+        border-color: #bde4d0;
+        background: #f2fbf6;
     }
-
-        .pass-btn:hover {
-            background: #e9f7f1;
-            border-color: #287a5b;
-        }
 
     .fail-btn {
-        border-color: #e2b4b8;
-        color: #b64e55;
+        color: #bd5762;
+        border-color: #efc3c8;
+        background: #fff6f7;
     }
 
-        .fail-btn:hover {
-            background: #fbeeee;
-            border-color: #b64e55;
+    .send-hm-btn {
+        border: none;
+        background: linear-gradient(180deg, #4aa3f8, #338fe9);
+        color: white;
+        box-shadow: 0 8px 16px rgba(51, 143, 233, .17);
+    }
+
+        .send-hm-btn:hover {
+            color: white;
+            background: linear-gradient(180deg, #409cf1, #2b83da);
         }
 
-
-
-
     /* =========================================================
-               TABLE
-               ========================================================= */
+           TABLE
+           ========================================================= */
+
+    .table-responsive {
+        background: white;
+    }
 
     .candidate-table {
         width: 100%;
@@ -363,238 +452,258 @@
     }
 
         .candidate-table thead {
-            background: #0b1f3a;
+            background: #f1f7fd;
         }
 
         .candidate-table th {
-            padding: 13px 15px;
+            padding: 14px 16px;
             text-align: left;
-            color: white;
+            color: #7089a0;
             font-size: 10px;
-            font-weight: 700;
-            letter-spacing: .7px;
-            border-bottom: 1px solid #18365f;
+            font-weight: 850;
+            letter-spacing: .55px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e1edf7;
             white-space: nowrap;
         }
 
         .candidate-table td {
-            padding: 16px 15px;
-            color: #526174;
+            padding: 17px 16px;
+            color: #60768a;
             font-size: 12px;
-            border-bottom: 1px solid #edf0f4;
+            border-bottom: 1px solid #edf4fa;
             vertical-align: middle;
+            background: white;
         }
 
         .candidate-table tbody tr {
             transition: .15s ease;
         }
 
-            .candidate-table tbody tr:hover {
-                background: #fafbfd;
+            .candidate-table tbody tr:hover td {
+                background: #f8fcff;
             }
 
             .candidate-table tbody tr:last-child td {
                 border-bottom: none;
             }
 
-
     /* =========================================================
-               CANDIDATE
-               ========================================================= */
+           CANDIDATE
+           ========================================================= */
 
     .candidate-info {
         display: flex;
         align-items: center;
-        gap: 11px;
+        gap: 12px;
         min-width: 220px;
     }
 
     .candidate-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 9px;
-        background: #edf2f7;
-        color: #0b1f3a;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #eaf4ff;
+        color: #2f86dc;
+        border: 1px solid #d7e8f7;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 850;
         flex-shrink: 0;
+        overflow: hidden;
     }
 
+        .candidate-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
     .candidate-name {
-        color: #0b1f3a;
+        color: #294b69;
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 850;
         margin-bottom: 3px;
     }
 
     .candidate-email {
-        color: #9aa6b5;
+        color: #91a6b9;
         font-size: 10px;
     }
 
-
     /* =========================================================
-               JOB
-               ========================================================= */
+           JOB
+           ========================================================= */
 
     .job-title {
-        color: #0b1f3a;
+        color: #2e506e;
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 800;
         margin-bottom: 3px;
     }
 
     .job-code {
-        color: #9aa6b5;
+        color: #9aafc0;
         font-size: 10px;
-        font-weight: 600;
+        font-weight: 700;
     }
 
-
     /* =========================================================
-               AI SCORE
-               ========================================================= */
+           AI SCORE
+           ========================================================= */
 
     .score-wrapper {
         min-width: 105px;
     }
 
     .score-number {
-        color: #0b1f3a;
+        color: #355876;
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 850;
     }
 
     .score-progress {
-        width: 85px;
-        height: 5px;
-        background: #e5eaf0;
-        border-radius: 10px;
+        width: 88px;
+        height: 6px;
+        margin-top: 7px;
+        border-radius: 999px;
         overflow: hidden;
-        margin-top: 6px;
+        background: #e9f2f9;
     }
 
     .score-progress-bar {
         height: 100%;
-        background: #0b1f3a;
-        border-radius: 10px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #70baf8, #3c97ee);
     }
 
-
     /* =========================================================
-               STATUS
-               ========================================================= */
+           STATUS
+           ========================================================= */
 
     .status-badge {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 5px;
-        padding: 5px 9px;
-        border-radius: 20px;
+        padding: 6px 10px;
+        border-radius: 999px;
         font-size: 10px;
-        font-weight: 700;
+        font-weight: 850;
         white-space: nowrap;
     }
 
     .status-passed {
-        background: #e9f7f1;
-        color: #287a5b;
+        background: #eaf8f1;
+        color: #35926b;
     }
 
     .status-review {
-        background: #fff5e8;
-        color: #a56820;
+        background: #fff6e8;
+        color: #b78432;
     }
 
     .status-failed {
-        background: #fbeeee;
-        color: #b64e55;
+        background: #fff0f2;
+        color: #bd5964;
     }
 
+    .sent-hm-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 999px;
+        background: #eef8f3;
+        color: #44946e;
+        font-size: 10px;
+        font-weight: 850;
+    }
 
     /* =========================================================
-               ACTIONS
-               ========================================================= */
+           ACTIONS
+           ========================================================= */
 
     .action-buttons {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
         flex-wrap: wrap;
         min-width: 190px;
     }
 
         .action-buttons .btn {
-            padding: 6px 9px;
-            border-radius: 7px;
+            padding: 7px 10px;
+            border-radius: 9px;
             font-size: 10px;
-            font-weight: 600;
+            font-weight: 750;
         }
 
     .btn-outline-primary {
-        color: #0b1f3a;
-        border-color: #d8e0ea;
+        color: #2f86dc;
+        border-color: #c8e1f5;
+        background: #f8fcff;
     }
 
         .btn-outline-primary:hover {
-            background: #0b1f3a;
-            border-color: #0b1f3a;
             color: white;
+            border-color: #3d98f4;
+            background: #3d98f4;
         }
 
     .btn-outline-secondary {
-        color: #526174;
-        border-color: #d8e0ea;
+        color: #6d859c;
+        border-color: #d7e6f3;
+        background: white;
     }
 
         .btn-outline-secondary:hover {
-            color: #0b1f3a;
-            border-color: #0b1f3a;
-            background: #f8fafc;
+            color: #355b7b;
+            border-color: #b8d6ec;
+            background: #f4faff;
         }
 
     .btn-outline-success {
-        color: #287a5b;
-        border-color: #b8ddcc;
+        color: #45936e;
+        border-color: #c8e5d6;
+        background: #fbfefc;
     }
 
         .btn-outline-success:hover {
             color: white;
-            background: #287a5b;
-            border-color: #287a5b;
+            border-color: #52a079;
+            background: #52a079;
         }
 
-
     /* =========================================================
-               EMPTY STATE
-               ========================================================= */
+           EMPTY
+           ========================================================= */
 
     .empty-state {
-        padding: 65px 25px;
+        padding: 78px 25px;
         text-align: center;
-        background: white;
+        background: #ffffff;
     }
 
         .empty-state h5 {
-            color: #0b1f3a;
+            color: #2a4d6b;
             font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-weight: 850;
+            margin-bottom: 7px;
         }
 
         .empty-state p {
-            color: #718096;
-            font-size: 12px;
             margin: 0;
+            color: #8ca0b3;
+            font-size: 12px;
         }
 
-
     /* =========================================================
-               CHECKBOX
-               ========================================================= */
+           CHECKBOX
+           ========================================================= */
 
     .select-column {
         width: 55px;
@@ -603,6 +712,7 @@
     }
 
     .candidate-checkbox,
+    .hm-candidate-checkbox,
     #selectAllCheckbox {
         width: 17px !important;
         height: 17px !important;
@@ -614,30 +724,46 @@
         opacity: 1 !important;
         visibility: visible !important;
         cursor: pointer !important;
+        accent-color: #3d98f4;
     }
 
-
     /* =========================================================
-               RESPONSIVE
-               ========================================================= */
+           RESPONSIVE
+           ========================================================= */
 
-    @@media (max-width: 900px) {
-
-        .candidates-page {
-            padding: 25px 20px 50px;
-        }
-
+    @@media (max-width: 1050px) {
         .candidate-header {
-            flex-direction: column;
             align-items: stretch;
+            flex-direction: column;
         }
 
         .candidate-search {
             min-width: 0;
             width: 100%;
         }
+    }
+
+    @@media (max-width: 900px) {
+        .candidates-page {
+            padding: 22px 14px 45px;
+        }
+
+        .candidates-wrapper {
+            border-radius: 24px;
+            padding: 24px 18px 30px;
+        }
+
+        .candidate-search {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .candidate-search form {
+                width: 100%;
+            }
 
         .pipeline-tabs {
+            display: flex;
             overflow-x: auto;
         }
 
@@ -652,9 +778,206 @@
 
         .selection-actions {
             width: 100%;
-            flex-wrap: wrap;
         }
     }
+
+    /* =========================================================
+           JOB-POSTINGS STYLE TABLE OVERRIDES
+           ========================================================= */
+
+    .table-wrap {
+        border-radius: 22px;
+        border: 1px solid #dbe8f4;
+        background: #ffffff;
+        box-shadow: 0 14px 34px rgba(78, 128, 170, .08);
+        overflow: hidden;
+    }
+
+    .candidate-table {
+        min-width: 1120px;
+        background: #ffffff;
+    }
+
+        .candidate-table thead {
+            background: #f4f8fc;
+        }
+
+        .candidate-table th {
+            height: 50px;
+            padding: 0 18px;
+            vertical-align: middle;
+            color: #7e95aa;
+            background: #f4f8fc;
+            border-bottom: 1px solid #dfebf5;
+            font-size: 10px;
+            font-weight: 850;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        .candidate-table td {
+            min-height: 86px;
+            padding: 18px 18px;
+            color: #58718a;
+            background: #ffffff;
+            border-bottom: 1px solid #edf3f8;
+            vertical-align: middle;
+            font-size: 12px;
+        }
+
+        .candidate-table tbody tr:hover td {
+            background: #fbfdff;
+        }
+
+        .candidate-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .candidate-info {
+        gap: 14px;
+        min-width: 235px;
+    }
+
+    .candidate-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 15px;
+        background: #e6f2ff;
+        border: none;
+        color: #348fe9;
+        font-size: 14px;
+        font-weight: 850;
+        box-shadow: none;
+    }
+
+    .candidate-name {
+        color: #294764;
+        font-size: 13px;
+        font-weight: 850;
+        margin-bottom: 4px;
+    }
+
+    .candidate-email {
+        color: #93a7b9;
+        font-size: 10px;
+    }
+
+    .job-title {
+        color: #385a78;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .job-code {
+        margin-top: 3px;
+        color: #9cafbf;
+        font-size: 10px;
+    }
+
+    .score-number {
+        color: #328de7;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .score-progress {
+        width: 92px;
+        height: 5px;
+        margin-top: 7px;
+        background: #e8f2fb;
+    }
+
+    .score-progress-bar {
+        background: #3b96ee;
+    }
+
+    .status-badge {
+        min-height: 31px;
+        padding: 0 12px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .status-passed {
+        background: #e9f8f1;
+        color: #27a571;
+    }
+
+    .status-review {
+        background: #fff5e6;
+        color: #b27d2b;
+    }
+
+    .status-failed {
+        background: #fff0f2;
+        color: #bd5863;
+    }
+
+    .action-buttons {
+        gap: 7px;
+        min-width: 205px;
+    }
+
+        .action-buttons .btn {
+            min-height: 38px;
+            padding: 0 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+            box-shadow: none;
+        }
+
+    .btn-outline-primary {
+        color: #2f8de6;
+        border: 1px solid #c9e2f7;
+        background: #eef7ff;
+    }
+
+        .btn-outline-primary:hover {
+            color: #ffffff;
+            background: #3d98f4;
+            border-color: #3d98f4;
+        }
+
+    .btn-outline-secondary {
+        color: #647f98;
+        border: 1px solid #d7e4f0;
+        background: #ffffff;
+    }
+
+        .btn-outline-secondary:hover {
+            color: #3d6282;
+            background: #f6faff;
+            border-color: #bcd5e9;
+        }
+
+    .btn-outline-success {
+        color: #3f926b;
+        border: 1px solid #c8e5d6;
+        background: #ffffff;
+    }
+
+        .btn-outline-success:hover {
+            color: #ffffff;
+            background: #52a079;
+            border-color: #52a079;
+        }
+
+    .select-column {
+        width: 62px;
+        min-width: 62px;
+    }
+
+    .candidate-selection-toolbar {
+        padding: 19px 25px;
+        background: #ffffff;
+        border-bottom: 1px solid #edf3f8;
+    }
+
 </style>
 
 
@@ -1103,29 +1426,37 @@
                                                 <div class="candidate-info">
 
                                                     <div class="candidate-avatar">
-                                                        @initials
-                                                    </div>
+                                                        @if (!string.IsNullOrWhiteSpace(application.Candidate?.ProfileImagePath))
+                                                        {
+                                                            <img src="@application.Candidate.ProfileImagePath"
+                                                                 alt="@candidateName" />
+                                                        }
+                                                        else
+                                                        {
+                                                            @initials
+                                                        }
+                                                </div>
 
-                                                    <div>
+                                                <div>
 
-                                                        <div class="candidate-name">
-                                                            @candidateName
-                                                        </div>
-
+                                                    <div class="candidate-name">
+                                                        @candidateName
                                                     </div>
 
                                                 </div>
 
-                                            </td>
+                                            </div>
+
+                                        </td>
 
 
-                                            <!-- JOB -->
+                                        <!-- JOB -->
 
-                                            <td>
+                                        <td>
 
-                                                <div class="job-title">
-                                                    @(application.JobVacancy?.JobTitle
-                                                                                            ?? "Unknown Job")
+                                            <div class="job-title">
+                                                @(application.JobVacancy?.JobTitle
+                                                                                        ?? "Unknown Job")
                                     </div>
 
                                     @if (application.JobVacancy != null)
@@ -1432,14 +1763,22 @@
                                                 </td>
                                             }
 
-                                        <!-- CANDIDATE -->
+                                            <!-- CANDIDATE -->
 
-                                        <td>
+                                            <td>
 
-                                            <div class="candidate-info">
+                                                <div class="candidate-info">
 
-                                                <div class="candidate-avatar">
-                                                    @initials
+                                                    <div class="candidate-avatar">
+                                                        @if (!string.IsNullOrWhiteSpace(application.Candidate?.ProfileImagePath))
+                                                        {
+                                                            <img src="@application.Candidate.ProfileImagePath"
+                                                                 alt="@candidateName" />
+                                                        }
+                                                        else
+                                                        {
+                                                            @initials
+                                                        }
                                                 </div>
 
                                                 <div>

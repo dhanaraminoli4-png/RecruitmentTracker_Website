@@ -46,8 +46,8 @@
 
 
     /* =========================================================
-           HEADER
-           ========================================================= */
+               HEADER
+               ========================================================= */
 
     .profile-page-header {
         display: flex;
@@ -88,8 +88,8 @@
 
 
     /* =========================================================
-           MAIN
-           ========================================================= */
+               MAIN
+               ========================================================= */
 
     .profile-layout {
         display: grid;
@@ -100,8 +100,8 @@
 
 
     /* =========================================================
-           LEFT PROFILE CARD
-           ========================================================= */
+               LEFT PROFILE CARD
+               ========================================================= */
 
     .profile-summary {
         background: white;
@@ -179,8 +179,8 @@
 
 
     /* =========================================================
-           RIGHT CONTENT
-           ========================================================= */
+               RIGHT CONTENT
+               ========================================================= */
 
     .profile-content {
         min-width: 0;
@@ -215,8 +215,8 @@
 
 
     /* =========================================================
-           INFO CARD
-           ========================================================= */
+               INFO CARD
+               ========================================================= */
 
     .profile-card {
         display: none;
@@ -798,3 +798,331 @@
     }
 
 </script>
+
+
+<style>
+    /* =========================================================
+           FINAL INTERVIEWER PROFILE THEME
+           Larger readable text + neat sections + soft blue blur
+           ========================================================= */
+
+    :root {
+        --profile-blue: #3f9bf3;
+        --profile-blue-hover: #2f8de8;
+        --profile-blue-soft: rgba(237,247,255,.82);
+        --profile-bg: #eef5fa;
+        --profile-glass: rgba(255,255,255,.68);
+        --profile-glass-strong: rgba(255,255,255,.82);
+        --profile-line: rgba(211,225,236,.90);
+        --profile-line-soft: rgba(229,238,245,.90);
+        --profile-text: #263f58;
+        --profile-text-2: #536e86;
+        --profile-muted: #8499ac;
+        --profile-green: #3fa477;
+        --profile-green-soft: rgba(234,248,241,.86);
+        --profile-shadow: 0 16px 42px rgba(55,82,104,.09);
+        --profile-shadow-soft: 0 8px 22px rgba(55,82,104,.07);
+    }
+
+    .profile-page {
+        min-height: calc(100vh - 70px) !important;
+        padding: 34px 36px 64px !important;
+        background: radial-gradient(circle at 8% 4%, rgba(63,155,243,.10), transparent 24%), radial-gradient(circle at 92% 8%, rgba(184,214,237,.13), transparent 22%), linear-gradient(180deg, #f8fbfe 0%, #eef5fa 100%) !important;
+        color: var(--profile-text) !important;
+    }
+
+    .profile-wrapper {
+        max-width: 1380px !important;
+    }
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .profile-page-header {
+        margin-bottom: 24px !important;
+    }
+
+        .profile-page-header h1 {
+            color: #1f3d59 !important;
+            font-size: 34px !important;
+            font-weight: 850 !important;
+            letter-spacing: -.45px !important;
+        }
+
+        .profile-page-header p {
+            margin-top: 7px !important;
+            color: var(--profile-muted) !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+        }
+
+    .back-button {
+        min-height: 43px !important;
+        padding: 0 16px !important;
+        border: 1px solid var(--profile-line) !important;
+        border-radius: 11px !important;
+        background: rgba(255,255,255,.72) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: #627b92 !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 6px 16px rgba(55,82,104,.05) !important;
+        transition: .18s ease !important;
+    }
+
+        .back-button:hover {
+            color: var(--profile-blue-hover) !important;
+            border-color: #bcdcf2 !important;
+            background: rgba(255,255,255,.90) !important;
+            transform: translateY(-1px);
+        }
+
+    /* =========================================================
+           MAIN LAYOUT
+           ========================================================= */
+
+    .profile-layout {
+        grid-template-columns: 330px minmax(0,1fr) !important;
+        gap: 24px !important;
+    }
+
+    /* =========================================================
+           LEFT PROFILE CARD
+           ========================================================= */
+
+    .profile-summary {
+        padding: 30px 24px !important;
+        border: 1px solid var(--profile-line) !important;
+        border-radius: 22px !important;
+        background: var(--profile-glass) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
+        box-shadow: var(--profile-shadow-soft) !important;
+    }
+
+    .profile-image {
+        width: 150px !important;
+        height: 150px !important;
+        margin-bottom: 20px !important;
+        border: 5px solid rgba(255,255,255,.86) !important;
+        background: var(--profile-blue-soft) !important;
+        color: var(--profile-blue-hover) !important;
+        box-shadow: 0 10px 28px rgba(63,155,243,.14) !important;
+    }
+
+    .profile-summary-name {
+        color: #294861 !important;
+        font-size: 23px !important;
+        font-weight: 850 !important;
+    }
+
+    .profile-summary-position {
+        margin-top: 6px !important;
+        color: #6e8599 !important;
+        font-size: 13px !important;
+        font-weight: 650 !important;
+    }
+
+    .profile-status {
+        margin: 14px auto 22px !important;
+        padding: 6px 11px !important;
+        background: var(--profile-green-soft) !important;
+        color: var(--profile-green) !important;
+        border: 1px solid rgba(191,230,210,.90) !important;
+        font-size: 10px !important;
+        font-weight: 850 !important;
+    }
+
+    .summary-info {
+        padding-top: 13px !important;
+        border-top: 1px solid var(--profile-line-soft) !important;
+    }
+
+    .summary-row {
+        gap: 11px !important;
+        padding: 11px 0 !important;
+        color: #587188 !important;
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+    }
+
+    .summary-icon {
+        width: 22px !important;
+        color: #7ea1bd !important;
+        font-size: 14px !important;
+    }
+
+    /* =========================================================
+           TABS
+           ========================================================= */
+
+    .profile-tabs {
+        margin-bottom: 18px !important;
+        padding: 6px !important;
+        border: 1px solid var(--profile-line) !important;
+        border-radius: 14px !important;
+        background: rgba(234,243,250,.72) !important;
+        backdrop-filter: blur(12px);
+    }
+
+    .profile-tab {
+        min-height: 44px !important;
+        padding: 0 16px !important;
+        border-radius: 10px !important;
+        color: #6d8398 !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        transition: .18s ease !important;
+    }
+
+        .profile-tab:hover {
+            color: var(--profile-blue-hover) !important;
+            background: rgba(255,255,255,.55) !important;
+        }
+
+        .profile-tab.active {
+            background: rgba(255,255,255,.94) !important;
+            color: var(--profile-blue-hover) !important;
+            box-shadow: 0 6px 16px rgba(55,82,104,.08) !important;
+        }
+
+    /* =========================================================
+           RIGHT CONTENT CARDS
+           ========================================================= */
+
+    .profile-card {
+        padding: 28px 30px !important;
+        border: 1px solid var(--profile-line) !important;
+        border-radius: 22px !important;
+        background: var(--profile-glass) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
+        box-shadow: var(--profile-shadow-soft) !important;
+    }
+
+        .profile-card h2 {
+            margin-bottom: 24px !important;
+            color: #2c4b65 !important;
+            font-size: 20px !important;
+            font-weight: 850 !important;
+            letter-spacing: -.2px !important;
+        }
+
+    /* =========================================================
+           DETAIL GRID
+           ========================================================= */
+
+    .detail-grid {
+        gap: 16px !important;
+    }
+
+        .detail-grid > div {
+            min-height: 92px;
+            padding: 15px 16px;
+            border: 1px solid var(--profile-line-soft);
+            border-radius: 14px;
+            background: rgba(255,255,255,.52);
+            backdrop-filter: blur(10px);
+        }
+
+    .detail-label {
+        margin-bottom: 7px !important;
+        color: #8ba0b2 !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+    }
+
+    .detail-value {
+        color: #3b5871 !important;
+        font-size: 14px !important;
+        font-weight: 800 !important;
+        line-height: 1.45 !important;
+    }
+
+    /* =========================================================
+           SKILLS
+           ========================================================= */
+
+    .skill-list {
+        gap: 8px !important;
+    }
+
+    .skill-chip {
+        padding: 7px 11px !important;
+        border: 1px solid #cfe4f4 !important;
+        border-radius: 999px !important;
+        background: var(--profile-blue-soft) !important;
+        color: #4c84ad !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+    }
+
+    /* =========================================================
+           EDIT BUTTON
+           ========================================================= */
+
+    .edit-profile-btn {
+        min-height: 43px !important;
+        margin-top: 26px !important;
+        padding: 0 17px !important;
+        border-radius: 10px !important;
+        background: var(--profile-blue) !important;
+        color: #fff !important;
+        font-size: 11px !important;
+        font-weight: 850 !important;
+        box-shadow: 0 8px 18px rgba(63,155,243,.20) !important;
+        transition: .18s ease !important;
+    }
+
+        .edit-profile-btn:hover {
+            background: var(--profile-blue-hover) !important;
+            color: #fff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 11px 24px rgba(47,141,232,.24) !important;
+        }
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media(max-width:900px) {
+        .profile-layout {
+            grid-template-columns: 1fr !important;
+        }
+
+        .profile-summary {
+            max-width: none !important;
+        }
+    }
+
+    @@media(max-width:650px) {
+        .profile-page {
+            padding: 20px 14px 45px !important;
+        }
+
+        .profile-page-header {
+            align-items: flex-start !important;
+            flex-direction: column !important;
+        }
+
+            .profile-page-header h1 {
+                font-size: 28px !important;
+            }
+
+        .detail-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .profile-tabs {
+            flex-direction: column !important;
+        }
+
+        .profile-card {
+            padding: 22px 18px !important;
+        }
+    }
+</style>

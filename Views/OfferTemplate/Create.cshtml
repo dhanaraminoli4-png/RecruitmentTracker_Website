@@ -4,118 +4,413 @@
     ViewData["Title"] = "Create Offer Template";
 }
 
+<style>
+    :root {
+        --brand-blue: #3f9bf3;
+        --brand-blue-hover: #2f8de8;
+        --brand-blue-soft: #edf7ff;
+        --brand-blue-border: #cfe5f8;
+        --page-bg: #f6f9fc;
+        --surface: #ffffff;
+        --surface-soft: #fbfdff;
+        --line: #dfe8f0;
+        --line-soft: #edf3f7;
+        --text: #223d57;
+        --text-2: #587188;
+        --muted: #8da0b2;
+        --green: #36a777;
+        --green-soft: #eaf8f1;
+        --red: #c6626e;
+        --red-soft: #fff0f2;
+        --shadow: 0 16px 42px rgba(58, 95, 126, .08);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .offer-form-page {
+        min-height: calc(100vh - 80px);
+        padding: 34px 34px 60px;
+        background: radial-gradient(circle at 8% 2%, rgba(63,155,243,.06), transparent 24%), linear-gradient(180deg, #f8fafc 0%, #f4f7fa 100%);
+        color: var(--text);
+    }
+
+    .offer-form-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .offer-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        margin-bottom: 24px;
+    }
+
+    .offer-form-eyebrow {
+        margin-bottom: 6px;
+        color: var(--brand-blue);
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 1.15px;
+        text-transform: uppercase;
+    }
+
+    .offer-form-header h1 {
+        margin: 0;
+        color: #1f3c58;
+        font-size: 30px;
+        font-weight: 850;
+        letter-spacing: -.4px;
+    }
+
+    .offer-form-header p {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .offer-back-btn {
+        min-height: 42px;
+        padding: 0 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid #d9e5ef;
+        border-radius: 11px;
+        background: #fff;
+        color: #647e95;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 800;
+        transition: .18s ease;
+    }
+
+        .offer-back-btn:hover {
+            color: #3f7fae;
+            border-color: #bdd9ee;
+            background: #f8fbfd;
+            transform: translateY(-1px);
+        }
+
+    .offer-form-card {
+        margin-bottom: 18px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+    }
+
+    .offer-form-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--line-soft);
+        background: #fbfdff;
+    }
+
+        .offer-form-card-header h2 {
+            margin: 0;
+            color: #2d4c68;
+            font-size: 16px;
+            font-weight: 850;
+        }
+
+        .offer-form-card-header p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+    .offer-form-card-body {
+        padding: 24px;
+    }
+
+    .offer-form-grid {
+        display: grid;
+        grid-template-columns: 1.4fr .6fr;
+        gap: 18px;
+    }
+
+    .offer-field {
+        margin-bottom: 18px;
+    }
+
+        .offer-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .offer-field label {
+            display: block;
+            margin-bottom: 7px;
+            color: #49647c;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+            .offer-field label span {
+                color: var(--red);
+            }
+
+    .offer-field-help {
+        display: block;
+        margin: -1px 0 9px;
+        color: #95a8b8;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .offer-field input,
+    .offer-field select,
+    .offer-field textarea {
+        width: 100%;
+        border: 1px solid #dce6ee;
+        border-radius: 12px;
+        background: #fff;
+        color: #36516a;
+        font-size: 12px;
+        outline: none;
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .offer-field input,
+    .offer-field select {
+        height: 46px;
+        padding: 0 13px;
+    }
+
+    .offer-field textarea {
+        min-height: 380px;
+        padding: 14px;
+        resize: vertical;
+        line-height: 1.7;
+        font-family: inherit;
+    }
+
+        .offer-field input:focus,
+        .offer-field select:focus,
+        .offer-field textarea:focus {
+            border-color: #8bc4ef;
+            box-shadow: 0 0 0 4px rgba(63,155,243,.09);
+            background: #fff;
+        }
+
+    .text-danger {
+        display: block;
+        margin-top: 6px;
+        color: var(--red) !important;
+        font-size: 10px;
+    }
+
+    .detected-variable-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-height: 54px;
+        padding: 14px;
+        border: 1px dashed #caddea;
+        border-radius: 12px;
+        background: #fbfdff;
+    }
+
+    .detected-variable {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 9px;
+        border-radius: 8px;
+        background: var(--brand-blue-soft);
+        color: #4d7fa6;
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+    .no-variables {
+        color: #9aabb9;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .offer-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        padding-top: 4px;
+    }
+
+    .offer-cancel-btn,
+    .offer-create-btn {
+        min-height: 44px;
+        padding: 0 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        font-size: 11px;
+        font-weight: 850;
+        text-decoration: none;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+    .offer-cancel-btn {
+        border: 1px solid #d9e5ef;
+        background: #fff;
+        color: #677f94;
+    }
+
+        .offer-cancel-btn:hover {
+            color: #3f7fae;
+            border-color: #bdd9ee;
+            background: #f8fbfd;
+        }
+
+    .offer-create-btn {
+        border: 1px solid var(--brand-blue);
+        background: var(--brand-blue);
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(63,155,243,.22);
+    }
+
+        .offer-create-btn:hover {
+            background: var(--brand-blue-hover);
+            border-color: var(--brand-blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 13px 26px rgba(47,141,232,.26);
+        }
+
+    @@media (max-width: 800px) {
+        .offer-form-page {
+            padding: 22px 16px 42px;
+        }
+
+        .offer-form-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .offer-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .offer-form-actions {
+            align-items: stretch;
+            flex-direction: column-reverse;
+        }
+
+        .offer-cancel-btn,
+        .offer-create-btn {
+            width: 100%;
+        }
+    }
+</style>
+
 <div class="offer-form-page">
 
-    <div class="offer-form-header">
+    <div class="offer-form-shell">
 
-        <div>
-            <h1>Create Offer Template</h1>
-            <p>Create a reusable template for candidate offer letters.</p>
-        </div>
+        <div class="offer-form-header">
 
-        <a asp-action="Index"
-           class="offer-back-btn">
-            ← Back
-        </a>
+            <div>
+                <div class="offer-form-eyebrow">
+                    OFFER LETTER STUDIO
+                </div>
 
-    </div>
+                <h1>Create Offer Template</h1>
 
-
-    <form asp-action="Create"
-          method="post">
-
-        @Html.AntiForgeryToken()
-
-
-        <div asp-validation-summary="ModelOnly"
-             class="text-danger">
-        </div>
-
-
-        <!-- BASIC INFORMATION -->
-
-        <section class="offer-form-card">
-
-            <div class="offer-form-card-header">
-                <h2>Basic Information</h2>
+                <p>
+                    Create a reusable template for candidate offer letters.
+                </p>
             </div>
 
+            <a asp-action="Index"
+               class="offer-back-btn">
+                ← Back to Templates
+            </a>
 
-            <div class="offer-form-card-body">
+        </div>
 
-                <div class="offer-form-grid">
+        <form asp-action="Create"
+              method="post">
 
-                    <div class="offer-field">
+            @Html.AntiForgeryToken()
 
-                        <label asp-for="Name">
-                            Template Name <span>*</span>
-                        </label>
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger">
+            </div>
 
-                        <input asp-for="Name"
-                               placeholder="Enter template name" />
+            <section class="offer-form-card">
 
-                        <span asp-validation-for="Name"
-                              class="text-danger">
-                        </span>
+                <div class="offer-form-card-header">
+                    <h2>Basic Information</h2>
+                    <p>Name your template and choose whether it is available for use.</p>
+                </div>
 
-                    </div>
+                <div class="offer-form-card-body">
 
+                    <div class="offer-form-grid">
 
-                    <div class="offer-field">
+                        <div class="offer-field">
 
-                        <label>
-                            Status <span>*</span>
-                        </label>
+                            <label asp-for="Name">
+                                Template Name <span>*</span>
+                            </label>
 
-                        <select asp-for="IsActive">
+                            <input asp-for="Name"
+                                   placeholder="e.g. Standard Full-Time Offer" />
 
-                            <option value="true">
-                                Active
-                            </option>
+                            <span asp-validation-for="Name"
+                                  class="text-danger">
+                            </span>
 
-                            <option value="false">
-                                Inactive
-                            </option>
+                        </div>
 
-                        </select>
+                        <div class="offer-field">
+
+                            <label>
+                                Status <span>*</span>
+                            </label>
+
+                            <select asp-for="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
+            </section>
 
-        </section>
+            <section class="offer-form-card">
 
+                <div class="offer-form-card-header">
+                    <h2>Template Content</h2>
+                    <p>Write the actual offer letter content and insert reusable variables.</p>
+                </div>
 
+                <div class="offer-form-card-body">
 
-        <!-- TEMPLATE CONTENT -->
+                    <div class="offer-field">
 
-        <section class="offer-form-card">
+                        <label asp-for="Content">
+                            Offer Letter Content <span>*</span>
+                        </label>
 
-            <div class="offer-form-card-header">
-                <h2>Template Content</h2>
-            </div>
+                        <small class="offer-field-help">
+                            Use {{variable_name}} for dynamic content.
+                            Variables are detected automatically below.
+                        </small>
 
-
-            <div class="offer-form-card-body">
-
-                <div class="offer-field">
-
-                    <label asp-for="Content">
-                        Content <span>*</span>
-                    </label>
-
-                    <small class="offer-field-help">
-                        Use {{variable_name}} for dynamic content.
-                        Variables will be detected automatically.
-                    </small>
-
-
-                    <textarea asp-for="Content"
-                              id="templateContent"
-                              rows="18"
-                              placeholder="Dear {{candidate_name}},
+                        <textarea asp-for="Content"
+                                  id="templateContent"
+                                  rows="18"
+                                  placeholder="Dear {{candidate_name}},
 
 We are pleased to offer you the position of {{job_title}} at {{company_name}}.
 
@@ -128,79 +423,70 @@ Position Details:
 Compensation:
 - Salary: {{salary}}
 
+Please confirm your acceptance by {{acceptance_deadline}}.
+
 We look forward to welcoming you to our team."></textarea>
 
-                    <span asp-validation-for="Content"
-                          class="text-danger">
-                    </span>
+                        <span asp-validation-for="Content"
+                              class="text-danger">
+                        </span>
 
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- VARIABLES -->
-
-        <section class="offer-form-card">
-
-            <div class="offer-form-card-header">
-
-                <div>
-                    <h2>Variables</h2>
-                    <p>
-                        Automatically detected from your template.
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="offer-form-card-body">
-
-                <div id="detectedVariables"
-                     class="detected-variable-list">
-
-                    <div class="no-variables">
-                        Add variables such as
-                        {{candidate_name}} to your template.
                     </div>
 
                 </div>
 
+            </section>
+
+            <section class="offer-form-card">
+
+                <div class="offer-form-card-header">
+
+                    <h2>Detected Variables</h2>
+
+                    <p>
+                        These values will be requested when HR generates an offer letter.
+                    </p>
+
+                </div>
+
+                <div class="offer-form-card-body">
+
+                    <div id="detectedVariables"
+                         class="detected-variable-list">
+
+                        <div class="no-variables">
+                            Add variables such as {{candidate_name}} to your template.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <div class="offer-form-actions">
+
+                <a asp-action="Index"
+                   class="offer-cancel-btn">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="offer-create-btn">
+                    Create Template
+                </button>
+
             </div>
 
-        </section>
+        </form>
 
-
-
-        <!-- ACTIONS -->
-
-        <div class="offer-form-actions">
-
-            <a asp-action="Index"
-               class="offer-cancel-btn">
-                Cancel
-            </a>
-
-            <button type="submit"
-                    class="offer-create-btn">
-                Create Template
-            </button>
-
-        </div>
-
-    </form>
+    </div>
 
 </div>
-
 
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
-
 
     <script>
 
@@ -214,7 +500,6 @@ We look forward to welcoming you to our team."></textarea>
                 "detectedVariables"
             );
 
-
         function detectVariables() {
 
             const content =
@@ -223,26 +508,20 @@ We look forward to welcoming you to our team."></textarea>
             const regex =
                 /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;
 
-
             const variables =
                 new Set();
 
             let match;
 
-
             while (
                 (match = regex.exec(content)) !== null
             ) {
-
                 variables.add(
                     match[1]
                 );
-
             }
 
-
             variableContainer.innerHTML = "";
-
 
             if (variables.size === 0) {
 
@@ -253,9 +532,7 @@ We look forward to welcoming you to our team."></textarea>
                      </div>`;
 
                 return;
-
             }
-
 
             variables.forEach(variable => {
 
@@ -271,17 +548,13 @@ We look forward to welcoming you to our team."></textarea>
                 variableContainer.appendChild(
                     badge
                 );
-
             });
-
         }
-
 
         contentBox.addEventListener(
             "input",
             detectVariables
         );
-
 
         detectVariables();
 

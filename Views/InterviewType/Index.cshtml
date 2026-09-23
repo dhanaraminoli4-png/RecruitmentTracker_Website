@@ -8,8 +8,8 @@
 <style>
 
     /* =========================================================
-           PAGE
-           ========================================================= */
+               PAGE
+               ========================================================= */
 
     .interview-page {
         background: #f5f7fb;
@@ -25,8 +25,8 @@
 
 
     /* =========================================================
-           PAGE HEADER
-           ========================================================= */
+               PAGE HEADER
+               ========================================================= */
 
     .interview-page-header {
         margin-bottom: 24px;
@@ -57,8 +57,8 @@
 
 
     /* =========================================================
-           ALERTS
-           ========================================================= */
+               ALERTS
+               ========================================================= */
 
     .interview-alert {
         margin-bottom: 18px;
@@ -82,8 +82,8 @@
 
 
     /* =========================================================
-           MAIN LAYOUT
-           ========================================================= */
+               MAIN LAYOUT
+               ========================================================= */
 
     .interview-layout {
         display: grid;
@@ -94,8 +94,8 @@
 
 
     /* =========================================================
-           SHARED CARD
-           ========================================================= */
+               SHARED CARD
+               ========================================================= */
 
     .interview-card {
         background: #ffffff;
@@ -106,8 +106,8 @@
 
 
     /* =========================================================
-           LEFT - ADD INTERVIEW TYPE
-           ========================================================= */
+               LEFT - ADD INTERVIEW TYPE
+               ========================================================= */
 
     .interview-form-card {
         overflow: hidden;
@@ -139,8 +139,8 @@
 
 
     /* =========================================================
-           FORM CONTROLS
-           ========================================================= */
+               FORM CONTROLS
+               ========================================================= */
 
     .interview-field {
         margin-bottom: 25px;
@@ -194,8 +194,8 @@
 
 
     /* =========================================================
-           MAIN BUTTON
-           ========================================================= */
+               MAIN BUTTON
+               ========================================================= */
 
     .interview-main-button {
         width: 100%;
@@ -237,8 +237,8 @@
 
 
     /* =========================================================
-           RIGHT
-           ========================================================= */
+               RIGHT
+               ========================================================= */
 
     .interview-right {
         display: grid;
@@ -248,8 +248,8 @@
 
 
     /* =========================================================
-           SEARCH CARD
-           ========================================================= */
+               SEARCH CARD
+               ========================================================= */
 
     .interview-search-card {
         padding: 20px;
@@ -328,8 +328,8 @@
 
 
     /* =========================================================
-           INTERVIEW TYPES LIST
-           ========================================================= */
+               INTERVIEW TYPES LIST
+               ========================================================= */
 
     .interview-list-card {
         overflow: hidden;
@@ -364,8 +364,8 @@
 
 
     /* =========================================================
-           ROW
-           ========================================================= */
+               ROW
+               ========================================================= */
 
     .interview-list-row {
         min-height: 100px;
@@ -385,8 +385,8 @@
 
 
     /* =========================================================
-           NAME CELL
-           ========================================================= */
+               NAME CELL
+               ========================================================= */
 
     .interview-name-cell {
         display: flex;
@@ -442,8 +442,8 @@
 
 
     /* =========================================================
-           STATUS
-           ========================================================= */
+               STATUS
+               ========================================================= */
 
     .interview-status-cell {
         text-align: center;
@@ -474,8 +474,8 @@
 
 
     /* =========================================================
-           ACTIONS
-           ========================================================= */
+               ACTIONS
+               ========================================================= */
 
     .interview-actions {
         display: flex;
@@ -525,8 +525,8 @@
 
 
     /* =========================================================
-           EMPTY
-           ========================================================= */
+               EMPTY
+               ========================================================= */
 
     .interview-empty {
         padding: 75px 25px;
@@ -562,8 +562,8 @@
 
 
     /* =========================================================
-           RESPONSIVE
-           ========================================================= */
+               RESPONSIVE
+               ========================================================= */
 
     @@media (max-width: 1100px) {
 
@@ -1180,3 +1180,186 @@
     <partial name="_ValidationScriptsPartial" />
 
 }
+
+
+<style>
+    /* =========================================================
+           HIRETRACK SOFT BLUE THEME + LIGHT MOTION
+           ========================================================= */
+    :root {
+        --ht-page: #eaf5ff;
+        --ht-page-2: #f7fbff;
+        --ht-card: #ffffff;
+        --ht-soft: #f4f9fe;
+        --ht-tab: #e9f3fd;
+        --ht-line: #dce9f5;
+        --ht-line-2: #edf3f8;
+        --ht-text: #1f3b5b;
+        --ht-text-2: #49657f;
+        --ht-muted: #8aa1b6;
+        --ht-blue: #3d98f4;
+        --ht-blue-2: #2f87df;
+        --ht-blue-soft: #e9f4ff;
+        --ht-green: #28a974;
+        --ht-green-soft: #eaf8f1;
+        --ht-yellow: #b78332;
+        --ht-yellow-soft: #fff6e8;
+        --ht-red: #c45a66;
+        --ht-red-soft: #fff0f2;
+        --ht-shadow: 0 16px 42px rgba(83, 132, 175, .10);
+        --ht-shadow-soft: 0 8px 24px rgba(83, 132, 175, .08);
+    }
+
+    @@keyframes htFadeUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@keyframes htSoftPulse {
+        0%, 100%
+
+    {
+        box-shadow: 0 0 0 0 rgba(61, 152, 244, .00);
+    }
+
+    50% {
+        box-shadow: 0 0 0 7px rgba(61, 152, 244, .08);
+    }
+
+    }
+
+    @@keyframes htFloat {
+        0%, 100%
+
+    {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+
+    }
+
+    .ht-fade,
+    .interview-page,
+    .round-page,
+    .assessment-page,
+    .assessment-builder-page {
+        animation: htFadeUp .42s ease both;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after
+
+    {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    }
+</style>
+
+
+<style>
+    .interview-page {
+        background: linear-gradient(180deg, #eaf5ff 0%, #f7fbff 100%) !important;
+        color: var(--ht-text) !important;
+        padding: 36px 34px 64px !important;
+    }
+
+    .interview-container {
+        max-width: 1500px !important;
+    }
+
+    .interview-eyebrow {
+        color: var(--ht-blue-2) !important;
+    }
+
+    .interview-page-header h1 {
+        color: var(--ht-text) !important;
+    }
+
+    .interview-page-header p {
+        color: var(--ht-muted) !important;
+    }
+
+    .interview-card {
+        border: 1px solid var(--ht-line) !important;
+        border-radius: 20px !important;
+        box-shadow: var(--ht-shadow-soft) !important;
+        background: #fff !important;
+    }
+
+    .interview-control,
+    .interview-search-box,
+    .interview-status-filter {
+        border-color: var(--ht-line) !important;
+        border-radius: 12px !important;
+        background: #f9fcff !important;
+    }
+
+        .interview-control:focus,
+        .interview-search-box:focus-within {
+            border-color: #7dbef5 !important;
+            box-shadow: 0 0 0 4px rgba(61,152,244,.10) !important;
+        }
+
+    .interview-main-button,
+    .interview-search-button {
+        border: 0 !important;
+        border-radius: 12px !important;
+        background: linear-gradient(180deg,#4aa3f8,#338fe9) !important;
+        color: #fff !important;
+        box-shadow: 0 8px 18px rgba(51,143,233,.18) !important;
+        transition: transform .18s ease, box-shadow .18s ease !important;
+    }
+
+        .interview-main-button:hover,
+        .interview-search-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(180deg,#409cf1,#2b83da) !important;
+            box-shadow: 0 12px 24px rgba(51,143,233,.23) !important;
+        }
+
+    .interview-list-header {
+        background: #f2f7fc !important;
+        color: #7c93a8 !important;
+        border-bottom-color: #deebf5 !important;
+    }
+
+    .interview-list-row {
+        border-bottom-color: var(--ht-line-2) !important;
+        transition: transform .18s ease, background .18s ease, box-shadow .18s ease !important;
+    }
+
+        .interview-list-row:hover {
+            background: #f8fcff !important;
+            transform: translateX(3px);
+            box-shadow: inset 3px 0 0 var(--ht-blue);
+        }
+
+    .interview-type-icon {
+        background: #e7f3ff !important;
+        color: var(--ht-blue-2) !important;
+        transition: transform .2s ease, background .2s ease !important;
+    }
+
+    .interview-list-row:hover .interview-type-icon {
+        transform: rotate(-3deg) scale(1.05);
+        background: #dff0ff !important;
+    }
+</style>
+
