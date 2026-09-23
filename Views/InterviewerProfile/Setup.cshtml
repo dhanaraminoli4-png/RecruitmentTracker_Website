@@ -1,0 +1,799 @@
+﻿@model RecruitmentTracker.Models.InterviewerProfileViewModel
+
+@{
+    ViewData["Title"] = "Interviewer Profile Setup";
+}
+
+<style>
+
+    .setup-page {
+        min-height: 100vh;
+        background: #f6f8fb;
+        padding: 35px 28px 65px;
+    }
+
+    .setup-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .setup-header {
+        margin-bottom: 25px;
+    }
+
+    .setup-label {
+        color: #8b97a7;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .setup-header h1 {
+        margin: 0;
+        color: #0b1f3a;
+        font-size: 29px;
+        font-weight: 700;
+    }
+
+    .setup-header p {
+        margin: 7px 0 0;
+        color: #7b8899;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+
+    /* =========================================================
+           PROGRESS
+           ========================================================= */
+
+    .setup-progress {
+        background: white;
+        border: 1px solid #e2e8ef;
+        border-radius: 14px;
+        padding: 17px 22px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .progress-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #4d5c70;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .progress-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ece9ff;
+        color: #6552bd;
+        font-weight: 800;
+    }
+
+    .progress-line {
+        flex: 1;
+        height: 1px;
+        background: #e4e8ee;
+    }
+
+
+    /* =========================================================
+           CARD
+           ========================================================= */
+
+    .setup-card {
+        background: white;
+        border: 1px solid #e2e8ef;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 18px;
+    }
+
+    .card-header {
+        padding: 20px 23px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+        .card-header h3 {
+            margin: 0;
+            color: #0b1f3a;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-header p {
+            margin: 5px 0 0;
+            color: #8c98a8;
+            font-size: 10px;
+        }
+
+    .card-body {
+        padding: 24px;
+    }
+
+
+    /* =========================================================
+           FIELDS
+           ========================================================= */
+
+    .field-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 19px 22px;
+    }
+
+    .field-full {
+        grid-column: 1 / -1;
+    }
+
+    .setup-field label {
+        display: block;
+        margin-bottom: 6px;
+        color: #425267;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .required {
+        color: #dc5361;
+    }
+
+    .setup-field input,
+    .setup-field select,
+    .setup-field textarea {
+        width: 100%;
+        border: 1px solid #d8e0e9;
+        border-radius: 9px;
+        background: white;
+        padding: 11px 12px;
+        color: #26374d;
+        font-size: 12px;
+    }
+
+        .setup-field input:focus,
+        .setup-field select:focus,
+        .setup-field textarea:focus {
+            outline: none;
+            border-color: #8475df;
+            box-shadow: 0 0 0 3px rgba(132,117,223,.10);
+        }
+
+        .setup-field input[readonly] {
+            background: #f4f6f9;
+            color: #8793a3;
+        }
+
+    .setup-field textarea {
+        min-height: 95px;
+        resize: vertical;
+    }
+
+    .field-help {
+        color: #98a3b1;
+        font-size: 9px;
+        margin-top: 5px;
+    }
+
+
+    /* =========================================================
+           IMAGE
+           ========================================================= */
+
+    .image-area {
+        display: flex;
+        align-items: center;
+        gap: 17px;
+    }
+
+    .image-preview {
+        width: 90px;
+        height: 90px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #f1f4f7;
+        border: 1px solid #e0e6ed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8c98a8;
+        font-size: 10px;
+    }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+    /* =========================================================
+           FOOTER
+           ========================================================= */
+
+    .save-area {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 22px;
+    }
+
+    .save-button {
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: white;
+        padding: 11px 24px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .save-button:hover {
+            background: #17385d;
+        }
+
+
+    @@media(max-width: 750px) {
+
+        .setup-page {
+            padding: 22px 14px 50px;
+        }
+
+        .field-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .field-full {
+            grid-column: auto;
+        }
+
+        .setup-progress {
+            align-items: flex-start;
+        }
+    }
+
+</style>
+
+
+<div class="setup-page">
+
+    <div class="setup-wrapper">
+
+
+        <!-- HEADER -->
+
+        <div class="setup-header">
+
+            <div class="setup-label">
+                INTERVIEWER PROFILE
+            </div>
+
+            <h1>
+                Complete Your Profile
+            </h1>
+
+            <p>
+                You have been assigned as an interviewer.
+                Complete your personal and professional profile
+                before continuing to your workspace.
+            </p>
+
+        </div>
+
+
+        <!-- PROGRESS -->
+
+        <div class="setup-progress">
+
+            <div class="progress-item">
+
+                <div class="progress-number">
+                    1
+                </div>
+
+                Personal Details
+
+            </div>
+
+
+            <div class="progress-line">
+            </div>
+
+
+            <div class="progress-item">
+
+                <div class="progress-number">
+                    2
+                </div>
+
+                Interview Eligibility
+
+            </div>
+
+        </div>
+
+
+        <form asp-controller="InterviewerProfile"
+              asp-action="Setup"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger">
+            </div>
+
+
+            <!-- =================================================
+                 PERSONAL INFORMATION
+                 ================================================= -->
+
+            <div class="setup-card">
+
+                <div class="card-header">
+
+                    <h3>
+                        Personal Information
+                    </h3>
+
+                    <p>
+                        Basic details shown on your interviewer profile.
+                    </p>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="field-grid">
+
+
+                        <!-- FULL NAME -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="FullName">
+
+                                Full Name
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <input asp-for="FullName"
+                                   placeholder="e.g. Nisal Perera" />
+
+
+                            <span asp-validation-for="FullName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="Email">
+
+                                Email
+
+                            </label>
+
+
+                            <input asp-for="Email"
+                                   type="email"
+                                   readonly />
+
+
+                            <div class="field-help">
+
+                                Your existing account email.
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DOB -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="DateOfBirth">
+
+                                Date of Birth
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <input asp-for="DateOfBirth"
+                                   type="date" />
+
+
+                            <span asp-validation-for="DateOfBirth"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="PhoneNumber">
+
+                                Phone Number
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <input asp-for="PhoneNumber"
+                                   placeholder="+94 77 123 4567" />
+
+
+                            <span asp-validation-for="PhoneNumber"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- GENDER -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="Gender">
+
+                                Gender
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <select asp-for="Gender">
+
+                                <option value="">
+                                    Select Gender
+                                </option>
+
+                                <option value="Male">
+                                    Male
+                                </option>
+
+                                <option value="Female">
+                                    Female
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                                <option value="Prefer not to say">
+                                    Prefer not to say
+                                </option>
+
+                            </select>
+
+
+                            <span asp-validation-for="Gender"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- PROFILE IMAGE -->
+
+                        <div class="setup-field field-full">
+
+                            <label>
+                                Profile Picture
+                            </label>
+
+
+                            <div class="image-area">
+
+                                <div id="profilePreview"
+                                     class="image-preview">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                        Model.ExistingProfileImage))
+                                    {
+                                        <img src="@Model.ExistingProfileImage"
+                                             alt="Profile picture" />
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            No image
+                                        </span>
+                                    }
+
+                                </div>
+
+
+                                <div style="flex:1;">
+
+                                    <input asp-for="ProfileImage"
+                                           type="file"
+                                           accept=".jpg,.jpeg,.png,.webp"
+                                           onchange="previewProfileImage(this)" />
+
+
+                                    <div class="field-help">
+
+                                        JPG, JPEG, PNG or WEBP.
+                                        Maximum 2MB.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 INTERVIEW ELIGIBILITY
+                 ================================================= -->
+
+            <div class="setup-card">
+
+                <div class="card-header">
+
+                    <h3>
+                        Interview Eligibility Profile
+                    </h3>
+
+                    <p>
+                        HireTrack uses these details to identify which
+                        vacancies you are suitable to interview for.
+                    </p>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="field-grid">
+
+
+                        <!-- DEPARTMENT -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="Department">
+
+                                Department
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <input asp-for="Department"
+                                   placeholder="e.g. Engineering" />
+
+
+                            <span asp-validation-for="Department"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- POSITION -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="JobTitle">
+
+                                Current Position
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <input asp-for="JobTitle"
+                                   placeholder="e.g. Senior AI Engineer" />
+
+
+                            <span asp-validation-for="JobTitle"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- SENIORITY -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="SeniorityLevel">
+
+                                Seniority Level
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <select asp-for="SeniorityLevel">
+
+                                <option value="">
+                                    Select Seniority
+                                </option>
+
+                                <option value="Junior">
+                                    Junior
+                                </option>
+
+                                <option value="Mid">
+                                    Mid-Level
+                                </option>
+
+                                <option value="Senior">
+                                    Senior
+                                </option>
+
+                                <option value="Lead">
+                                    Lead
+                                </option>
+
+                                <option value="Manager">
+                                    Manager
+                                </option>
+
+                            </select>
+
+
+                            <span asp-validation-for="SeniorityLevel"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- EXPERIENCE -->
+
+                        <div class="setup-field">
+
+                            <label asp-for="YearsOfExperience">
+
+                                Years of Experience
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <input asp-for="YearsOfExperience"
+                                   type="number"
+                                   min="0"
+                                   max="50"
+                                   placeholder="e.g. 5" />
+
+
+                            <span asp-validation-for="YearsOfExperience"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- SKILLS -->
+
+                        <div class="setup-field field-full">
+
+                            <label asp-for="Skills">
+
+                                Skills
+                                <span class="required">*</span>
+
+                            </label>
+
+
+                            <textarea asp-for="Skills"
+                                      placeholder="Python, Machine Learning, Deep Learning, C#, SQL"></textarea>
+
+
+                            <div class="field-help">
+
+                                Separate skills with commas.
+                                These are used when matching you
+                                to suitable job interviews.
+
+                            </div>
+
+
+                            <span asp-validation-for="Skills"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="save-area">
+
+                        <button type="submit"
+                                class="save-button">
+
+                            Save & Continue
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function previewProfileImage(input) {
+
+        if (!input.files ||
+            input.files.length === 0) {
+
+            return;
+        }
+
+
+        const file =
+            input.files[0];
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function (event) {
+
+                document.getElementById(
+                    "profilePreview"
+                ).innerHTML = `
+
+                    <img src="${event.target.result}"
+                         alt="Profile preview" />
+
+                `;
+            };
+
+
+        reader.readAsDataURL(file);
+    }
+
+</script>

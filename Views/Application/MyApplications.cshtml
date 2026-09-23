@@ -3,26 +3,51 @@
 @{
     ViewData["Title"] = "My Applications";
 
-    var applications = Model?.ToList()
+    var applications =
+        Model?.ToList()
         ?? new List<RecruitmentTracker.Models.JobApplication>();
+
+
+    var interviewsByApplication =
+        ViewBag.InterviewsByApplication
+        as Dictionary<int, List<RecruitmentTracker.Models.Interview>>
+        ?? new Dictionary<int, List<RecruitmentTracker.Models.Interview>>();
 }
 
+
 <style>
+
+    :root {
+        --navy: #0b1f3a;
+        --navy-2: #163a66;
+        --text: #172033;
+        --muted: #7b8796;
+        --border: #e5eaf1;
+        --surface: #ffffff;
+        --bg: #f5f7fb;
+        --success: #12b76a;
+        --danger: #f04438;
+        --warning: #f79009;
+        --info: #4f46e5;
+    }
+
 
     /* =========================================================
            PAGE
            ========================================================= */
 
     .applications-page {
-        background: #f5f7fb;
         min-height: calc(100vh - 80px);
-        padding: 25px 45px 60px;
+        padding: 38px 45px 70px;
+        background: radial-gradient( circle at top left, rgba(79,70,229,.055), transparent 30% ), radial-gradient( circle at top right, rgba(11,31,58,.045), transparent 28% ), var(--bg);
     }
 
+
     .applications-wrapper {
-        max-width: 1500px;
+        max-width: 1280px;
         margin: 0 auto;
     }
+
 
 
     /* =========================================================
@@ -33,345 +58,579 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 24px;
         gap: 20px;
+        margin-bottom: 30px;
+        animation: pageFadeIn .55s ease both;
     }
 
+
     .application-heading-label {
-        color: #718096;
+        color: #8b96a6;
         font-size: 9px;
-        font-weight: 700;
-        letter-spacing: .8px;
+        font-weight: 750;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
     }
 
+
     .application-header h1 {
-        color: #0b1f3a;
-        font-size: 26px;
-        font-weight: 700;
-        margin: 2px 0 3px;
+        margin: 4px 0 5px;
+        color: var(--navy);
+        font-size: 30px;
+        font-weight: 760;
+        letter-spacing: -.5px;
     }
+
 
     .application-header p {
-        color: #718096;
         margin: 0;
+        color: var(--muted);
         font-size: 12px;
     }
 
 
-    /* =========================================================
-           FIND JOB BUTTON
-           ========================================================= */
-
     .find-job-button {
-        height: 42px;
-        padding: 0 17px;
-        border: none;
-        border-radius: 9px;
-        background: #0b1f3a;
-        color: white;
-        font-size: 12px;
-        font-weight: 600;
-        text-decoration: none;
+        min-height: 42px;
+        padding: 0 18px;
+        border-radius: 10px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        white-space: nowrap;
-        transition: .2s ease;
+        background: linear-gradient( 135deg, var(--navy), var(--navy-2) );
+        color: white;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 650;
+        box-shadow: 0 8px 18px rgba(11,31,58,.12);
+        transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
     }
+
 
         .find-job-button:hover {
-            background: #132f55;
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(11,31,58,.17);
         }
+
 
 
     /* =========================================================
-           STATUS COMING SOON PANEL
+           APPLICATION LIST
            ========================================================= */
 
-    .status-preview {
-        background: white;
-        border: 1px solid #e8edf3;
-        border-radius: 15px;
-        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
-        margin-bottom: 20px;
-        overflow: hidden;
-    }
-
-    .status-preview-header {
-        padding: 19px 24px;
-        border-bottom: 1px solid #edf0f4;
+    .application-list {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .status-preview-title {
-        color: #0b1f3a;
-        font-size: 15px;
-        font-weight: 700;
-        margin: 0 0 3px;
-    }
-
-    .status-preview-description {
-        color: #8a96a6;
-        font-size: 11px;
-        margin: 0;
-    }
-
-    .coming-soon-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 5px 10px;
-        border-radius: 20px;
-        background: #edf2f7;
-        color: #526174;
-        font-size: 10px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .status-preview-body {
-        padding: 22px 24px;
-    }
-
-    .status-steps {
-        display: flex;
-        align-items: flex-start;
-        width: 100%;
-    }
-
-    .status-step {
-        flex: 1;
-        position: relative;
-        display: flex;
-        align-items: flex-start;
-    }
-
-        .status-step:not(:last-child)::after {
-            content: "";
-            position: absolute;
-            height: 1px;
-            background: #dce3ec;
-            left: 17px;
-            right: 12px;
-            top: 7px;
-            margin-left: 10px;
-        }
-
-    .status-dot {
-        width: 14px;
-        height: 14px;
-        min-width: 14px;
-        border-radius: 50%;
-        background: #dce3ec;
-        position: relative;
-        z-index: 2;
-        box-shadow: 0 0 0 4px #f5f7fb;
-    }
-
-    .status-step-content {
-        margin-left: 11px;
-        padding-right: 15px;
-    }
-
-        .status-step-content strong {
-            display: block;
-            color: #0b1f3a;
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 3px;
-        }
-
-        .status-step-content span {
-            display: block;
-            color: #9aa6b5;
-            font-size: 10px;
-        }
-
-
-    /* =========================================================
-           TABLE CARD
-           ========================================================= */
-
-    .table-wrap {
-        background: white;
-        border: 1px solid #e8edf3;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 22px rgba(11, 31, 58, .05);
-    }
-
-
-    /* =========================================================
-           TABLE TOOLBAR
-           ========================================================= */
-
-    .table-toolbar {
-        padding: 21px 24px;
-        border-bottom: 1px solid #edf0f4;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
         gap: 20px;
     }
 
-        .table-toolbar strong {
-            display: block;
-            color: #0b1f3a;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 3px;
-        }
 
-        .table-toolbar span {
-            display: block;
-            color: #8a96a6;
-            font-size: 12px;
-        }
-
-    .application-count {
-        background: #edf2f7;
-        color: #18365f;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 10px;
-        font-weight: 700;
-        white-space: nowrap;
+    .application-card {
+        position: relative;
+        overflow: hidden;
+        background: rgba(255,255,255,.97);
+        border: 1px solid rgba(225,230,238,.95);
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(15,23,42,.055);
+        transform: translateY(0);
+        transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        animation: cardRise .5s ease both;
     }
 
 
+        .application-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 3px;
+            background: linear-gradient( 90deg, #0b1f3a, #4f46e5, #12b76a );
+            opacity: .75;
+        }
+
+
+        .application-card:hover {
+            transform: translateY(-4px);
+            border-color: #d7deea;
+            box-shadow: 0 14px 38px rgba(15,23,42,.085);
+        }
+
+
+
     /* =========================================================
-           TABLE
+           CARD HEADER
            ========================================================= */
 
-    .application-table {
-        width: 100%;
-        min-width: 750px;
-        border-collapse: collapse;
-        margin-bottom: 0;
+    .application-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        padding: 21px 23px 19px;
+        border-bottom: 1px solid #edf0f4;
     }
 
-        .application-table thead {
-            background: #0b1f3a;
-        }
-
-        .application-table th {
-            padding: 13px 18px;
-            text-align: left;
-            color: white;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: .7px;
-            border-bottom: 1px solid #18365f;
-            white-space: nowrap;
-        }
-
-        .application-table td {
-            padding: 17px 18px;
-            color: #526174;
-            font-size: 12px;
-            border-bottom: 1px solid #edf0f4;
-            vertical-align: middle;
-        }
-
-        .application-table tbody tr {
-            transition: .15s ease;
-        }
-
-            .application-table tbody tr:hover {
-                background: #fafbfd;
-            }
-
-            .application-table tbody tr:last-child td {
-                border-bottom: none;
-            }
-
-
-    /* =========================================================
-           JOB
-           ========================================================= */
 
     .job-info {
         display: flex;
         align-items: center;
-        gap: 11px;
+        gap: 13px;
     }
 
+
     .job-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 9px;
-        background: #edf2f7;
-        color: #0b1f3a;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 11px;
-        font-weight: 700;
-        flex-shrink: 0;
+        border-radius: 13px;
+        background: linear-gradient( 145deg, #edf2f7, #e5ebf3 );
+        color: var(--navy);
+        font-size: 13px;
+        font-weight: 750;
+        box-shadow: inset 0 0 0 1px rgba(11,31,58,.04);
     }
+
 
     .job-title {
-        color: #0b1f3a;
-        font-size: 13px;
-        font-weight: 700;
-        margin-bottom: 3px;
-    }
-
-    .job-code {
-        color: #9aa6b5;
-        font-size: 10px;
-        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--navy);
+        font-size: 16px;
+        font-weight: 730;
+        letter-spacing: -.2px;
     }
 
 
-    /* =========================================================
-           APPLIED DATE
-           ========================================================= */
-
-    .applied-date {
-        color: #526174;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .applied-label {
-        color: #9aa6b5;
-        font-size: 10px;
-        margin-top: 3px;
-    }
-
-
-    /* =========================================================
-           VIEW BUTTON
-           ========================================================= */
-
-    .application-action {
+    .job-meta {
         display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+
+
+    /* =========================================================
+           STATUS BADGES
+           ========================================================= */
+
+    .current-status {
+        display: inline-flex;
         align-items: center;
-        gap: 6px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 9px;
+        font-weight: 720;
+        border: 1px solid transparent;
+        transition: transform .2s ease, box-shadow .2s ease;
     }
 
-    .view-application-btn {
-        padding: 6px 11px;
-        border-radius: 7px;
-        border: 1px solid #d8e0ea;
-        background: white;
-        color: #0b1f3a;
-        font-size: 10px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: .2s ease;
-    }
 
-        .view-application-btn:hover {
-            background: #0b1f3a;
-            border-color: #0b1f3a;
-            color: white;
+        .current-status:hover {
+            transform: translateY(-1px);
         }
+
+
+    .status-review {
+        background: #f2f4f7;
+        color: #475467;
+        border-color: #e4e7ec;
+    }
+
+
+    .status-shortlisted {
+        background: #eef4ff;
+        color: #3538cd;
+        border-color: #d9e3ff;
+    }
+
+
+    .status-interview {
+        background: #fff7e8;
+        color: #b54708;
+        border-color: #fedf89;
+    }
+
+
+    .status-passed {
+        background: #ecfdf3;
+        color: #067647;
+        border-color: #abefc6;
+    }
+
+
+    .status-hired {
+        background: linear-gradient( 135deg, #ecfdf3, #d9fbe7 );
+        color: #05603a;
+        border-color: #8ee1b1;
+        box-shadow: 0 4px 12px rgba(18,183,106,.08);
+    }
+
+
+    .status-rejected {
+        background: #fef3f2;
+        color: #b42318;
+        border-color: #fecdca;
+    }
+
+
+
+    /* =========================================================
+           PROGRESS SECTION
+           ========================================================= */
+
+    .progress-section {
+        padding: 22px 23px 24px;
+    }
+
+
+    .progress-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 21px;
+    }
+
+
+        .progress-heading strong {
+            display: block;
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .progress-heading span {
+            display: block;
+            margin-top: 3px;
+            color: #98a2b3;
+            font-size: 9px;
+        }
+
+
+
+    /* =========================================================
+           PROGRESS TIMELINE
+           ========================================================= */
+
+    .progress-timeline {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        overflow-x: auto;
+        padding: 8px 3px 11px;
+        scrollbar-width: thin;
+    }
+
+
+    .progress-step {
+        position: relative;
+        flex: 1;
+        min-width: 145px;
+        display: flex;
+        align-items: flex-start;
+        opacity: .55;
+        transition: opacity .3s ease, transform .3s ease;
+    }
+
+
+        .progress-step.completed,
+        .progress-step.current,
+        .progress-step.success,
+        .progress-step.failed {
+            opacity: 1;
+        }
+
+
+        .progress-step:hover {
+            transform: translateY(-2px);
+        }
+
+
+        .progress-step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 9px;
+            left: 20px;
+            right: 0;
+            height: 2px;
+            background: #e4e9f0;
+            z-index: 0;
+            transition: background .4s ease;
+        }
+
+
+        .progress-step.completed:not(:last-child)::after {
+            background: linear-gradient( 90deg, #475467, #7d8da3 );
+        }
+
+
+        .progress-step.success:not(:last-child)::after {
+            background: linear-gradient( 90deg, #12b76a, #6ce9a6 );
+        }
+
+
+        .progress-step.failed:not(:last-child)::after {
+            background: linear-gradient( 90deg, #f04438, #fda29b );
+        }
+
+
+
+    /* =========================================================
+           DOTS
+           ========================================================= */
+
+    .step-dot {
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        position: relative;
+        z-index: 2;
+        border-radius: 50%;
+        background: #dce3ec;
+        border: 3px solid white;
+        box-shadow: 0 0 0 1px #dce3ec;
+        transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+
+
+    .progress-step.completed .step-dot {
+        background: #344054;
+        box-shadow: 0 0 0 1px #344054, 0 3px 8px rgba(52,64,84,.18);
+    }
+
+
+    .progress-step.current .step-dot {
+        background: white;
+        border: 4px solid var(--navy);
+        box-shadow: 0 0 0 4px rgba(11,31,58,.12);
+        animation: pulseCurrent 1.8s ease-in-out infinite;
+    }
+
+
+    .progress-step.success .step-dot {
+        background: var(--success);
+        box-shadow: 0 0 0 1px var(--success), 0 4px 10px rgba(18,183,106,.18);
+    }
+
+
+    .progress-step.failed .step-dot {
+        background: var(--danger);
+        box-shadow: 0 0 0 1px var(--danger), 0 4px 10px rgba(240,68,56,.16);
+    }
+
+
+
+    /* =========================================================
+           STEP TEXT
+           ========================================================= */
+
+    .step-content {
+        margin-left: 11px;
+        padding-right: 17px;
+    }
+
+
+        .step-content strong {
+            display: block;
+            color: #344054;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+
+        .step-content span {
+            display: block;
+            margin-top: 4px;
+            color: #98a2b3;
+            font-size: 8px;
+            line-height: 1.45;
+        }
+
+
+    .step-result {
+        display: inline-flex !important;
+        width: fit-content;
+        margin-top: 6px !important;
+        padding: 4px 7px;
+        border-radius: 999px;
+        font-size: 8px !important;
+        font-weight: 720;
+    }
+
+
+        .step-result.passed {
+            background: #ecfdf3;
+            color: #067647;
+        }
+
+
+        .step-result.failed {
+            background: #fef3f2;
+            color: #b42318;
+        }
+
+
+        .step-result.pending {
+            background: #fffaeb;
+            color: #b54708;
+        }
+
+
+
+    /* =========================================================
+           INTERVIEW PANEL
+           ========================================================= */
+
+    .interview-panel {
+        margin-top: 23px;
+        padding-top: 19px;
+        border-top: 1px solid #edf0f4;
+        animation: fadeIn .4s ease both;
+    }
+
+
+    .interview-panel-title {
+        margin-bottom: 12px;
+        color: #667085;
+        font-size: 9px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+    }
+
+
+    .interview-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 11px;
+    }
+
+
+    .interview-item {
+        position: relative;
+        overflow: hidden;
+        padding: 14px;
+        border: 1px solid #e8ecf1;
+        border-radius: 12px;
+        background: linear-gradient( 145deg, #ffffff, #fafbfd );
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+
+        .interview-item:hover {
+            transform: translateY(-3px);
+            border-color: #d8dee8;
+            box-shadow: 0 8px 22px rgba(15,23,42,.06);
+        }
+
+
+        .interview-item::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient( 180deg, #4f46e5, #0b1f3a );
+        }
+
+
+    .interview-item-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+
+    .interview-item h4 {
+        margin: 0;
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+
+    .interview-item p {
+        margin: 5px 0 0;
+        color: #7b8796;
+        font-size: 9px;
+        line-height: 1.55;
+    }
+
+
+    .interview-status {
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: #eef2f7;
+        color: #526174;
+        font-size: 8px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+
+    .meeting-link {
+        display: inline-flex;
+        margin-top: 8px;
+        padding: 6px 9px;
+        border-radius: 7px;
+        background: var(--navy);
+        color: white;
+        font-size: 8px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform .2s ease, background .2s ease;
+    }
+
+
+        .meeting-link:hover {
+            color: white;
+            background: var(--navy-2);
+            transform: translateY(-1px);
+        }
+
+
+
+    /* =========================================================
+           OUTCOME
+           ========================================================= */
+
+    .outcome-box {
+        margin-top: 20px;
+        padding: 14px 15px;
+        border-radius: 11px;
+        font-size: 10px;
+        line-height: 1.6;
+        animation: fadeIn .4s ease both;
+    }
+
+
+        .outcome-box.hired {
+            background: linear-gradient( 135deg, #ecfdf3, #f6fffa );
+            border: 1px solid #abefc6;
+            color: #067647;
+        }
+
+
+        .outcome-box.rejected {
+            background: #fef3f2;
+            border: 1px solid #fecdca;
+            color: #b42318;
+        }
+
+
+        .outcome-box.waiting {
+            background: #f8fafc;
+            border: 1px solid #e4e7ec;
+            color: #667085;
+        }
+
 
 
     /* =========================================================
@@ -379,91 +638,156 @@
            ========================================================= */
 
     .empty-state {
-        padding: 65px 25px;
+        padding: 75px 25px;
         text-align: center;
         background: white;
+        border: 1px solid #e8edf3;
+        border-radius: 17px;
+        box-shadow: 0 8px 28px rgba(15,23,42,.045);
+        animation: pageFadeIn .5s ease both;
     }
 
+
     .empty-state-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: #edf2f7;
-        color: #0b1f3a;
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 15px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 15px;
-        font-size: 18px;
+        border-radius: 14px;
+        background: #edf2f7;
+        color: var(--navy);
+        font-size: 19px;
         font-weight: 700;
     }
+
 
     .empty-state h5 {
-        color: #0b1f3a;
+        margin-bottom: 6px;
+        color: var(--navy);
         font-size: 17px;
         font-weight: 700;
-        margin-bottom: 6px;
     }
 
+
     .empty-state p {
+        margin: 0 0 18px;
         color: #718096;
         font-size: 12px;
-        margin: 0 0 18px;
     }
+
+
+
+    /* =========================================================
+           ANIMATIONS
+           ========================================================= */
+
+    @@keyframes pageFadeIn {
+
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @@keyframes cardRise {
+
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @@keyframes fadeIn {
+
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+
+    @@keyframes pulseCurrent {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 4px rgba(11,31,58,.11);
+        }
+
+        50% {
+            box-shadow: 0 0 0 8px rgba(11,31,58,.045);
+        }
+    }
+
 
 
     /* =========================================================
            MOBILE
            ========================================================= */
 
-    @@media (max-width: 900px) {
+    @@media (max-width: 850px) {
 
         .applications-page {
-            padding: 25px 20px 50px;
+            padding: 25px 18px 50px;
         }
 
-        .application-header {
+
+        .application-header,
+        .application-card-header {
             flex-direction: column;
             align-items: flex-start;
         }
+
 
         .find-job-button {
             width: 100%;
         }
 
-        .status-preview-header {
-            align-items: flex-start;
-            flex-direction: column;
+
+        .interview-grid {
+            grid-template-columns: 1fr;
         }
 
-        .status-steps {
+
+        .progress-timeline {
             flex-direction: column;
             gap: 18px;
+            overflow: visible;
         }
 
-        .status-step {
+
+        .progress-step {
             width: 100%;
+            min-width: 0;
         }
 
-            .status-step:not(:last-child)::after {
-                width: 1px;
-                height: 20px;
-                left: 6px;
-                top: 18px;
+
+            .progress-step:not(:last-child)::after {
+                width: 2px;
+                height: 26px;
+                left: 8px;
+                top: 20px;
                 right: auto;
-                margin: 0;
             }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        .table-toolbar {
-            align-items: flex-start;
-            flex-direction: column;
-        }
     }
 </style>
+
 
 
 <div class="applications-page">
@@ -488,7 +812,8 @@
                 </h1>
 
                 <p>
-                    View the vacancies you have applied for and keep your applications organised in one place.
+                    Follow the progress of each vacancy from application
+                    through shortlisting, interviews and the final decision.
                 </p>
 
             </div>
@@ -504,230 +829,731 @@
         </div>
 
 
-        <!-- =====================================================
-             APPLICATION STATUS — UPCOMING FEATURE
-             ===================================================== -->
 
-        <div class="status-preview">
+        @if (!applications.Any())
+        {
+            <div class="empty-state">
 
-            <div class="status-preview-header">
-
-                <div>
-
-                    <div class="status-preview-title">
-                        Application Progress
-                    </div>
-
-                    <p class="status-preview-description">
-                        Candidate status tracking will be available in an upcoming update.
-                    </p>
-
+                <div class="empty-state-icon">
+                    +
                 </div>
 
+                <h5>
+                    No applications yet
+                </h5>
 
-                <span class="coming-soon-badge">
-                    Coming Soon
-                </span>
+                <p>
+                    You haven't applied for any vacancies yet.
+                </p>
+
+                <a asp-action="Vacancies"
+                   class="find-job-button">
+
+                    Browse Jobs
+
+                </a>
 
             </div>
+        }
+        else
+        {
+            <div class="application-list">
 
 
-        </div>
+                @foreach (var application in applications)
+                {
+                    var vacancy =
+                        application.JobVacancy;
 
 
-        <!-- =====================================================
-             APPLICATION TABLE
-             ===================================================== -->
-
-        <div class="table-wrap">
+                    var jobTitle =
+                        vacancy?.JobTitle
+                        ?? "Unknown Job";
 
 
-            
-
-            @if (!applications.Any())
-            {
-                <!-- =================================================
-                     EMPTY STATE
-                     ================================================= -->
-
-                <div class="empty-state">
-
-                    <div class="empty-state-icon">
-                        +
-                    </div>
-
-                    <h5>
-                        No applications yet
-                    </h5>
-
-                    <p>
-                        You haven't applied for any vacancies yet.
-                    </p>
-
-                    <a asp-action="Vacancies"
-                       class="find-job-button">
-
-                        Browse Jobs
-
-                    </a>
-
-                </div>
-            }
-            else
-            {
-
-                <!-- =================================================
-                     APPLICATION TABLE
-                     ================================================= -->
-
-                <div class="table-responsive">
-
-                    <table class="table application-table align-middle">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Position
-                                </th>
-
-                                <th>
-                                    Applied
-                                </th>
-
-                                <th>
-                                    Application
-                                </th>
-
-                            </tr>
-
-                        </thead>
+                    var jobCode =
+                        vacancy?.JobCode
+                        ?? "";
 
 
-                        <tbody>
+                    var initials =
+                        "JB";
 
-                            @foreach (var application in applications)
-                            {
 
-                                var jobTitle =
-                                application.JobVacancy?.JobTitle
-                                ?? "Unknown Job";
-
-                                var jobCode =
-                                application.JobVacancy?.JobCode
-                                ?? "";
-
-                                var initials = "JB";
-
-                                if (!string.IsNullOrWhiteSpace(jobTitle))
-                                {
-                                    var words =
-                                    jobTitle
-                                    .Trim()
-                                    .Split(
+                    if (!string.IsNullOrWhiteSpace(jobTitle))
+                    {
+                        var words =
+                            jobTitle.Trim()
+                                .Split(
                                     ' ',
-                                    StringSplitOptions.RemoveEmptyEntries
-                                    );
+                                    StringSplitOptions.RemoveEmptyEntries);
 
-                                    if (words.Length >= 2)
-                                    {
-                                        initials =
-                                        $"{words[0][0]}{words[^1][0]}"
-                                        .ToUpper();
-                                    }
-                                    else
-                                    {
-                                        initials =
-                                        words[0]
-                                        .Substring(
+
+                        initials =
+                            words.Length >= 2
+
+                                ? $"{words[0][0]}{words[^1][0]}"
+                                    .ToUpper()
+
+                                : words[0]
+                                    .Substring(
                                         0,
                                         Math.Min(
-                                        2,
-                                        words[0].Length
-                                        )
-                                        )
-                                        .ToUpper();
-                                    }
-                                }
+                                            2,
+                                            words[0].Length))
+                                    .ToUpper();
+                    }
 
 
-                                <tr>
+                    var interviews =
+                        interviewsByApplication
+                            .ContainsKey(application.Id)
+
+                            ? interviewsByApplication[
+                                application.Id]
+
+                            : new List<RecruitmentTracker.Models.Interview>();
 
 
-                                    <!-- POSITION -->
+                    var orderedInterviews =
+                        interviews
 
-                                    <td>
+                            .OrderBy(i =>
+                                i.InterviewRound?
+                                    .SequenceNumber
+                                ?? int.MaxValue)
 
-                                        <div class="job-info">
+                            .ThenBy(i =>
+                                i.InterviewDate)
 
-                                            <div class="job-avatar">
-                                                @initials
-                                            </div>
+                            .ToList();
 
-                                            <div>
 
-                                                <div class="job-title">
-                                                    @jobTitle
-                                                </div>
+                    var isHired =
+                        string.Equals(
+                            application.Status,
+                            "Hired",
+                            StringComparison.OrdinalIgnoreCase);
 
-                                                @if (!string.IsNullOrWhiteSpace(jobCode))
+
+                    var isRejected =
+                        string.Equals(
+                            application.Status,
+                            "Not Shortlisted",
+                            StringComparison.OrdinalIgnoreCase)
+
+                        ||
+
+                        string.Equals(
+                            application.Status,
+                            "Rejected",
+                            StringComparison.OrdinalIgnoreCase)
+
+                        ||
+
+                        string.Equals(
+                            application.HiringManagerDecision,
+                            "Rejected",
+                            StringComparison.OrdinalIgnoreCase)
+
+                        ||
+
+                        orderedInterviews.Any(i =>
+                            string.Equals(
+                                i.RoundResult,
+                                "Failed",
+                                StringComparison.OrdinalIgnoreCase));
+
+
+                    var hasInterviews =
+                        orderedInterviews.Any();
+
+
+                    var approvedForInterview =
+                        string.Equals(
+                            application.HiringManagerDecision,
+                            "ApprovedForInterview",
+                            StringComparison.OrdinalIgnoreCase);
+
+
+                    var shortlisted =
+                        application.HRShortlisted;
+
+
+                    string currentStatus;
+                    string currentStatusClass;
+
+
+                    if (isHired)
+                    {
+                        currentStatus =
+                            "Hired";
+
+                        currentStatusClass =
+                            "status-hired";
+                    }
+                    else if (isRejected)
+                    {
+                        currentStatus =
+                            "Not Selected";
+
+                        currentStatusClass =
+                            "status-rejected";
+                    }
+                    else if (hasInterviews)
+                    {
+                        var latestInterview =
+                            orderedInterviews.Last();
+
+
+                        if (string.Equals(
+                            latestInterview.RoundResult,
+                            "Passed",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            currentStatus =
+                                $"{latestInterview.InterviewRound?.Name ?? "Interview"} Passed";
+
+                            currentStatusClass =
+                                "status-passed";
+                        }
+                        else
+                        {
+                            currentStatus =
+                                latestInterview.InterviewRound?.Name
+                                ?? "Interview";
+
+                            currentStatusClass =
+                                "status-interview";
+                        }
+                    }
+                    else if (approvedForInterview)
+                    {
+                        currentStatus =
+                            "Approved for Interview";
+
+                        currentStatusClass =
+                            "status-interview";
+                    }
+                    else if (shortlisted)
+                    {
+                        currentStatus =
+                            "Shortlisted";
+
+                        currentStatusClass =
+                            "status-shortlisted";
+                    }
+                    else
+                    {
+                        currentStatus =
+                            application.Status
+                            ?? "Applied";
+
+                        currentStatusClass =
+                            "status-review";
+                    }
+
+
+                    <div class="application-card">
+
+
+                        <!-- =============================================
+                             APPLICATION HEADER
+                             ============================================= -->
+
+                        <div class="application-card-header">
+
+
+                            <div class="job-info">
+
+                                <div class="job-avatar">
+                                    @initials
+                                </div>
+
+
+                                <div>
+
+                                    <div class="job-title">
+                                        @jobTitle
+                                    </div>
+
+
+                                    <div class="job-meta">
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            jobCode))
+                                        {
+                                            <span>
+                                                @jobCode
+                                            </span>
+                                        }
+
+
+                                        <span>
+                                            Applied
+                                            @application.AppliedDate
+                                                .ToString("dd MMM yyyy")
+                                        </span>
+
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            vacancy?.Location))
+                                        {
+                                            <span>
+                                                · @vacancy.Location
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="current-status @currentStatusClass">
+
+                                @currentStatus
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <!-- =============================================
+                             PROGRESS
+                             ============================================= -->
+
+                        <div class="progress-section">
+
+
+                            <div class="progress-heading">
+
+                                <div>
+
+                                    <strong>
+                                        Application Progress
+                                    </strong>
+
+                                    <span>
+                                        Progress for this specific vacancy.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="progress-timeline">
+
+
+                                <!-- APPLIED -->
+
+                                <div class="progress-step completed">
+
+                                    <div class="step-dot"></div>
+
+                                    <div class="step-content">
+
+                                        <strong>
+                                            Applied
+                                        </strong>
+
+                                        <span>
+                                            @application.AppliedDate
+                                                .ToString("dd MMM yyyy")
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- SHORTLISTED -->
+
+                                <div class="progress-step @(
+                                    shortlisted ||
+                                    approvedForInterview ||
+                                    hasInterviews ||
+                                    isHired
+                                        ? "completed"
+                                        : isRejected
+                                            ? "failed"
+                                            : "current"
+                                )">
+
+                                    <div class="step-dot"></div>
+
+                                    <div class="step-content">
+
+                                        <strong>
+                                            Shortlisted
+                                        </strong>
+
+                                        <span>
+
+                                            @if (shortlisted ||
+                                                 approvedForInterview ||
+                                                 hasInterviews ||
+                                                 isHired)
+                                            {
+                                                @:Selected to continue
+                                            }
+                                            else if (isRejected)
+                                            {
+                                                @:Application did not progress
+                                            }
+                                            else
+                                            {
+                                                @:Waiting for screening decision
+                                            }
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- INTERVIEW ROUNDS -->
+
+                                @foreach (var interview
+                                          in orderedInterviews)
+                                {
+                                    var result =
+                                        interview.RoundResult
+                                        ?? "Pending";
+
+
+                                    var interviewComplete =
+                                        string.Equals(
+                                            result,
+                                            "Passed",
+                                            StringComparison.OrdinalIgnoreCase);
+
+
+                                    var interviewFailed =
+                                        string.Equals(
+                                            result,
+                                            "Failed",
+                                            StringComparison.OrdinalIgnoreCase);
+
+
+                                    var stepClass =
+                                        interviewFailed
+                                            ? "failed"
+                                            : interviewComplete
+                                                ? "completed"
+                                                : "current";
+
+
+                                    <div class="progress-step @stepClass">
+
+                                        <div class="step-dot"></div>
+
+
+                                        <div class="step-content">
+
+                                            <strong>
+
+                                                @if (interview.InterviewRound != null)
                                                 {
-                                                    <div class="job-code">
-                                                        @jobCode
-                                                    </div>
+                                                    @($"Round {interview.InterviewRound.SequenceNumber}: {interview.InterviewRound.Name}")
+                                                }
+                                                else
+                                                {
+                                                    @:Interview
                                                 }
 
-                                            </div>
-
-                                        </div>
-
-                                    </td>
+                                            </strong>
 
 
-                                    <!-- APPLIED -->
+                                            <span>
 
-                                    <td>
+                                                @interview.InterviewDate
+                                                    .ToString("dd MMM yyyy")
 
-                                        <div class="applied-date">
-                                            @application.AppliedDate.ToString("dd MMM yyyy")
-                                        </div>
+                                                ·
 
-                                        <div class="applied-label">
-                                            Application submitted
-                                        </div>
+                                                @(interview.InterviewTime.ToString(@"hh\:mm"))
 
-                                    </td>
+                                            </span>
 
 
-                                    <!-- APPLICATION -->
-
-                                    <td>
-
-                                        <div class="application-action">
-
-                                            <span class="coming-soon-badge">
-                                                Status tracking coming soon
+                                            <span class="step-result @result.ToLower()">
+                                                @result
                                             </span>
 
                                         </div>
 
-                                    </td>
+                                    </div>
+                                }
 
 
-                                </tr>
 
+                                <!-- IF APPROVED BUT NOT YET SCHEDULED -->
+
+                                @if (approvedForInterview &&
+                                     !hasInterviews &&
+                                     !isRejected &&
+                                     !isHired)
+                                {
+                                    <div class="progress-step current">
+
+                                        <div class="step-dot"></div>
+
+                                        <div class="step-content">
+
+                                            <strong>
+                                                Interview
+                                            </strong>
+
+                                            <span>
+                                                Approved — waiting for scheduling
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+                                }
+
+
+
+                                <!-- FINAL DECISION -->
+
+                                <div class="progress-step @(
+                                    isHired
+                                        ? "completed"
+                                        : isRejected
+                                            ? "failed"
+                                            : hasInterviews &&
+                                              orderedInterviews.All(i =>
+                                                  i.RoundResult == "Passed")
+                                                ? "current"
+                                                : ""
+                                )">
+
+                                    <div class="step-dot"></div>
+
+                                    <div class="step-content">
+
+                                        <strong>
+                                            Final Decision
+                                        </strong>
+
+                                        <span>
+
+                                            @if (isHired)
+                                            {
+                                                @:Hiring decision completed
+                                            }
+                                            else if (isRejected)
+                                            {
+                                                @:Recruitment process ended
+                                            }
+                                            else
+                                            {
+                                                @:Pending completion of recruitment process
+                                            }
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- HIRED -->
+
+                                <div class="progress-step @(
+                                    isHired
+                                        ? "success"
+                                        : ""
+                                )">
+
+                                    <div class="step-dot"></div>
+
+                                    <div class="step-content">
+
+                                        <strong>
+                                            Hired
+                                        </strong>
+
+                                        <span>
+
+                                            @if (isHired)
+                                            {
+                                                @:Congratulations!
+                                            }
+                                            else
+                                            {
+                                                @:Final successful outcome
+                                            }
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+
+                            <!-- =========================================
+                                 INTERVIEW DETAILS
+                                 ========================================= -->
+
+                            @if (orderedInterviews.Any())
+                            {
+                                <div class="interview-panel">
+
+                                    <div class="interview-panel-title">
+                                        Interview Schedule
+                                    </div>
+
+
+                                    <div class="interview-grid">
+
+
+                                        @foreach (var interview
+                                                  in orderedInterviews)
+                                        {
+                                            <div class="interview-item">
+
+
+                                                <div class="interview-item-top">
+
+                                                    <div>
+
+                                                        <h4>
+
+                                                            @(interview.InterviewRound?.Name
+                                                                ?? "Interview")
+
+                                                        </h4>
+
+
+                                                        <p>
+
+                                                            @(interview.InterviewType?.Name
+                                                                ?? "Interview")
+
+                                                            ·
+
+                                                            @interview.InterviewDate
+                                                                .ToString("dd MMM yyyy")
+
+                                                            at
+
+                                                            @(interview.InterviewTime.ToString(@"hh\:mm"))
+
+                                                        </p>
+
+                                                    </div>
+
+
+                                                    <span class="interview-status">
+
+                                                        @interview.Status
+
+                                                    </span>
+
+
+                                                </div>
+
+
+                                                @if (!string.IsNullOrWhiteSpace(
+                                                    interview.Location))
+                                                {
+                                                    <p>
+                                                        Location:
+                                                        @interview.Location
+                                                    </p>
+                                                }
+
+
+                                                @if (!string.IsNullOrWhiteSpace(
+                                                    interview.MeetingLink))
+                                                {
+                                                    <a href="@interview.MeetingLink"
+                                                       target="_blank"
+                                                       rel="noopener noreferrer"
+                                                       class="meeting-link">
+
+                                                        Join Interview
+
+                                                    </a>
+                                                }
+
+
+                                            </div>
+                                        }
+
+
+                                    </div>
+
+                                </div>
                             }
 
-                        </tbody>
 
-                    </table>
 
-                </div>
+                            <!-- =========================================
+                                 OUTCOME MESSAGE
+                                 ========================================= -->
 
-            }
+                            @if (isHired)
+                            {
+                                <div class="outcome-box hired">
 
-        </div>
+                                    <strong>
+                                        Congratulations — you have been hired for
+                                        @jobTitle.
+                                    </strong>
+
+                                    The recruitment team will provide the next
+                                    steps for this vacancy.
+
+                                </div>
+                            }
+                            else if (isRejected)
+                            {
+                                <div class="outcome-box rejected">
+
+                                    Your recruitment process for this vacancy
+                                    has ended. Thank you for your application.
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="outcome-box waiting">
+
+                                    Your application is still active.
+                                    This page will update as you move through
+                                    shortlisting and interview rounds.
+
+                                </div>
+                            }
+
+
+                        </div>
+
+
+                    </div>
+                }
+
+
+            </div>
+        }
+
 
     </div>
 

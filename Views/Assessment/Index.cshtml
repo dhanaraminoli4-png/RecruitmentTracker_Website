@@ -1,0 +1,2281 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.AssessmentTemplate>
+
+@{
+    ViewData["Title"] = "Assessments";
+
+    var assessments =
+        Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.AssessmentTemplate>();
+
+    var total =
+        assessments.Count;
+
+    var active =
+        assessments.Count(x => x.IsActive);
+
+    var inactive =
+        assessments.Count(x => !x.IsActive);
+
+    var totalQuestions =
+        assessments.Sum(x => x.Questions?.Count ?? 0);
+
+    var search =
+        ViewBag.Search as string ?? "";
+
+    int? selectedJobId =
+        ViewBag.JobId as int?;
+
+    var jobs =
+        ViewBag.Jobs
+            as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+}
+
+
+<div class="assessment-page">
+
+
+    <!-- =========================================================
+         TOP OVERVIEW CARD
+         ========================================================= -->
+
+    <section class="assessment-overview-card">
+
+
+        <div class="overview-heading">
+
+
+            <div>
+
+                <div class="overview-eyebrow">
+                    INTERVIEW WORKSPACE
+                </div>
+
+                <h1>
+                    Assessment Templates
+                </h1>
+
+                <p>
+                    Build and manage structured assessments
+                    for your interview rounds.
+                </p>
+
+            </div>
+
+
+            <a asp-controller="Assessment"
+               asp-action="Create"
+               class="create-assessment-btn">
+
+                <span class="create-plus">
+                    +
+                </span>
+
+                Create Assessment
+
+            </a>
+
+
+        </div>
+
+
+        <!-- STATS -->
+
+        
+
+
+    </section>
+
+
+
+    <!-- =========================================================
+         ALERTS
+         ========================================================= -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="assessment-alert assessment-alert-success">
+
+            <span>✓</span>
+
+            @TempData["Success"]
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="assessment-alert assessment-alert-error">
+
+            <span>!</span>
+
+            @TempData["Error"]
+
+        </div>
+    }
+
+
+
+    <!-- =========================================================
+         MAIN DASHBOARD GRID
+         ========================================================= -->
+
+    <div class="assessment-dashboard">
+
+
+        <!-- =====================================================
+             LEFT: ASSESSMENT CARDS
+             ===================================================== -->
+
+        <section class="assessment-content-card">
+
+
+           
+
+
+
+            <!-- STATUS TABS -->
+
+            <div class="assessment-tabs">
+
+
+                <button type="button"
+                        class="assessment-tab active"
+                        data-status="all">
+
+                    All
+
+                    <span>
+                        @total
+                    </span>
+
+                </button>
+
+
+                <button type="button"
+                        class="assessment-tab"
+                        data-status="active">
+
+                    Active
+
+                    <span>
+                        @active
+                    </span>
+
+                </button>
+
+
+                <button type="button"
+                        class="assessment-tab"
+                        data-status="inactive">
+
+                    Inactive
+
+                    <span>
+                        @inactive
+                    </span>
+
+                </button>
+
+
+            </div>
+
+
+
+            @if (!assessments.Any())
+            {
+
+                <div class="assessment-empty">
+
+
+                    <div class="empty-illustration">
+
+                        <div class="empty-sheet">
+                            ✓
+                        </div>
+
+                        <div class="empty-dot dot-one"></div>
+                        <div class="empty-dot dot-two"></div>
+                        <div class="empty-dot dot-three"></div>
+
+                    </div>
+
+
+                    <h3>
+                        No assessments found
+                    </h3>
+
+
+                    <p>
+                        Create your first assessment template
+                        for an interview round.
+                    </p>
+
+
+                    <a asp-controller="Assessment"
+                       asp-action="Create"
+                       class="empty-create-btn">
+
+                        + Create Assessment
+
+                    </a>
+
+
+                </div>
+
+            }
+            else
+            {
+
+                <div class="assessment-grid"
+                     id="assessmentGrid">
+
+
+                    @foreach (var assessment in assessments)
+                    {
+                        var statusValue =
+                        assessment.IsActive
+                        ? "active"
+                        : "inactive";
+
+                        var questionCount =
+                        assessment.Questions?.Count ?? 0;
+
+
+                        <article class="simple-assessment-card"
+                                 data-status="@statusValue">
+
+
+                            <div class="simple-card-top">
+
+
+                                
+
+
+                                <div class="simple-card-actions-menu">
+
+                                    •••
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="simple-card-content">
+
+
+                                <div class="simple-card-title-row">
+
+
+                                    <div>
+
+
+                                        <h3>
+                                            @assessment.Name
+                                        </h3>
+
+
+                                        <p>
+                                            @(assessment.Description
+                                                                                ?? "Assessment template for this interview round.")
+                                                                                                                               </p>
+
+
+                                    </div>
+
+
+                                    <span class="simple-status @(assessment.IsActive ? "active" : "inactive")">
+
+                                        @(assessment.IsActive
+                                                                        ? "Active"
+                                                                        : "Inactive")
+
+                                    </span>
+
+
+                                </div>
+
+
+
+                                <div class="simple-info-row">
+
+
+                                    <span class="simple-info-icon">
+                                        ▦
+                                    </span>
+
+
+                                    <span>
+
+                                        @(assessment.JobVacancy?.JobTitle
+                                                                        ?? "No vacancy")
+
+                            </span>
+
+
+                                </div>
+
+
+
+                                <div class="simple-info-row">
+
+
+                                    <span class="simple-info-icon">
+                                        ◉
+                                    </span>
+
+
+                                    <span>
+
+                                @if (assessment.InterviewRound != null)
+                                        {
+                                            @($"Round {assessment.InterviewRound.SequenceNumber} — {assessment.InterviewRound.Name}")
+                                        }
+                                        else
+                                        {
+                                            @("No interview round")
+                                        }
+
+                                </span>
+
+
+                            </div>
+
+
+
+                            <div class="simple-card-bottom">
+
+
+                                <div class="simple-question-info">
+
+                                    <strong>
+                                        @questionCount
+                                    </strong>
+
+                                    <span>
+                                        @(questionCount == 1 ? "" : "s")
+                                    </span>
+
+                                </div>
+
+
+                                <div class="simple-card-buttons">
+
+
+                                    <a asp-controller="Assessment"
+                                       asp-action="Edit"
+                                       asp-route-id="@assessment.Id"
+                                       class="simple-view-btn">
+
+                                        Edit
+
+                                       
+
+                                    </a>
+
+
+                                    <form asp-controller="Assessment"
+                                          asp-action="ToggleStatus"
+                                          asp-route-id="@assessment.Id"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+
+                                        <button type="submit"
+                                                class="simple-icon-btn"
+                                                title="@(assessment.IsActive ? "Deactivate" : "Activate")">
+
+                                            @(assessment.IsActive
+                                                                                    ? "◌"
+                                                                                    : "✓")
+
+                                    </button>
+
+                                        </form>
+
+
+                                        <form asp-controller="Assessment"
+                                              asp-action="Delete"
+                                              asp-route-id="@assessment.Id"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+
+                                            <button type="submit"
+                                                    class="simple-icon-btn danger"
+                                                    onclick="return confirm('Delete this assessment template?')"
+                                                    title="Delete">
+
+                                                ×
+
+                                            </button>
+
+                                        </form>
+
+
+                                    </div>
+
+
+                                </div>
+
+
+                            </div>
+
+
+                        </article>
+                                }
+
+                                
+
+
+                </div>
+
+            }
+
+
+        </section>
+
+
+
+        <!-- =====================================================
+             RIGHT COLUMN
+             ===================================================== -->
+
+        <aside class="assessment-sidebar">
+
+
+            <!-- =================================================
+                 FILTER CARD
+                 ================================================= -->
+
+            <section class="filter-panel">
+
+
+                <div class="filter-panel-header">
+
+
+                    <div class="filter-icon">
+                        ⌕
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            Filter Assessments
+                        </h3>
+
+                        <p>
+                            Find templates quickly
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <form method="get"
+                      asp-controller="Assessment"
+                      asp-action="Index"
+                      class="assessment-filter-form">
+
+
+                    <!-- SEARCH -->
+
+                    <div class="filter-field">
+
+
+                        <label>
+                            Search
+                        </label>
+
+
+                        <div class="pretty-search">
+
+
+                            <span>
+                                ⌕
+                            </span>
+
+
+                            <input type="text"
+                                   name="search"
+                                   value="@search"
+                                   placeholder="Search assessment..." />
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- VACANCY -->
+
+                    <div class="filter-field">
+
+
+                        <label>
+                            Vacancy
+                        </label>
+
+
+                        <div class="pretty-select-wrap">
+
+
+                            <select name="jobId">
+
+
+                                <option value="">
+                                    All Vacancies
+                                </option>
+
+
+                                @foreach (var job in jobs)
+                                {
+
+                                    if (
+                                    selectedJobId.HasValue &&
+                                    job.Value ==
+                                    selectedJobId.Value.ToString()
+                                    )
+                                    {
+
+                                        <option value="@job.Value"
+                                                selected>
+
+                                            @job.Text
+
+                                        </option>
+
+                                    }
+                                    else
+                                    {
+
+                                        <option value="@job.Value">
+
+                                            @job.Text
+
+                                        </option>
+
+                                    }
+
+                                }
+
+
+                            </select>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <button type="submit"
+                            class="apply-filter-btn">
+
+                        Apply Filters
+
+                        <span>
+                            →
+                        </span>
+
+                    </button>
+
+
+                    <a asp-controller="Assessment"
+                       asp-action="Index"
+                       class="reset-filter-btn">
+
+                        Reset Filters
+
+                    </a>
+
+
+                </form>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 QUICK STATUS FILTER
+                 ================================================= -->
+
+            
+
+
+
+            <!-- =================================================
+                 DECORATIVE INFO BANNER
+                 ================================================= -->
+
+            <section class="assessment-banner">
+
+
+                <div class="banner-copy">
+
+
+                    <span class="banner-star">
+                        ✦
+                    </span>
+
+
+                    <h3>
+                        Structured interviews,
+                        better decisions.
+                    </h3>
+
+
+                    <p>
+                        Assign different assessments to
+                        specific vacancies and interview rounds.
+                    </p>
+
+
+                    <a asp-controller="Assessment"
+                       asp-action="Create">
+
+                        Build a template
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                </div>
+
+
+                <div class="banner-art">
+
+
+                    <div class="art-sheet sheet-back"></div>
+
+
+                    <div class="art-sheet sheet-front">
+
+                        <span class="art-line wide"></span>
+                        <span class="art-line"></span>
+                        <span class="art-line small"></span>
+
+                        <span class="art-check">
+                            ✓
+                        </span>
+
+                    </div>
+
+
+                    <div class="art-circle"></div>
+
+
+                </div>
+
+
+            </section>
+
+
+        </aside>
+
+
+    </div>
+
+
+</div>
+
+
+
+<style>
+
+    /* ============================================================
+           PAGE
+           ============================================================ */
+
+    .assessment-page {
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 24px;
+        color: #202033;
+        position: relative;
+    }
+
+
+        .assessment-page::before {
+            content: "";
+            position: fixed;
+            width: 380px;
+            height: 380px;
+            right: -140px;
+            top: 160px;
+            border-radius: 50%;
+            background: rgba(177, 224, 214, .13);
+            filter: blur(5px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+
+        .assessment-page::after {
+            content: "";
+            position: fixed;
+            width: 330px;
+            height: 330px;
+            left: -100px;
+            bottom: -100px;
+            border-radius: 50%;
+            background: rgba(166, 149, 238, .10);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+
+
+    /* ============================================================
+           OVERVIEW
+           ============================================================ */
+
+    .assessment-overview-card {
+        background: #ffffff;
+        border: 1px solid #e9e8ed;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 6px 24px rgba(28, 31, 44, .045);
+        margin-bottom: 20px;
+    }
+
+
+    .overview-heading {
+        min-height: 103px;
+        padding: 22px 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        border-bottom: 1px solid #efeff3;
+    }
+
+
+    .overview-eyebrow {
+        margin-bottom: 5px;
+        color: #a0a5b1;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+
+    .overview-heading h1 {
+        margin: 0;
+        color: #17172b;
+        font-size: 25px;
+        font-weight: 800;
+        letter-spacing: -.3px;
+    }
+
+
+    .overview-heading p {
+        margin: 6px 0 0;
+        color: #9298a6;
+        font-size: 10px;
+    }
+
+
+
+    /* CREATE */
+
+    .create-assessment-btn {
+        min-height: 42px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 11px;
+        background: #0b1f3a;
+        color: #ffffff;
+        box-shadow: 0 5px 14px rgba(11, 31, 58, .12);
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 750;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+
+        .create-assessment-btn:hover {
+            color: #ffffff;
+            background: #17385d;
+            transform: translateY(-2px);
+            box-shadow: 0 9px 20px rgba(11, 31, 58, .16);
+        }
+
+
+    .create-plus {
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1;
+    }
+
+
+
+    /* ============================================================
+           OVERVIEW STATS
+           ============================================================ */
+
+    .assessment-overview-stats {
+        min-height: 92px;
+        padding: 16px 24px;
+        display: grid;
+        grid-template-columns: minmax(150px, 1fr) 1px minmax(150px, 1fr) 1px minmax(150px, 1fr) 1px minmax(150px, 1fr);
+        align-items: center;
+        gap: 20px;
+    }
+
+
+    .overview-stat {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+
+    .overview-divider {
+        width: 1px;
+        height: 40px;
+        background: #eeeef2;
+    }
+
+
+    .stat-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+
+    .stat-purple {
+        background: #eeeaff;
+        color: #6c56dc;
+    }
+
+
+    .stat-green {
+        background: #e4f5ec;
+        color: #4b9b75;
+    }
+
+
+    .stat-blue {
+        background: #e4f2fb;
+        color: #4c8eb8;
+    }
+
+
+    .stat-coral {
+        background: #ffe9e8;
+        color: #cf6b68;
+    }
+
+
+    .stat-text {
+        color: #727887;
+        font-size: 9px;
+        font-weight: 650;
+    }
+
+
+    .stat-number {
+        margin-top: 3px;
+        color: #1e1e2d;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+
+
+    /* ============================================================
+           ALERTS
+           ============================================================ */
+
+    .assessment-alert {
+        margin-bottom: 16px;
+        padding: 11px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 10px;
+        font-size: 9px;
+        font-weight: 650;
+    }
+
+
+    .assessment-alert-success {
+        background: #eaf8f0;
+        border: 1px solid #ccebd9;
+        color: #33785a;
+    }
+
+
+    .assessment-alert-error {
+        background: #fff0f0;
+        border: 1px solid #f4cccc;
+        color: #a64646;
+    }
+
+
+
+    /* ============================================================
+           DASHBOARD GRID
+           ============================================================ */
+
+    .assessment-dashboard {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(290px, .75fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+
+
+    /* ============================================================
+           ASSESSMENT LIBRARY
+           ============================================================ */
+
+    .assessment-content-card {
+        background: #ffffff;
+        border: 1px solid #e9e8ed;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 6px 22px rgba(28, 31, 44, .04);
+    }
+
+
+    .content-card-header {
+        min-height: 72px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #efeff3;
+    }
+
+
+        .content-card-header h2 {
+            margin: 0;
+            color: #1a1a2d;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+
+        .content-card-header p {
+            margin: 3px 0 0;
+            color: #a0a5b1;
+            font-size: 8px;
+        }
+
+
+    .library-header-icon {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #f2efff;
+        color: #725ce2;
+        font-size: 14px;
+    }
+
+
+
+    /* ============================================================
+           TABS
+           ============================================================ */
+
+    .assessment-tabs {
+        padding: 11px 18px 0;
+        display: flex;
+        gap: 6px;
+        border-bottom: 1px solid #efeff3;
+    }
+
+
+    .assessment-tab {
+        min-height: 37px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        position: relative;
+        border: none;
+        background: transparent;
+        color: #969ca8;
+        font-size: 9px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+
+        .assessment-tab span {
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: #f1f2f5;
+            color: #858c99;
+            font-size: 7px;
+        }
+
+
+        .assessment-tab::after {
+            content: "";
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: -1px;
+            height: 2px;
+            border-radius: 5px;
+            background: transparent;
+        }
+
+
+        .assessment-tab.active {
+            color: #25253a;
+        }
+
+
+            .assessment-tab.active::after {
+                background: #806cf4;
+            }
+
+
+            .assessment-tab.active span {
+                background: #eeeaff;
+                color: #6752d9;
+            }
+
+
+
+    /* ============================================================
+       SIMPLE ASSESSMENT GRID
+       ============================================================ */
+
+    .assessment-grid {
+        padding: 16px;
+        display: grid;
+        grid-template-columns: repeat( 3, minmax(220px, 1fr) );
+        gap: 14px;
+    }
+
+
+    /* ============================================================
+       SIMPLE CARD
+       ============================================================ */
+
+    .simple-assessment-card {
+        min-height: 245px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        border: 1px solid #ececf1;
+        border-radius: 14px;
+        box-shadow: 0 3px 10px rgba(20, 25, 45, .035);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+
+        .simple-assessment-card:hover {
+            transform: translateY(-3px);
+            border-color: #ded8ff;
+            box-shadow: 0 10px 22px rgba(45, 38, 82, .08);
+        }
+
+
+    /* ============================================================
+       TOP
+       ============================================================ */
+
+    .simple-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 13px;
+    }
+
+
+    .simple-card-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f2efff;
+        color: #6754d9;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+
+    .simple-card-actions-menu {
+        color: #b0b4bd;
+        font-size: 15px;
+        letter-spacing: 2px;
+    }
+
+
+    /* ============================================================
+       CONTENT
+       ============================================================ */
+
+    .simple-card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    .simple-card-title-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+
+        .simple-card-title-row h3 {
+            margin: 0;
+            color: #222333;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+
+        .simple-card-title-row p {
+            margin: 6px 0 0;
+            color: #969ca8;
+            font-size: 8px;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+
+    /* ============================================================
+       STATUS
+       ============================================================ */
+
+    .simple-status {
+        height: 21px;
+        padding: 0 7px;
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        font-size: 7px;
+        font-weight: 750;
+    }
+
+
+        .simple-status.active {
+            background: #e3f5ed;
+            color: #4a8e6d;
+        }
+
+
+        .simple-status.inactive {
+            background: #f0f1f4;
+            color: #858b96;
+        }
+
+
+    /* ============================================================
+       DETAILS
+       ============================================================ */
+
+    .simple-info-row {
+        margin-top: 11px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #697385;
+        font-size: 8px;
+    }
+
+
+    .simple-info-icon {
+        width: 20px;
+        height: 20px;
+        flex: 0 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: #f4f3fa;
+        color: #7564d9;
+        font-size: 8px;
+    }
+
+
+    /* ============================================================
+       BOTTOM
+       ============================================================ */
+
+    .simple-card-bottom {
+        margin-top: auto;
+        padding-top: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border-top: 1px solid #f0f1f4;
+    }
+
+
+    .simple-question-info {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+
+        .simple-question-info strong {
+            color: #242536;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+
+        .simple-question-info span {
+            color: #9aa0ac;
+            font-size: 7px;
+        }
+
+
+    /* ============================================================
+       ACTIONS
+       ============================================================ */
+
+    .simple-card-buttons {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+
+        .simple-card-buttons form {
+            margin: 0;
+        }
+
+
+    .simple-view-btn {
+        min-height: 30px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        border-radius: 8px;
+        background: #55b7a1;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 700;
+        transition: transform .15s ease, background .15s ease;
+    }
+
+
+        .simple-view-btn:hover {
+            color: #ffffff;
+            background: #439e8b;
+            transform: translateY(-1px);
+        }
+
+
+    .simple-icon-btn {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e4e9;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #6f7887;
+        font-size: 10px;
+        cursor: pointer;
+        transition: background .15s ease, transform .15s ease;
+    }
+
+
+        .simple-icon-btn:hover {
+            background: #f6f6f9;
+            transform: translateY(-1px);
+        }
+
+
+        .simple-icon-btn.danger {
+            color: #c96568;
+            border-color: #f0d2d3;
+        }
+
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
+    @@media (max-width: 1150px) {
+
+        .assessment-grid {
+            grid-template-columns: repeat( 2, minmax(220px, 1fr) );
+        }
+    }
+
+
+    @@media (max-width: 700px) {
+
+        .assessment-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
+    /* ============================================================
+           FOOTER ACTIONS
+           ============================================================ */
+
+    .template-footer {
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-top: 1px solid #efeff3;
+        background: #fcfcfd;
+    }
+
+
+        .template-footer form {
+            margin: 0;
+        }
+
+
+    .template-action {
+        min-height: 31px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        border: 1px solid #e0e2e8;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #5e6778;
+        font-size: 8px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform .15s ease, background .15s ease, color .15s ease;
+    }
+
+
+        .template-action:hover {
+            color: #303747;
+            background: #f7f7fa;
+            transform: translateY(-1px);
+        }
+
+
+        .template-action.primary {
+            margin-right: auto;
+            border-color: #dcd7ff;
+            background: #f3f0ff;
+            color: #6752d9;
+        }
+
+
+        .template-action.danger {
+            color: #c45e60;
+            border-color: #f0d0d0;
+        }
+
+
+            .template-action.danger:hover {
+                background: #fff1f1;
+            }
+
+
+
+    /* ============================================================
+           SIDEBAR
+           ============================================================ */
+
+    .assessment-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+
+
+    /* FILTER PANEL */
+
+    .filter-panel {
+        background: #ffffff;
+        border: 1px solid #e9e8ed;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 6px 22px rgba(28,31,44,.04);
+    }
+
+
+    .filter-panel-header {
+        min-height: 67px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #efeff3;
+    }
+
+
+    .filter-icon {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #eeeaff;
+        color: #6b55dc;
+        font-size: 15px;
+    }
+
+
+    .filter-panel-header h3 {
+        margin: 0;
+        color: #1f1f32;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    .filter-panel-header p {
+        margin: 3px 0 0;
+        color: #a1a6b1;
+        font-size: 7px;
+    }
+
+
+    .assessment-filter-form {
+        padding: 16px;
+    }
+
+
+    .filter-field {
+        margin-bottom: 13px;
+    }
+
+
+        .filter-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: #777f8f;
+            font-size: 7px;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: .45px;
+        }
+
+
+
+    /* SEARCH */
+
+    .pretty-search {
+        min-height: 40px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #e1e3e9;
+        border-radius: 10px;
+        background: #fbfbfd;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+
+        .pretty-search:focus-within {
+            border-color: #b6aaff;
+            box-shadow: 0 0 0 3px rgba(128,108,244,.07);
+        }
+
+
+        .pretty-search span {
+            margin-right: 7px;
+            color: #a2a7b3;
+            font-size: 14px;
+        }
+
+
+        .pretty-search input {
+            width: 100%;
+            padding: 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #424b5d;
+            font-size: 9px;
+        }
+
+
+
+    /* SELECT */
+
+    .pretty-select-wrap select {
+        width: 100%;
+        min-height: 40px;
+        padding: 0 10px;
+        border: 1px solid #e1e3e9;
+        border-radius: 10px;
+        background: #fbfbfd;
+        color: #515a6c;
+        font-size: 9px;
+        outline: none;
+        cursor: pointer;
+    }
+
+
+        .pretty-select-wrap select:focus {
+            border-color: #b6aaff;
+            box-shadow: 0 0 0 3px rgba(128,108,244,.07);
+        }
+
+
+
+    /* FILTER BUTTONS */
+
+    .apply-filter-btn {
+        width: 100%;
+        min-height: 39px;
+        margin-top: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 13px;
+        border: none;
+        border-radius: 10px;
+        background: #0b1f3a;
+        color: white;
+        font-size: 9px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: background .15s ease, transform .15s ease;
+    }
+
+
+        .apply-filter-btn:hover {
+            background: #17385d;
+            transform: translateY(-1px);
+        }
+
+
+    .reset-filter-btn {
+        width: 100%;
+        min-height: 37px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e1e3e9;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #737b8b;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+
+
+    /* ============================================================
+           QUICK FILTER
+           ============================================================ */
+
+    .quick-filter-card {
+        padding: 15px;
+        background: #ffffff;
+        border: 1px solid #e9e8ed;
+        border-radius: 17px;
+        box-shadow: 0 5px 18px rgba(28,31,44,.035);
+    }
+
+
+    .quick-filter-title {
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        color: #232336;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+
+        .quick-filter-title span {
+            color: #a3a8b2;
+        }
+
+
+    .quick-filter-option {
+        width: 100%;
+        min-height: 38px;
+        margin-top: 6px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: transparent;
+        color: #687182;
+        font-size: 8px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+
+
+        .quick-filter-option:hover {
+            background: #f8f8fb;
+            transform: translateX(2px);
+        }
+
+
+        .quick-filter-option.active {
+            background: #f4f1ff;
+            border-color: #e3dcff;
+            color: #5f4ed2;
+        }
+
+
+    .quick-filter-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+
+    .quick-filter-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+
+        .quick-filter-dot.all {
+            background: #806cf4;
+        }
+
+
+        .quick-filter-dot.active {
+            background: #62ba8b;
+        }
+
+
+        .quick-filter-dot.inactive {
+            background: #adb3be;
+        }
+
+
+    .quick-filter-option strong {
+        min-width: 23px;
+        height: 21px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: #f0f1f4;
+        color: #7d8491;
+        font-size: 7px;
+    }
+
+
+    .quick-filter-option.active strong {
+        background: #ffffff;
+        color: #6551d8;
+    }
+
+
+
+    /* ============================================================
+           BANNER
+           ============================================================ */
+
+    .assessment-banner {
+        min-height: 195px;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 1.15fr .85fr;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        background: linear-gradient( 135deg, #d8f7ed 0%, #e8f8f3 55%, #efeaff 100% );
+        box-shadow: 0 7px 20px rgba(49, 100, 87, .08);
+    }
+
+
+    .banner-copy {
+        position: relative;
+        z-index: 2;
+    }
+
+
+    .banner-star {
+        color: #58ac96;
+        font-size: 15px;
+    }
+
+
+    .banner-copy h3 {
+        max-width: 160px;
+        margin: 8px 0 7px;
+        color: #1d2e31;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+
+    .banner-copy p {
+        max-width: 175px;
+        margin: 0;
+        color: #66817c;
+        font-size: 8px;
+        line-height: 1.5;
+    }
+
+
+    .banner-copy a {
+        min-height: 31px;
+        margin-top: 13px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        background: #55b59d;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 700;
+        transition: transform .16s ease;
+    }
+
+
+        .banner-copy a:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+
+
+    /* ABSTRACT ART */
+
+    .banner-art {
+        position: relative;
+        min-height: 150px;
+    }
+
+
+    .art-sheet {
+        position: absolute;
+        width: 90px;
+        height: 110px;
+        border-radius: 14px;
+        box-shadow: 0 10px 20px rgba(70,74,100,.10);
+    }
+
+
+    .sheet-back {
+        right: 0;
+        top: 15px;
+        background: #8170e9;
+        transform: rotate(10deg);
+    }
+
+
+    .sheet-front {
+        right: 18px;
+        top: 23px;
+        padding: 18px 12px;
+        background: #ffffff;
+        transform: rotate(-7deg);
+    }
+
+
+    .art-line {
+        display: block;
+        width: 47px;
+        height: 5px;
+        margin-bottom: 8px;
+        border-radius: 99px;
+        background: #d8d6e7;
+    }
+
+
+        .art-line.wide {
+            width: 57px;
+            background: #b8ece0;
+        }
+
+
+        .art-line.small {
+            width: 31px;
+            background: #d8d2ff;
+        }
+
+
+    .art-check {
+        position: absolute;
+        right: 10px;
+        bottom: 12px;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f2efff;
+        color: #6854d8;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    .art-circle {
+        position: absolute;
+        width: 45px;
+        height: 45px;
+        left: 0;
+        bottom: 5px;
+        border-radius: 50%;
+        background: rgba(255, 194, 122, .65);
+    }
+
+
+
+    /* ============================================================
+           EMPTY
+           ============================================================ */
+
+    .assessment-empty {
+        min-height: 410px;
+        padding: 45px 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+
+    .empty-illustration {
+        width: 115px;
+        height: 105px;
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+
+    .empty-sheet {
+        width: 65px;
+        height: 82px;
+        position: absolute;
+        left: 25px;
+        top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #f0edff;
+        color: #6d57dc;
+        box-shadow: 0 8px 20px rgba(90,73,171,.10);
+        font-size: 23px;
+        font-weight: 800;
+        transform: rotate(-5deg);
+    }
+
+
+    .empty-dot {
+        position: absolute;
+        border-radius: 50%;
+    }
+
+
+    .dot-one {
+        width: 20px;
+        height: 20px;
+        left: 1px;
+        top: 15px;
+        background: #ccefe6;
+    }
+
+
+    .dot-two {
+        width: 13px;
+        height: 13px;
+        right: 3px;
+        top: 5px;
+        background: #f8cd95;
+    }
+
+
+    .dot-three {
+        width: 16px;
+        height: 16px;
+        right: 0;
+        bottom: 2px;
+        background: #d8d0ff;
+    }
+
+
+    .assessment-empty h3 {
+        margin: 0;
+        color: #232335;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+
+    .assessment-empty p {
+        max-width: 260px;
+        margin: 7px 0 14px;
+        color: #969ca8;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+
+    .empty-create-btn {
+        min-height: 35px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+
+
+    /* ============================================================
+           HIDDEN FILTERED CARDS
+           ============================================================ */
+
+    .assessment-template-card.filtered-out {
+        display: none;
+    }
+
+
+
+    /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+
+    @@media (max-width: 1120px) {
+
+        .assessment-dashboard {
+            grid-template-columns: 1fr;
+        }
+
+
+        .assessment-sidebar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+
+        .assessment-banner {
+            grid-column: 1 / -1;
+        }
+    }
+
+
+    @@media (max-width: 850px) {
+
+        .assessment-overview-stats {
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+
+        .overview-divider {
+            display: none;
+        }
+
+
+        .assessment-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
+    @@media (max-width: 650px) {
+
+        .assessment-page {
+            padding: 12px;
+        }
+
+
+        .overview-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .assessment-overview-stats {
+            grid-template-columns: 1fr;
+        }
+
+
+        .assessment-sidebar {
+            grid-template-columns: 1fr;
+        }
+
+
+        .assessment-banner {
+            grid-column: auto;
+        }
+
+
+        .assessment-tabs {
+            overflow-x: auto;
+        }
+    }
+
+    /* ============================================================
+       BIGGER TEXT FOR ASSESSMENT CARDS
+       ============================================================ */
+
+    .simple-card-title-row h3 {
+        font-size: 16px !important;
+        font-weight: 800;
+    }
+
+
+    .simple-card-title-row p {
+        font-size: 11px !important;
+        line-height: 1.5;
+    }
+
+
+    .simple-status {
+        font-size: 9px !important;
+        padding: 0 9px;
+        height: 24px;
+    }
+
+
+    .simple-info-row {
+        font-size: 11px !important;
+    }
+
+
+    .simple-info-icon {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+        font-size: 10px !important;
+    }
+
+
+    .simple-question-info strong {
+        font-size: 20px !important;
+    }
+
+
+    .simple-question-info span {
+        font-size: 9px !important;
+    }
+
+
+    .simple-view-btn {
+        font-size: 10px !important;
+        min-height: 34px;
+        padding: 0 12px;
+    }
+
+
+    .simple-icon-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 12px !important;
+    }
+
+
+    .simple-card-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 13px !important;
+    }
+
+
+    .simple-card-actions-menu {
+        font-size: 17px !important;
+    }
+
+</style>
+
+
+
+<script>
+
+    (() => {
+
+
+        const cards =
+            Array.from(
+                document.querySelectorAll(
+                    ".assessment-template-card"
+                )
+            );
+
+
+        const topTabs =
+            Array.from(
+                document.querySelectorAll(
+                    ".assessment-tab"
+                )
+            );
+
+
+        const quickFilters =
+            Array.from(
+                document.querySelectorAll(
+                    ".quick-filter-option"
+                )
+            );
+
+
+        function applyStatusFilter(
+            status) {
+
+
+            cards.forEach(
+                card => {
+
+
+                    const cardStatus =
+                        card.dataset.status;
+
+
+                    const visible =
+                        status === "all" ||
+                        cardStatus === status;
+
+
+                    card.classList.toggle(
+                        "filtered-out",
+                        !visible
+                    );
+
+                }
+            );
+
+
+            topTabs.forEach(
+                button => {
+
+
+                    button.classList.toggle(
+                        "active",
+                        button.dataset.status ===
+                            status
+                    );
+
+                }
+            );
+
+
+            quickFilters.forEach(
+                button => {
+
+
+                    button.classList.toggle(
+                        "active",
+                        button.dataset.statusFilter ===
+                            status
+                    );
+
+                }
+            );
+        }
+
+
+        topTabs.forEach(
+            button => {
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+
+                        applyStatusFilter(
+                            this.dataset.status
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        quickFilters.forEach(
+            button => {
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+
+                        applyStatusFilter(
+                            this.dataset.statusFilter
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    })();
+
+</script>

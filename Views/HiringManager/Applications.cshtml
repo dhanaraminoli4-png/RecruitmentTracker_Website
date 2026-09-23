@@ -1,37 +1,1093 @@
 ﻿@model IEnumerable<RecruitmentTracker.Models.JobApplication>
-@{ ViewData["Title"] = "Candidates"; }
 
-<div class="page-heading">
-    <div><div class="section-label">HIRING MANAGER WORKSPACE</div><h1>Candidate review</h1><p>Every candidate forwarded by HR stays visible, including completed decisions.</p></div>
-</div>
-@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
-@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+@{
+    ViewData["Title"] = "Candidate Review";
 
-@if (!Model.Any())
-{
-    <div class="empty-state"><h5>No candidates yet</h5><p>HR-shortlisted candidates will appear here.</p></div>
+    var applications =
+        Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.JobApplication>();
+
+    var jobs =
+        ViewBag.Jobs as
+        List<RecruitmentTracker.Models.JobVacancy>
+        ?? new List<RecruitmentTracker.Models.JobVacancy>();
+
+    int? selectedJobId = ViewBag.SelectedJobId;
+
+    string selectedStatus =
+        ViewBag.SelectedStatus as string ?? "all";
+
+    string selectedJobTitle =
+        ViewBag.SelectedJobTitle as string ?? "All Jobs";
+
+    string selectedJobCode =
+        ViewBag.SelectedJobCode as string ?? "";
+
+    var pendingCount =
+        applications.Count(a =>
+            !a.HiringManagerReviewed);
+
+    var approvedCount =
+        applications.Count(a =>
+            a.HiringManagerReviewed &&
+            a.HiringManagerDecision ==
+            "ApprovedForInterview");
+
+    var rejectedCount =
+        applications.Count(a =>
+            a.HiringManagerReviewed &&
+            a.HiringManagerDecision ==
+            "Rejected");
 }
-else
-{
-    <div class="panel p-3 mb-3"><strong>@Model.Count() candidate@(Model.Count() == 1 ? "" : "s")</strong><span class="text-muted small ms-2">Forwarded applications are never removed automatically.</span></div>
-    <div class="table-wrap"><div class="table-responsive"><table class="table align-middle">
-        <thead><tr><th>Candidate</th><th>Position</th><th>AI Match</th><th>HR Status</th><th>HM Decision</th><th>Review</th></tr></thead>
-        <tbody>
-        @foreach (var application in Model)
-        {
-            <tr>
-                <td><strong>@(application.Candidate?.FullName ?? "Unknown Candidate")</strong><div class="text-muted small">@application.Candidate?.Email</div></td>
-                <td>@application.JobVacancy?.JobTitle</td>
-                <td><strong>@application.AIScore.ToString("0.0")%</strong></td>
-                <td><span class="badge status-shortlisted">Shortlisted</span></td>
-                <td>
-                    @if (!application.HiringManagerReviewed) { <span class="badge status-review">Pending Review</span> }
-                    else if (application.HiringManagerShortlisted) { <span class="badge status-shortlisted">HM Shortlisted</span> }
-                    else { <span class="badge status-not">HM Rejected</span> }
-                </td>
-                <td><a asp-action="Review" asp-route-id="@application.Id" class="btn btn-primary btn-sm">@(application.HiringManagerReviewed ? "View Decision" : "Review")</a></td>
-            </tr>
+
+<style>
+    .hm-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 30px 45px 60px;
+    }
+
+    .hm-wrapper {
+        max-width: 1450px;
+        margin: 0 auto;
+    }
+
+    .hm-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .hm-label {
+        color: #718096;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .hm-header h1 {
+        color: #0b1f3a;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 5px;
+    }
+
+    .hm-header p {
+        color: #718096;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .hm-filter-card {
+        background: white;
+        border: 1px solid #e4e9f0;
+        border-radius: 13px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+    }
+
+    .hm-filter-row {
+        display: flex;
+        align-items: end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .hm-filter-group {
+        min-width: 260px;
+    }
+
+        .hm-filter-group label {
+            display: block;
+            color: #526174;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
-        </tbody>
-    </table></div></div>
-}
+
+    .hm-select {
+        width: 100%;
+        height: 40px;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        background: white;
+        color: #26374d;
+        padding: 0 11px;
+        font-size: 12px;
+    }
+
+    .filter-btn {
+        height: 40px;
+        border: none;
+        border-radius: 8px;
+        background: #0b1f3a;
+        color: white;
+        padding: 0 18px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .clear-btn {
+        display: inline-flex;
+        align-items: center;
+        height: 40px;
+        padding: 0 15px;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        color: #526174;
+        background: white;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .hm-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .hm-stat {
+        background: white;
+        border: 1px solid #e4e9f0;
+        border-radius: 12px;
+        padding: 18px 20px;
+    }
+
+    .hm-stat-label {
+        color: #8a96a6;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        margin-bottom: 8px;
+    }
+
+    .hm-stat-value {
+        color: #0b1f3a;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .hm-table-card {
+        background: white;
+        border: 1px solid #e4e9f0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 5px 22px rgba(11,31,58,.04);
+    }
+
+    .hm-table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 22px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+        .hm-table-header h4 {
+            margin: 0;
+            color: #0b1f3a;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .hm-table-header p {
+            margin: 4px 0 0;
+            color: #8a96a6;
+            font-size: 11px;
+        }
+
+    .hm-count {
+        background: #eef2f7;
+        color: #526174;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .bulk-toolbar {
+        padding: 14px 20px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        background: #fafbfd;
+    }
+
+    .bulk-text {
+        color: #718096;
+        font-size: 11px;
+    }
+
+    .bulk-actions {
+        display: flex;
+        gap: 7px;
+    }
+
+    .bulk-btn {
+        height: 34px;
+        padding: 0 12px;
+        border-radius: 7px;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .select-btn {
+        background: white;
+        border: 1px solid #d8e0ea;
+        color: #526174;
+    }
+
+    .approve-btn {
+        background: #e9f7f1;
+        border: 1px solid #a9d8c2;
+        color: #287a5b;
+    }
+
+    .reject-btn {
+        background: #fbeeee;
+        border: 1px solid #e2b4b8;
+        color: #b64e55;
+    }
+
+    .hm-table {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+        .hm-table thead {
+            background: #0b1f3a;
+        }
+
+        .hm-table th {
+            color: white;
+            padding: 13px 14px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .6px;
+            white-space: nowrap;
+        }
+
+        .hm-table td {
+            padding: 15px 14px;
+            border-bottom: 1px solid #edf0f4;
+            vertical-align: middle;
+            color: #526174;
+            font-size: 12px;
+        }
+
+        .hm-table tbody tr:hover {
+            background: #fafbfd;
+        }
+
+    .select-column {
+        width: 45px;
+        text-align: center;
+    }
+
+    .candidate-checkbox,
+    #selectAllCheckbox {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .candidate-box {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 200px;
+    }
+
+    .candidate-avatar {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        border-radius: 9px;
+        background: #edf2f7;
+        color: #0b1f3a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .candidate-name {
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .candidate-email {
+        margin-top: 2px;
+        color: #9aa6b5;
+        font-size: 10px;
+    }
+
+    .job-name {
+        color: #0b1f3a;
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    .job-code {
+        color: #9aa6b5;
+        font-size: 10px;
+        margin-top: 2px;
+    }
+
+    .score-value {
+        color: #0b1f3a;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    .score-bar {
+        width: 80px;
+        height: 5px;
+        margin-top: 6px;
+        background: #e5eaf0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .score-fill {
+        height: 100%;
+        background: #0b1f3a;
+        border-radius: 10px;
+    }
+
+    .hm-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .badge-pending {
+        background: #fff5e8;
+        color: #a56820;
+    }
+
+    .badge-approved {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .badge-rejected {
+        background: #fbeeee;
+        color: #b64e55;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 9px;
+        border-radius: 7px;
+        border: 1px solid #d8e0ea;
+        background: white;
+        color: #526174;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+        .action-btn:hover {
+            color: white;
+            background: #0b1f3a;
+            border-color: #0b1f3a;
+        }
+
+    .review-btn {
+        color: white;
+        background: #0b1f3a;
+        border-color: #0b1f3a;
+    }
+
+    .hm-empty {
+        padding: 65px 20px;
+        text-align: center;
+    }
+
+        .hm-empty h5 {
+            color: #0b1f3a;
+        }
+
+        .hm-empty p {
+            color: #8a96a6;
+            font-size: 12px;
+        }
+
+    @@media (max-width: 900px) {
+        .hm-page {
+            padding: 25px 20px 50px;
+        }
+
+        .hm-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .bulk-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="hm-page">
+    <div class="hm-wrapper">
+
+        <div class="hm-header">
+            <div>
+                <div class="hm-label">
+                    HIRING MANAGER WORKSPACE
+                </div>
+
+                <h1>Candidate Review</h1>
+
+                <p>
+                    Review candidates forwarded by HR and approve
+                    suitable candidates for interviews.
+                </p>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+
+        <!-- JOB + STATUS FILTER -->
+        <div class="hm-filter-card">
+
+            <form method="get"
+                  asp-controller="HiringManager"
+                  asp-action="Applications">
+
+                <div class="hm-filter-row">
+
+                    <!-- JOB VACANCY -->
+                    <div class="hm-filter-group">
+
+                        <label>JOB VACANCY</label>
+
+                        <select name="jobId"
+                                class="hm-select"
+                                onchange="this.form.submit()">
+
+                            <option value="">
+                                All Job Vacancies
+                            </option>
+
+                            @foreach (var job in jobs)
+                            {
+                                if (selectedJobId == job.Id)
+                                {
+                                    <option value="@job.Id" selected>
+                                        @job.JobTitle
+                                        @if (!string.IsNullOrWhiteSpace(job.JobCode))
+                                        {
+                                            <text> - @job.JobCode</text>
+                                        }
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@job.Id">
+                                        @job.JobTitle
+                                        @if (!string.IsNullOrWhiteSpace(job.JobCode))
+                                        {
+                                            <text> - @job.JobCode</text>
+                                        }
+                                    </option>
+                                }
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- HM DECISION -->
+                    <div class="hm-filter-group">
+
+                        <label>HM DECISION</label>
+
+                        <select name="status"
+                                class="hm-select">
+
+                            @if (selectedStatus == "all")
+                            {
+                                <option value="all" selected>
+                                    All Candidates
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="all">
+                                    All Candidates
+                                </option>
+                            }
+
+                            @if (selectedStatus == "pending")
+                            {
+                                <option value="pending" selected>
+                                    Pending Review
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="pending">
+                                    Pending Review
+                                </option>
+                            }
+
+                            @if (selectedStatus == "approved")
+                            {
+                                <option value="approved" selected>
+                                    Approved for Interview
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="approved">
+                                    Approved for Interview
+                                </option>
+                            }
+
+                            @if (selectedStatus == "rejected")
+                            {
+                                <option value="rejected" selected>
+                                    Rejected
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="rejected">
+                                    Rejected
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="filter-btn">
+                        Apply Filter
+                    </button>
+
+
+                    <a asp-controller="HiringManager"
+                       asp-action="Applications"
+                       class="clear-btn">
+                        Clear
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- STATS -->
+        <div class="hm-stats">
+
+            <div class="hm-stat">
+                <div class="hm-stat-label">
+                    CURRENT RESULTS
+                </div>
+
+                <div class="hm-stat-value">
+                    @applications.Count
+                </div>
+            </div>
+
+            <div class="hm-stat">
+                <div class="hm-stat-label">
+                    PENDING REVIEW
+                </div>
+
+                <div class="hm-stat-value">
+                    @pendingCount
+                </div>
+            </div>
+
+            <div class="hm-stat">
+                <div class="hm-stat-label">
+                    APPROVED FOR INTERVIEW
+                </div>
+
+                <div class="hm-stat-value">
+                    @approvedCount
+                </div>
+            </div>
+
+            <div class="hm-stat">
+                <div class="hm-stat-label">
+                    REJECTED
+                </div>
+
+                <div class="hm-stat-value">
+                    @rejectedCount
+                </div>
+            </div>
+
+        </div>
+
+        <div class="hm-table-card">
+
+            <div class="hm-table-header">
+
+                <div>
+                    <h4>Candidate Queue</h4>
+
+                    <p>
+                        Select a job before using bulk
+                        approval or rejection.
+                    </p>
+                </div>
+
+                <span class="hm-count">
+                    @applications.Count candidate@(applications.Count == 1 ? "" : "s")
+                </span>
+
+            </div>
+
+            @if (!applications.Any())
+            {
+                <div class="hm-empty">
+
+                    <h5>No candidates found</h5>
+
+                    <p>
+                        No forwarded candidates match
+                        the selected filters.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <form method="post"
+                      id="bulkCandidateForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="jobId"
+                           value="@selectedJobId" />
+
+                    @if (selectedJobId.HasValue)
+                    {
+                        <div class="bulk-toolbar">
+
+                            <div class="bulk-text"
+                                 id="selectionText">
+                                Select candidates from this job
+                                to approve or reject.
+                            </div>
+
+                            <div class="bulk-actions">
+
+                                <button type="button"
+                                        id="selectAllBtn"
+                                        class="bulk-btn select-btn">
+                                    Select All
+                                </button>
+
+                                <button type="submit"
+                                        formaction="@Url.Action("BulkApprove", "HiringManager")"
+                                        class="bulk-btn approve-btn">
+                                    Approve Selected
+                                </button>
+
+                                <button type="submit"
+                                        formaction="@Url.Action("BulkReject", "HiringManager")"
+                                        class="bulk-btn reject-btn">
+                                    Reject Selected
+                                </button>
+
+                            </div>
+
+                        </div>
+                    }
+
+                    <div class="table-responsive">
+
+                        <table class="hm-table">
+
+                            <thead>
+                                <tr>
+
+                                    @if (selectedJobId.HasValue)
+                                    {
+                                        <th class="select-column">
+                                            <input type="checkbox"
+                                                   id="selectAllCheckbox" />
+                                        </th>
+                                    }
+
+                                    <th>CANDIDATE</th>
+                                    <th>POSITION</th>
+                                    <th>AI MATCH</th>
+                                    <th>HM DECISION</th>
+                                    <th>ACTIONS</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var application in applications)
+                                {
+                                    var candidateName =
+                                    application.Candidate?.FullName
+                                    ?? "Unknown Candidate";
+
+                                    var candidateEmail =
+                                    application.Candidate?.Email
+                                    ?? "-";
+
+                                    var firstLetter =
+                                    !string.IsNullOrWhiteSpace(candidateName)
+                                    ? candidateName.Substring(0, 1).ToUpper()
+                                    : "?";
+
+                                    <tr>
+
+                                        @if (selectedJobId.HasValue)
+                                        {
+                                            <td class="select-column">
+
+                                                <input type="checkbox"
+                                                       class="candidate-checkbox"
+                                                       name="selectedIds"
+                                                       value="@application.Id" />
+
+                                            </td>
+                                        }
+
+                                    <td>
+                                        <div class="candidate-box">
+
+                                            <div class="candidate-avatar">
+                                                @firstLetter
+                                            </div>
+
+                                            <div>
+                                                <div class="candidate-name">
+                                                    @candidateName
+                                                </div>
+
+                                                <div class="candidate-email">
+                                                    @candidateEmail
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="job-name">
+                                            @(application.JobVacancy?.JobTitle
+                                                                                    ?? "Unknown Position")
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                        application.JobVacancy?.JobCode))
+                                            {
+                                                <div class="job-code">
+                                                    @application.JobVacancy.JobCode
+                                                </div>
+                                            }
+                                        </td>
+
+                                        <td>
+
+                                            <div class="score-value">
+                                                @application.AIScore.ToString("0.0")%
+                                            </div>
+
+                                            <div class="score-bar">
+
+                                                <div class="score-fill"
+                                                     style="width:@Math.Min(application.AIScore, 100)%">
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+                                        <td>
+
+                                            @if (!application.HiringManagerReviewed)
+                                            {
+                                                <span class="hm-badge badge-pending">
+                                                    Pending Review
+                                                </span>
+                                            }
+                                            else if (
+                                            application.HiringManagerDecision ==
+                                            "ApprovedForInterview")
+                                            {
+                                                <span class="hm-badge badge-approved">
+                                                    Approved for Interview
+                                                </span>
+                                            }
+                                            else if (
+                                            application.HiringManagerDecision ==
+                                            "Rejected")
+                                            {
+                                                <span class="hm-badge badge-rejected">
+                                                    Rejected
+                                                </span>
+                                            }
+
+                                        </td>
+
+                                        <td>
+
+                                            <div class="action-buttons">
+
+                                                <a asp-controller="HiringManager"
+                                                   asp-action="Review"
+                                                   asp-route-id="@application.Id"
+                                                   class="action-btn review-btn">
+                                                    Review
+                                                </a>
+
+                                                <a asp-controller="HiringManager"
+                                                   asp-action="AIAnalysis"
+                                                   asp-route-id="@application.Id"
+                                                   class="action-btn">
+                                                    AI Analysis
+                                                </a>
+
+                                                @if (!string.IsNullOrWhiteSpace(
+                                                                                        application.CVFilePath))
+                                                {
+                                                    <a asp-controller="HiringManager"
+                                                       asp-action="ViewCV"
+                                                       asp-route-id="@application.Id"
+                                                       target="_blank"
+                                                       class="action-btn">
+                                                        CV
+                                                    </a>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(
+                                                                                        application.CoverLetterFilePath))
+                                                {
+                                                    <a asp-controller="HiringManager"
+                                                       asp-action="ViewCoverLetter"
+                                                       asp-route-id="@application.Id"
+                                                       target="_blank"
+                                                       class="action-btn">
+                                                        Cover Letter
+                                                    </a>
+                                                }
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </form>
+            }
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const form =
+            document.getElementById("bulkCandidateForm");
+
+        if (!form) {
+            return;
+        }
+
+        const checkboxes =
+            Array.from(
+                document.querySelectorAll(
+                    ".candidate-checkbox"
+                )
+            );
+
+        const selectAll =
+            document.getElementById(
+                "selectAllCheckbox"
+            );
+
+        const selectAllBtn =
+            document.getElementById(
+                "selectAllBtn"
+            );
+
+        const selectionText =
+            document.getElementById(
+                "selectionText"
+            );
+
+        function updateSelection() {
+
+            const selected =
+                checkboxes.filter(x => x.checked);
+
+            if (selectionText) {
+                selectionText.textContent =
+                    selected.length === 0
+                    ? "Select candidates from this job to approve or reject."
+                    : selected.length +
+                      " candidate(s) selected.";
+            }
+
+            if (selectAll) {
+                selectAll.checked =
+                    checkboxes.length > 0 &&
+                    selected.length ===
+                    checkboxes.length;
+            }
+        }
+
+        checkboxes.forEach(x => {
+            x.addEventListener(
+                "change",
+                updateSelection
+            );
+        });
+
+        if (selectAll) {
+            selectAll.addEventListener(
+                "change",
+                function () {
+
+                    checkboxes.forEach(x =>
+                        x.checked =
+                            selectAll.checked);
+
+                    updateSelection();
+                }
+            );
+        }
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener(
+                "click",
+                function () {
+
+                    const shouldSelect =
+                        checkboxes.some(
+                            x => !x.checked
+                        );
+
+                    checkboxes.forEach(
+                        x => x.checked =
+                            shouldSelect
+                    );
+
+                    selectAllBtn.textContent =
+                        shouldSelect
+                        ? "Clear All"
+                        : "Select All";
+
+                    updateSelection();
+                }
+            );
+        }
+
+        form.addEventListener(
+            "submit",
+            function (event) {
+
+                const selected =
+                    checkboxes.filter(
+                        x => x.checked
+                    );
+
+                if (selected.length === 0) {
+
+                    event.preventDefault();
+
+                    alert(
+                        "Please select at least one candidate."
+                    );
+
+                    return;
+                }
+
+                const submitter =
+                    event.submitter;
+
+                if (submitter &&
+                    submitter.formAction
+                        .toLowerCase()
+                        .includes("bulkreject")) {
+
+                    if (!confirm(
+                        "Reject " +
+                        selected.length +
+                        " selected candidate(s)?"
+                    )) {
+                        event.preventDefault();
+                    }
+                }
+                else {
+
+                    if (!confirm(
+                        "Approve " +
+                        selected.length +
+                        " selected candidate(s) for interview?"
+                    )) {
+                        event.preventDefault();
+                    }
+                }
+            }
+        );
+
+        updateSelection();
+    });
+</script>

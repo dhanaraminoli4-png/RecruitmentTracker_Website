@@ -1,0 +1,1987 @@
+﻿@model RecruitmentTracker.Models.InterviewRoundManagementViewModel
+
+@{
+    ViewData["Title"] = "Interview Rounds";
+
+    var isEditing = Model.IsEditing;
+
+    var selectedJob = Model.JobId.HasValue
+        ? Model.Jobs.FirstOrDefault(j => j.Id == Model.JobId.Value)
+        : null;
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .round-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 88px);
+        padding: 30px 48px 60px;
+        color: #0b1f3a;
+    }
+
+    .round-container {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           TITLE
+           ========================================================= */
+
+    .round-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 25px;
+        margin-bottom: 22px;
+    }
+
+    .round-eyebrow {
+        color: #71819a;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .round-title h1 {
+        margin: 0;
+        color: #081d36;
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .round-title p {
+        margin: 6px 0 0;
+        color: #687991;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+           PRIMARY BUTTON
+           ========================================================= */
+
+    .round-add-btn {
+        min-height: 46px;
+        padding: 0 21px;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        border: 1px solid #111;
+        border-radius: 10px;
+        background: #111;
+        color: white;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+        .round-add-btn:hover {
+            background: #292929;
+        }
+
+        .round-add-btn span {
+            font-size: 21px;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+
+    /* =========================================================
+           ALERTS
+           ========================================================= */
+
+    .round-alert {
+        padding: 13px 16px;
+        margin-bottom: 18px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+        .round-alert.success {
+            background: #eaf8f0;
+            border: 1px solid #bde7ce;
+            color: #20704a;
+        }
+
+        .round-alert.error {
+            background: #fff0f1;
+            border: 1px solid #f0c8cd;
+            color: #a53a48;
+        }
+
+
+    /* =========================================================
+           FILTER CARD
+           ========================================================= */
+
+    .round-filter-card {
+        background: white;
+        border: 1px solid #dde3ea;
+        border-radius: 15px;
+        box-shadow: 0 4px 14px rgba(8, 29, 54, .035);
+        overflow: visible;
+        margin-bottom: 20px;
+    }
+
+    .round-filter-top {
+        min-height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 16px;
+        border-bottom: 1px solid #e5e9ef;
+    }
+
+    .round-filter-left {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+    }
+
+
+    /* SEARCH */
+
+    .round-search-box {
+        width: 320px;
+        min-height: 47px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 14px;
+        background: white;
+        border: 1px solid #d5dce5;
+        border-radius: 10px;
+    }
+
+        .round-search-box:focus-within {
+            border-color: #7868ef;
+            box-shadow: 0 0 0 3px rgba(120, 104, 239, .10);
+        }
+
+        .round-search-box svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: #8793a4;
+            stroke-width: 1.8;
+        }
+
+        .round-search-box input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: #172033;
+            font-size: 13px;
+        }
+
+            .round-search-box input::placeholder {
+                color: #98a3b1;
+            }
+
+
+    /* =========================================================
+           CUSTOM JOB SELECT
+           ========================================================= */
+
+    .round-job-select {
+        position: relative;
+        width: 260px;
+    }
+
+    .round-job-button {
+        width: 100%;
+        min-height: 47px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 0 14px;
+        border: 1px solid #d5dce5;
+        border-radius: 10px;
+        background: white;
+        color: #172033;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+        .round-job-button svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: #758296;
+            stroke-width: 2;
+        }
+
+    .round-job-dropdown {
+        display: none;
+        position: absolute;
+        z-index: 80;
+        top: calc(100% + 7px);
+        left: 0;
+        width: 480px;
+        max-width: 80vw;
+        padding: 8px;
+        background: white;
+        border: 1px solid #d8dee7;
+        border-radius: 11px;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, .16);
+    }
+
+        .round-job-dropdown.open {
+            display: block;
+        }
+
+    .round-job-dropdown-search {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 13px;
+        border: 1px solid #d5dce5;
+        border-radius: 9px;
+        outline: none;
+        font-size: 13px;
+        margin-bottom: 7px;
+    }
+
+    .round-job-options {
+        max-height: 350px;
+        overflow-y: auto;
+    }
+
+    .round-job-option {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 11px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #172033;
+        text-align: left;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+        .round-job-option:hover,
+        .round-job-option.selected {
+            background: #f2f3f6;
+        }
+
+    .round-job-check {
+        width: 19px;
+        flex: 0 0 19px;
+        font-weight: 900;
+    }
+
+
+    /* FILTER BUTTON */
+
+    .round-filter-btn {
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+        border: 1px solid #d6dce4;
+        border-radius: 10px;
+        background: white;
+        color: #162337;
+        font-size: 12px;
+        font-weight: 750;
+        text-decoration: none;
+    }
+
+        .round-filter-btn:hover {
+            background: #f6f7f9;
+            color: #081d36;
+        }
+
+
+    /* =========================================================
+           STATUS TABS
+           ========================================================= */
+
+    .round-tabs {
+        min-height: 55px;
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 0 15px;
+    }
+
+    .round-tab {
+        min-height: 55px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 14px;
+        border-bottom: 2px solid transparent;
+        color: #687991;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .round-tab:hover {
+            color: #081d36;
+        }
+
+        .round-tab.active {
+            color: #081d36;
+            border-bottom-color: #765eee;
+        }
+
+    .round-tab-icon {
+        font-size: 15px;
+    }
+
+    .round-count {
+        min-width: 27px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 7px;
+        border-radius: 999px;
+        background: #eef1f5;
+        color: #617188;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .round-tab.active .round-count {
+        background: #ece8ff;
+        color: #6f5ce7;
+    }
+
+
+    /* =========================================================
+           TABLE
+           ========================================================= */
+
+    .round-table-card {
+        background: white;
+        border: 1px solid #dde3ea;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(8, 29, 54, .035);
+    }
+
+    .round-table-header,
+    .round-row {
+        display: grid;
+        grid-template-columns: 55px 1.4fr 110px 1.05fr 1.6fr 105px 135px 165px;
+        align-items: center;
+    }
+
+    .round-table-header {
+        min-height: 58px;
+        padding: 0 18px;
+        background: #f1f3f6;
+        border-bottom: 1px solid #dde3ea;
+        color: #617188;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .45px;
+    }
+
+    .round-row {
+        min-height: 94px;
+        padding: 15px 18px;
+        border-bottom: 1px solid #e5e9ef;
+        color: #172033;
+        font-size: 12px;
+    }
+
+        .round-row:last-child {
+            border-bottom: none;
+        }
+
+        .round-row:hover {
+            background: #fafbfc;
+        }
+
+
+    /* JOB */
+
+    .round-job strong {
+        display: block;
+        color: #101828;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .round-job span {
+        display: block;
+        margin-top: 4px;
+        color: #75849a;
+        font-size: 10px;
+    }
+
+
+    /* SEQUENCE */
+
+    .sequence-badge {
+        width: 31px;
+        height: 31px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f0efff;
+        border: 1px solid #cfc9ff;
+        color: #6653e7;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    /* NAME */
+
+    .round-name {
+        color: #101828;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+
+    /* DESCRIPTION */
+
+    .round-description {
+        color: #64748b;
+        line-height: 1.5;
+        padding-right: 15px;
+    }
+
+
+    /* STATUS */
+
+    .round-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+        .round-status.active {
+            background: #eaf8f0;
+            border: 1px solid #bce8ce;
+            color: #187548;
+        }
+
+        .round-status.inactive {
+            background: #f1f3f5;
+            border: 1px solid #dce1e7;
+            color: #697386;
+        }
+
+
+    /* DATE */
+
+    .round-date {
+        color: #64748b;
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+           ACTIONS
+           ========================================================= */
+
+    .round-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .round-actions form {
+            margin: 0;
+        }
+
+    .round-action {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #68758a;
+        cursor: pointer;
+        transition: .15s ease;
+    }
+
+        .round-action svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .round-action:hover {
+            background: #eef1f5;
+            color: #081d36;
+        }
+
+        .round-action.delete:hover {
+            background: #ffedef;
+            color: #bd4050;
+        }
+
+
+    /* =========================================================
+           EMPTY
+           ========================================================= */
+
+    .round-empty {
+        padding: 80px 25px;
+        text-align: center;
+        color: #75849a;
+    }
+
+        .round-empty strong {
+            display: block;
+            color: #172033;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+
+    /* =========================================================
+           MODAL
+           ========================================================= */
+
+    .round-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(13, 22, 36, .42);
+        backdrop-filter: blur(1px);
+        padding: 30px 15px;
+        overflow-y: auto;
+    }
+
+        .round-modal-backdrop.open {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    .round-modal {
+        width: 560px;
+        max-width: 100%;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 24px 70px rgba(15, 23, 42, .23);
+        overflow: hidden;
+        animation: roundModalEnter .18s ease;
+    }
+
+    @@keyframes roundModalEnter {
+
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(.985);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .round-modal-header {
+        min-height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+        border-bottom: 1px solid #e5e9ef;
+    }
+
+        .round-modal-header h2 {
+            margin: 0;
+            color: #101828;
+            font-size: 21px;
+            font-weight: 850;
+            letter-spacing: -.5px;
+        }
+
+    .round-modal-close {
+        width: 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #5f6b7c;
+        font-size: 23px;
+        cursor: pointer;
+    }
+
+        .round-modal-close:hover {
+            background: #f1f3f6;
+        }
+
+    .round-modal-body {
+        padding: 26px 30px 12px;
+    }
+
+    .round-field {
+        margin-bottom: 20px;
+    }
+
+    .round-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #172033;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .round-required {
+        color: #d94353;
+    }
+
+    .round-control {
+        width: 100%;
+        min-height: 48px;
+        padding: 11px 14px !important;
+        border: 1px solid #d5dce5 !important;
+        border-radius: 10px !important;
+        background: white !important;
+        color: #172033 !important;
+        font-size: 13px !important;
+        box-shadow: none !important;
+    }
+
+        .round-control:focus {
+            border-color: #7868ef !important;
+            box-shadow: 0 0 0 3px rgba(120, 104, 239, .10) !important;
+        }
+
+    textarea.round-control {
+        min-height: 105px;
+        resize: vertical;
+    }
+
+    .round-modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 9px;
+        padding: 18px 30px 24px;
+        border-top: 1px solid #e5e9ef;
+    }
+
+    .round-cancel {
+        min-height: 44px;
+        padding: 0 18px;
+        border: 1px solid #d5dce5;
+        border-radius: 10px;
+        background: white;
+        color: #172033;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .round-save {
+        min-height: 44px;
+        padding: 0 22px;
+        border: 1px solid #111;
+        border-radius: 10px;
+        background: #111;
+        color: white;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+
+    /* =========================================================
+           VIEW MODAL
+           ========================================================= */
+
+    .round-view-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .round-view-item {
+        padding-bottom: 14px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+        .round-view-item:last-child {
+            border-bottom: 0;
+        }
+
+        .round-view-item span {
+            display: block;
+            color: #8390a1;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 5px;
+        }
+
+        .round-view-item strong {
+            color: #172033;
+            font-size: 13px;
+        }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .round-page {
+            padding: 28px 24px 50px;
+        }
+
+        .round-table-card {
+            overflow-x: auto;
+        }
+
+        .round-table-header,
+        .round-row {
+            min-width: 1180px;
+        }
+    }
+
+    @@media (max-width: 750px) {
+
+        .round-page {
+            padding: 22px 15px 45px;
+        }
+
+        .round-title-row {
+            flex-direction: column;
+        }
+
+        .round-add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .round-filter-top {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .round-filter-left {
+            flex-direction: column;
+        }
+
+        .round-search-box,
+        .round-job-select {
+            width: 100%;
+        }
+
+        .round-filter-btn {
+            justify-content: center;
+        }
+
+        .round-tabs {
+            overflow-x: auto;
+        }
+    }
+
+</style>
+
+
+<div class="round-page">
+
+    <div class="round-container">
+
+
+        <!-- =====================================================
+             TITLE
+             ===================================================== -->
+
+        <div class="round-title-row">
+
+            <div class="round-title">
+
+                <div class="round-eyebrow">
+                    HR WORKSPACE · INTERVIEW SETUP
+                </div>
+
+                <h1>
+                    Interview Rounds
+                </h1>
+
+                <p>
+                    Manage interview rounds and stages in your hiring pipeline.
+                </p>
+
+            </div>
+
+
+            <button type="button"
+                    class="round-add-btn"
+                    onclick="openRoundModal()">
+
+                <span>+</span>
+
+                Add Interview Round
+
+            </button>
+
+        </div>
+
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="round-alert success">
+                @TempData["Success"]
+            </div>
+        }
+
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="round-alert error">
+                @TempData["Error"]
+            </div>
+        }
+
+
+        <!-- =====================================================
+             FILTERS
+             ===================================================== -->
+
+        <div class="round-filter-card">
+
+
+            <form asp-controller="InterviewRound"
+                  asp-action="Index"
+                  method="get"
+                  id="roundFilterForm">
+
+                <input type="hidden"
+                       name="jobId"
+                       id="roundJobId"
+                       value="@Model.JobId" />
+
+
+                <input type="hidden"
+                       name="status"
+                       value="@Model.Status" />
+
+
+                <div class="round-filter-top">
+
+
+                    <div class="round-filter-left">
+
+
+                        <!-- SEARCH -->
+
+                        <div class="round-search-box">
+
+                            <svg viewBox="0 0 24 24">
+
+                                <circle cx="11"
+                                        cy="11"
+                                        r="7">
+                                </circle>
+
+                                <path d="m20 20-3.5-3.5">
+                                </path>
+
+                            </svg>
+
+
+                            <input type="text"
+                                   name="search"
+                                   value="@Model.Search"
+                                   placeholder="Search..."
+                                   onkeydown="
+                                        if(event.key === 'Enter')
+                                        {
+                                            this.form.submit();
+                                        }
+                                   " />
+
+                        </div>
+
+
+                        <!-- JOB DROPDOWN -->
+
+                        <div class="round-job-select">
+
+
+                            <button type="button"
+                                    class="round-job-button"
+                                    onclick="toggleJobDropdown(event)">
+
+                                <span id="selectedJobText">
+
+                                    @(selectedJob == null
+                                                                        ? "All Jobs"
+                                                                        : selectedJob.JobTitle)
+
+                                </span>
+
+
+                                <svg viewBox="0 0 24 24">
+
+                                    <path d="m7 10 5 5 5-5">
+                                    </path>
+
+                                </svg>
+
+                            </button>
+
+
+                            <div class="round-job-dropdown"
+                                 id="roundJobDropdown">
+
+
+                                <input type="text"
+                                       id="roundJobSearch"
+                                       class="round-job-dropdown-search"
+                                       placeholder="Search jobs..."
+                                       onkeyup="filterJobs()" />
+
+
+                                <div class="round-job-options">
+
+
+                                    <button type="button"
+                                            class="round-job-option @(Model.JobId == null ? "selected" : "")"
+                                            data-job-name="all jobs"
+                                            onclick="selectJob('', 'All Jobs')">
+
+                                        <span class="round-job-check">
+
+                                            @(Model.JobId == null
+                                                                                        ? "✓"
+                                                                                        : "")
+
+                                        </span>
+
+                                        All Jobs
+
+                                    </button>
+
+
+                                    @foreach (var job in Model.Jobs)
+                                    {
+                                        <button type="button"
+                                                class="round-job-option @(Model.JobId == job.Id ? "selected" : "")"
+                                                data-job-name="@job.JobTitle.ToLower()"
+                                                onclick="selectJob('@job.Id', '@Html.Raw(job.JobTitle.Replace("'", "\\'"))')">
+
+                                            <span class="round-job-check">
+
+                                                @(Model.JobId == job.Id
+                                                                                            ? "✓"
+                                                                                            : "")
+
+                                        </span>
+
+
+                                            JOB-@job.Id.ToString("D5")
+                                            -
+                                            @job.JobTitle
+
+                                        </button>
+                                                                        }
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <a asp-controller="InterviewRound"
+                       asp-action="Index"
+                       class="round-filter-btn">
+
+                        Clear Filters
+
+                    </a>
+
+                </div>
+
+            </form>
+
+
+            <!-- TABS -->
+
+            <div class="round-tabs">
+
+
+                <a asp-controller="InterviewRound"
+                   asp-action="Index"
+                   asp-route-search="@Model.Search"
+                   asp-route-jobId="@Model.JobId"
+                   asp-route-status="all"
+                   class="round-tab @(Model.Status == "all" ? "active" : "")">
+
+                    <span class="round-tab-icon">
+                        ▦
+                    </span>
+
+                    All
+
+                    <span class="round-count">
+                        @Model.TotalCount
+                    </span>
+
+                </a>
+
+
+                <a asp-controller="InterviewRound"
+                   asp-action="Index"
+                   asp-route-search="@Model.Search"
+                   asp-route-jobId="@Model.JobId"
+                   asp-route-status="active"
+                   class="round-tab @(Model.Status == "active" ? "active" : "")">
+
+                    <span class="round-tab-icon">
+                        ◉
+                    </span>
+
+                    Active
+
+                    <span class="round-count">
+                        @Model.ActiveCount
+                    </span>
+
+                </a>
+
+
+                <a asp-controller="InterviewRound"
+                   asp-action="Index"
+                   asp-route-search="@Model.Search"
+                   asp-route-jobId="@Model.JobId"
+                   asp-route-status="inactive"
+                   class="round-tab @(Model.Status == "inactive" ? "active" : "")">
+
+                    <span class="round-tab-icon">
+                        ⊗
+                    </span>
+
+                    Inactive
+
+                    <span class="round-count">
+                        @Model.InactiveCount
+                    </span>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             TABLE
+             ===================================================== -->
+
+        <div class="round-table-card">
+
+
+            <div class="round-table-header">
+
+                <div>#</div>
+                <div>Job</div>
+                <div>Sequence</div>
+                <div>Name</div>
+                <div>Description</div>
+                <div>Status</div>
+                <div>Created At</div>
+                <div>Actions</div>
+
+            </div>
+
+
+            @if (!Model.InterviewRounds.Any())
+            {
+                <div class="round-empty">
+
+                    <strong>
+                        No interview rounds found
+                    </strong>
+
+                    Add an interview round to begin building your hiring process.
+
+                </div>
+            }
+            else
+            {
+                var row = 1;
+
+                foreach (var item in Model.InterviewRounds)
+                {
+
+                    <div class="round-row">
+
+
+                        <div>
+                            @row
+                        </div>
+
+
+                        <!-- JOB -->
+
+                        <div class="round-job">
+
+                            <strong>
+                                @item.JobVacancy?.JobTitle
+                            </strong>
+
+                            <span>
+                                JOB-@item.JobVacancyId.ToString("D5")
+                            </span>
+
+                        </div>
+
+
+                        <!-- SEQUENCE -->
+
+                        <div>
+
+                            <span class="sequence-badge">
+                                @item.SequenceNumber
+                            </span>
+
+                        </div>
+
+
+                        <!-- NAME -->
+
+                        <div class="round-name">
+                            @item.Name
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="round-description">
+
+                            @(string.IsNullOrWhiteSpace(item.Description)
+                                                ? "No description"
+                                                : item.Description)
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div>
+
+                            <span class="round-status @(item.IsActive ? "active" : "inactive")">
+
+                                @(item.IsActive
+                                                        ? "Active"
+                                                        : "Inactive")
+
+                    </span>
+
+                                    </div>
+
+
+                                    <!-- DATE -->
+
+                                    <div class="round-date">
+
+                                        @item.CreatedDate.ToString("dd MMM yyyy")
+
+                                    </div>
+
+
+                                    <!-- ACTIONS -->
+
+                                    <div class="round-actions">
+
+
+                                        <!-- VIEW -->
+
+                                        <button type="button"
+                                                class="round-action"
+                                                title="View"
+                                                onclick="showRoundDetails(
+                                                            '@Html.Raw(item.JobVacancy?.JobTitle?.Replace("'", "\\'"))',
+                                                            '@Html.Raw(item.Name.Replace("'", "\\'"))',
+                                                            '@item.SequenceNumber',
+                                                            '@Html.Raw((item.Description ?? "No description").Replace("'", "\\'").Replace("\r", " ").Replace("\n", " "))',
+                                                            '@(item.IsActive ? "Active" : "Inactive")'
+                                                        )">
+
+                                            <svg viewBox="0 0 24 24">
+
+                                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z">
+                                                </path>
+
+                                                <circle cx="12"
+                                                        cy="12"
+                                                        r="2.5">
+                                                </circle>
+
+                                            </svg>
+
+                                        </button>
+
+
+                                        <!-- EDIT -->
+
+                                        <a asp-controller="InterviewRound"
+                                           asp-action="Index"
+                                           asp-route-search="@Model.Search"
+                                           asp-route-jobId="@Model.JobId"
+                                           asp-route-status="@Model.Status"
+                                           asp-route-editId="@item.Id"
+                                           class="round-action"
+                                           title="Edit">
+
+                                            <svg viewBox="0 0 24 24">
+
+                                                <path d="M4 20h4l11-11-4-4L4 16v4Z">
+                                                </path>
+
+                                                <path d="m13.5 6.5 4 4">
+                                                </path>
+
+                                            </svg>
+
+                                        </a>
+
+
+                                        <!-- LOCK / ACTIVE -->
+
+                                        <form asp-controller="InterviewRound"
+                                              asp-action="ToggleStatus"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.Id" />
+
+
+                                            <button type="submit"
+                                                    class="round-action"
+                                                    title="@(item.IsActive ? "Deactivate" : "Activate")">
+
+                                                <svg viewBox="0 0 24 24">
+
+                                                    <rect x="5"
+                                                          y="10"
+                                                          width="14"
+                                                          height="10"
+                                                          rx="2">
+                                                    </rect>
+
+                                                    <path d="M8 10V7a4 4 0 0 1 8 0v3">
+                                                    </path>
+
+                                                </svg>
+
+                                            </button>
+
+                                        </form>
+
+
+                                        <!-- DELETE -->
+
+                                        <form asp-controller="InterviewRound"
+                                              asp-action="Delete"
+                                              method="post"
+                                              onsubmit="
+                                                        return confirm(
+                                                        'Are you sure you want to delete this interview round?'
+                                                        );
+                                                      ">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.Id" />
+
+
+                                            <button type="submit"
+                                                    class="round-action delete"
+                                                    title="Delete">
+
+                                                <svg viewBox="0 0 24 24">
+
+                                                    <path d="M4 7h16">
+                                                    </path>
+
+                                                    <path d="M9 7V4h6v3">
+                                                    </path>
+
+                                                    <path d="M7 7l1 13h8l1-13">
+                                                    </path>
+
+                                                </svg>
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                                row++;
+                }
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     ADD / EDIT MODAL
+     ============================================================= -->
+
+<div class="round-modal-backdrop"
+     id="roundModalBackdrop">
+
+    <div class="round-modal">
+
+
+        <div class="round-modal-header">
+
+            <h2>
+
+                @(isEditing
+                                ? "Edit Interview Round"
+                                : "Add New Interview Round")
+
+            </h2>
+
+
+            <button type="button"
+                    class="round-modal-close"
+                    onclick="closeRoundModal()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <form asp-controller="InterviewRound"
+              asp-action="@(isEditing ? "Update" : "Create")"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+
+            <input asp-for="Form.Id"
+                   type="hidden" />
+
+
+            <div class="round-modal-body">
+
+
+                <!-- JOB -->
+
+                <div class="round-field">
+
+                    <label asp-for="Form.JobVacancyId"
+                           class="round-label">
+
+                        Job
+
+                        <span class="round-required">*</span>
+
+                    </label>
+
+
+                    <select asp-for="Form.JobVacancyId"
+                            class="form-select round-control"
+                            required>
+
+                        <option value="">
+                            Select Job Posting
+                        </option>
+
+
+                        @foreach (var job in Model.Jobs)
+                        {
+                            <option value="@job.Id">
+                                @job.JobCode — @job.JobTitle
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- NAME -->
+
+                <div class="round-field">
+
+                    <label asp-for="Form.Name"
+                           class="round-label">
+
+                        Name
+
+                        <span class="round-required">*</span>
+
+                    </label>
+
+
+                    <input asp-for="Form.Name"
+                           class="form-control round-control"
+                           placeholder="e.g. Technical Interview"
+                           maxlength="100"
+                           required />
+
+                </div>
+
+
+                <!-- SEQUENCE -->
+
+                <div class="round-field">
+
+                    <label asp-for="Form.SequenceNumber"
+                           class="round-label">
+
+                        Sequence Number
+
+                        <span class="round-required">*</span>
+
+                    </label>
+
+
+                    <input asp-for="Form.SequenceNumber"
+                           class="form-control round-control"
+                           type="number"
+                           min="1"
+                           max="20"
+                           placeholder="e.g. 1"
+                           required />
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="round-field">
+
+                    <label asp-for="Form.Description"
+                           class="round-label">
+
+                        Description
+
+                    </label>
+
+
+                    <textarea asp-for="Form.Description"
+                              class="form-control round-control"
+                              maxlength="500"
+                              placeholder="e.g. Technical assessment to evaluate coding skills..."></textarea>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="round-field">
+
+                    <label asp-for="Form.IsActive"
+                           class="round-label">
+
+                        Status
+
+                        <span class="round-required">*</span>
+
+                    </label>
+
+
+                    <select asp-for="Form.IsActive"
+                            class="form-select round-control">
+
+                        <option value="true">
+                            Active
+                        </option>
+
+                        <option value="false">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="round-modal-footer">
+
+
+                @if (isEditing)
+                {
+                    <a asp-controller="InterviewRound"
+                       asp-action="Index"
+                       class="round-cancel"
+                       style="text-decoration:none;display:flex;align-items:center;">
+
+                        Cancel
+
+                    </a>
+                }
+                else
+                {
+                    <button type="button"
+                            class="round-cancel"
+                            onclick="closeRoundModal()">
+
+                        Cancel
+
+                    </button>
+                }
+
+
+                <button type="submit"
+                        class="round-save">
+
+                    @(isEditing
+                                        ? "Save Changes"
+                                        : "Save")
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     VIEW MODAL
+     ============================================================= -->
+
+<div class="round-modal-backdrop"
+     id="viewRoundBackdrop">
+
+    <div class="round-modal">
+
+
+        <div class="round-modal-header">
+
+            <h2>
+                Interview Round Details
+            </h2>
+
+
+            <button type="button"
+                    class="round-modal-close"
+                    onclick="closeViewRound()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="round-modal-body">
+
+            <div class="round-view-list">
+
+
+                <div class="round-view-item">
+
+                    <span>
+                        Job
+                    </span>
+
+                    <strong id="viewRoundJob">
+                    </strong>
+
+                </div>
+
+
+                <div class="round-view-item">
+
+                    <span>
+                        Round
+                    </span>
+
+                    <strong id="viewRoundName">
+                    </strong>
+
+                </div>
+
+
+                <div class="round-view-item">
+
+                    <span>
+                        Sequence
+                    </span>
+
+                    <strong id="viewRoundSequence">
+                    </strong>
+
+                </div>
+
+
+                <div class="round-view-item">
+
+                    <span>
+                        Description
+                    </span>
+
+                    <strong id="viewRoundDescription">
+                    </strong>
+
+                </div>
+
+
+                <div class="round-view-item">
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong id="viewRoundStatus">
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="round-modal-footer">
+
+            <button type="button"
+                    class="round-cancel"
+                    onclick="closeViewRound()">
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+
+        // =========================================================
+        // ADD / EDIT MODAL
+        // =========================================================
+
+        const roundModal =
+            document.getElementById(
+                "roundModalBackdrop"
+            );
+
+
+        function openRoundModal() {
+
+            roundModal.classList.add(
+                "open"
+            );
+
+            document.body.style.overflow =
+                "hidden";
+
+        }
+
+
+        function closeRoundModal() {
+
+            roundModal.classList.remove(
+                "open"
+            );
+
+            document.body.style.overflow =
+                "";
+
+        }
+
+
+        roundModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (event.target === roundModal) {
+                    closeRoundModal();
+                }
+
+            }
+        );
+
+
+        // =========================================================
+        // AUTO OPEN WHEN EDITING
+        // =========================================================
+
+        @if (isEditing)
+        {
+                <text>
+
+                    document.addEventListener(
+                        "DOMContentLoaded",
+                        function () {
+
+                            openRoundModal();
+
+                        }
+                    );
+
+                </text>
+        }
+
+
+        // =========================================================
+        // JOB DROPDOWN
+        // =========================================================
+
+        function toggleJobDropdown(event) {
+
+            event.stopPropagation();
+
+            document
+                .getElementById("roundJobDropdown")
+                .classList
+                .toggle("open");
+
+        }
+
+
+        function selectJob(id, name) {
+
+            document.getElementById(
+                "roundJobId"
+            ).value = id;
+
+
+            document.getElementById(
+                "selectedJobText"
+            ).textContent = name;
+
+
+            document.getElementById(
+                "roundJobDropdown"
+            ).classList.remove("open");
+
+
+            document.getElementById(
+                "roundFilterForm"
+            ).submit();
+
+        }
+
+
+        function filterJobs() {
+
+            const search =
+                document
+                    .getElementById(
+                        "roundJobSearch"
+                    )
+                    .value
+                    .toLowerCase();
+
+
+            document
+                .querySelectorAll(
+                    ".round-job-option"
+                )
+                .forEach(function (option) {
+
+                    const name =
+                        option.dataset.jobName
+                        || "";
+
+                    option.style.display =
+                        name.includes(search)
+                            ? "flex"
+                            : "none";
+
+                });
+
+        }
+
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                const dropdown =
+                    document.getElementById(
+                        "roundJobDropdown"
+                    );
+
+                const select =
+                    document.querySelector(
+                        ".round-job-select"
+                    );
+
+                if (
+                    dropdown &&
+                    select &&
+                    !select.contains(event.target)
+                ) {
+                    dropdown.classList.remove(
+                        "open"
+                    );
+                }
+
+            }
+        );
+
+
+        // =========================================================
+        // VIEW ROUND
+        // =========================================================
+
+        const viewRoundModal =
+            document.getElementById(
+                "viewRoundBackdrop"
+            );
+
+
+        function showRoundDetails(
+            job,
+            name,
+            sequence,
+            description,
+            status
+        ) {
+
+            document.getElementById(
+                "viewRoundJob"
+            ).textContent = job;
+
+
+            document.getElementById(
+                "viewRoundName"
+            ).textContent = name;
+
+
+            document.getElementById(
+                "viewRoundSequence"
+            ).textContent =
+                "Round " + sequence;
+
+
+            document.getElementById(
+                "viewRoundDescription"
+            ).textContent =
+                description;
+
+
+            document.getElementById(
+                "viewRoundStatus"
+            ).textContent =
+                status;
+
+
+            viewRoundModal.classList.add(
+                "open"
+            );
+
+
+            document.body.style.overflow =
+                "hidden";
+
+        }
+
+
+        function closeViewRound() {
+
+            viewRoundModal.classList.remove(
+                "open"
+            );
+
+            document.body.style.overflow =
+                "";
+
+        }
+
+
+        viewRoundModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (event.target === viewRoundModal) {
+                    closeViewRound();
+                }
+
+            }
+        );
+
+
+        // ESC closes modal
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Escape") {
+
+                    closeRoundModal();
+
+                    closeViewRound();
+
+                }
+
+            }
+        );
+
+    </script>
+
+}

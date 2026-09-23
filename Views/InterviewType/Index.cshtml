@@ -1,0 +1,1182 @@
+﻿@model RecruitmentTracker.Models.InterviewTypeManagementViewModel
+
+@{
+    ViewData["Title"] = "Interview Types";
+    var isEditing = Model.IsEditing;
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .interview-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 88px);
+        padding: 32px 48px 60px;
+        color: #0b1f3a;
+    }
+
+    .interview-container {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           PAGE HEADER
+           ========================================================= */
+
+    .interview-page-header {
+        margin-bottom: 24px;
+    }
+
+    .interview-eyebrow {
+        margin-bottom: 5px;
+        color: #71819a;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .interview-page-header h1 {
+        margin: 0;
+        color: #081d36;
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: -1px;
+    }
+
+    .interview-page-header p {
+        margin: 6px 0 0;
+        color: #687991;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+           ALERTS
+           ========================================================= */
+
+    .interview-alert {
+        margin-bottom: 18px;
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+        .interview-alert.success {
+            background: #eaf8f0;
+            border: 1px solid #bde7ce;
+            color: #20704a;
+        }
+
+        .interview-alert.error {
+            background: #fff0f1;
+            border: 1px solid #f0c8cd;
+            color: #a53a48;
+        }
+
+
+    /* =========================================================
+           MAIN LAYOUT
+           ========================================================= */
+
+    .interview-layout {
+        display: grid;
+        grid-template-columns: 420px minmax(0, 1fr);
+        gap: 30px;
+        align-items: start;
+    }
+
+
+    /* =========================================================
+           SHARED CARD
+           ========================================================= */
+
+    .interview-card {
+        background: #ffffff;
+        border: 1px solid #dde3ea;
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(8, 29, 54, .035);
+    }
+
+
+    /* =========================================================
+           LEFT - ADD INTERVIEW TYPE
+           ========================================================= */
+
+    .interview-form-card {
+        overflow: hidden;
+    }
+
+    .interview-form-header {
+        padding: 30px;
+        border-bottom: 1px solid #e5e9ef;
+    }
+
+        .interview-form-header h2 {
+            margin: 0;
+            color: #172033;
+            font-size: 22px;
+            font-weight: 850;
+            letter-spacing: -.6px;
+        }
+
+        .interview-form-header p {
+            margin: 8px 0 0;
+            color: #6c7a8e;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+    .interview-form-body {
+        padding: 30px;
+    }
+
+
+    /* =========================================================
+           FORM CONTROLS
+           ========================================================= */
+
+    .interview-field {
+        margin-bottom: 25px;
+    }
+
+    .interview-label {
+        display: block;
+        margin-bottom: 9px;
+        color: #161d29;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .interview-required {
+        color: #dc3f4f;
+        margin-left: 2px;
+    }
+
+    .interview-control {
+        width: 100%;
+        min-height: 49px;
+        padding: 11px 14px !important;
+        border: 1px solid #d5dce5 !important;
+        border-radius: 10px !important;
+        background: #ffffff !important;
+        color: #172033 !important;
+        font-size: 13px !important;
+        box-shadow: none !important;
+    }
+
+        .interview-control::placeholder {
+            color: #9aa4b2;
+        }
+
+        .interview-control:focus {
+            border-color: #7666ed !important;
+            box-shadow: 0 0 0 3px rgba(118, 102, 237, .10) !important;
+        }
+
+    textarea.interview-control {
+        min-height: 118px;
+        resize: vertical;
+        line-height: 1.55;
+    }
+
+    .interview-form-line {
+        height: 1px;
+        background: #e5e9ef;
+        margin: 5px 0 20px;
+    }
+
+
+    /* =========================================================
+           MAIN BUTTON
+           ========================================================= */
+
+    .interview-main-button {
+        width: 100%;
+        min-height: 47px;
+        border: 1px solid #111111;
+        border-radius: 10px;
+        background: #111111;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        transition: .18s ease;
+    }
+
+        .interview-main-button:hover {
+            background: #2b2b2b;
+            border-color: #2b2b2b;
+        }
+
+    .interview-cancel-button {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d5dce5;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #26364b;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+        .interview-cancel-button:hover {
+            background: #f6f7f9;
+            color: #081d36;
+        }
+
+
+    /* =========================================================
+           RIGHT
+           ========================================================= */
+
+    .interview-right {
+        display: grid;
+        gap: 20px;
+        min-width: 0;
+    }
+
+
+    /* =========================================================
+           SEARCH CARD
+           ========================================================= */
+
+    .interview-search-card {
+        padding: 20px;
+    }
+
+    .interview-search-top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 105px;
+        gap: 11px;
+    }
+
+    .interview-search-box {
+        min-height: 49px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 0 15px;
+        border: 1px solid #d5dce5;
+        border-radius: 10px;
+        background: #ffffff;
+    }
+
+        .interview-search-box:focus-within {
+            border-color: #7666ed;
+            box-shadow: 0 0 0 3px rgba(118, 102, 237, .10);
+        }
+
+        .interview-search-box svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: #8793a4;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex: 0 0 auto;
+        }
+
+        .interview-search-box input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #172033;
+            font-size: 13px;
+        }
+
+            .interview-search-box input::placeholder {
+                color: #98a3b1;
+            }
+
+    .interview-search-button {
+        min-height: 49px;
+        border: 1px solid #111111;
+        border-radius: 10px;
+        background: #111111;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        transition: .18s ease;
+    }
+
+        .interview-search-button:hover {
+            background: #2b2b2b;
+        }
+
+    .interview-filter-row {
+        margin-top: 14px;
+    }
+
+    .interview-status-filter {
+        width: 290px;
+        max-width: 100%;
+        min-height: 46px;
+    }
+
+
+    /* =========================================================
+           INTERVIEW TYPES LIST
+           ========================================================= */
+
+    .interview-list-card {
+        overflow: hidden;
+    }
+
+    .interview-list-header,
+    .interview-list-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 130px 155px;
+        align-items: center;
+    }
+
+
+    /* TABLE HEADER */
+
+    .interview-list-header {
+        min-height: 54px;
+        padding: 0 22px;
+        background: #f1f3f6;
+        border-bottom: 1px solid #dde3ea;
+        color: #64738a;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+    }
+
+        .interview-list-header > div:nth-child(2),
+        .interview-list-header > div:nth-child(3) {
+            text-align: center;
+        }
+
+
+    /* =========================================================
+           ROW
+           ========================================================= */
+
+    .interview-list-row {
+        min-height: 100px;
+        padding: 17px 22px;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e9ef;
+        transition: background .15s ease;
+    }
+
+        .interview-list-row:last-child {
+            border-bottom: none;
+        }
+
+        .interview-list-row:hover {
+            background: #fafbfc;
+        }
+
+
+    /* =========================================================
+           NAME CELL
+           ========================================================= */
+
+    .interview-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        min-width: 0;
+        padding-right: 20px;
+    }
+
+    .interview-type-icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #eeeaff;
+        color: #6f5ce7;
+    }
+
+        .interview-type-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+    .interview-type-text {
+        min-width: 0;
+    }
+
+        .interview-type-text strong {
+            display: block;
+            color: #101828;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .interview-type-text p {
+            margin: 5px 0 0;
+            max-width: 540px;
+            color: #697a91;
+            font-size: 12px;
+            line-height: 1.45;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+    /* =========================================================
+           STATUS
+           ========================================================= */
+
+    .interview-status-cell {
+        text-align: center;
+    }
+
+    .interview-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 67px;
+        padding: 6px 11px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+        .interview-status.active {
+            color: #187548;
+            background: #eaf8f0;
+            border: 1px solid #bce8ce;
+        }
+
+        .interview-status.inactive {
+            color: #697386;
+            background: #f1f3f5;
+            border: 1px solid #dce1e7;
+        }
+
+
+    /* =========================================================
+           ACTIONS
+           ========================================================= */
+
+    .interview-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .interview-actions form {
+            margin: 0;
+        }
+
+    .interview-action {
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: #68758a;
+        cursor: pointer;
+        transition: .15s ease;
+    }
+
+        .interview-action svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .interview-action:hover {
+            background: #eef1f5;
+            color: #081d36;
+        }
+
+        .interview-action.delete:hover {
+            background: #ffedef;
+            color: #bc3f4f;
+        }
+
+
+    /* =========================================================
+           EMPTY
+           ========================================================= */
+
+    .interview-empty {
+        padding: 75px 25px;
+        text-align: center;
+        background: #ffffff;
+    }
+
+    .interview-empty-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #eeeaff;
+        color: #6f5ce7;
+        font-size: 20px;
+    }
+
+    .interview-empty h3 {
+        margin: 0;
+        color: #101828;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .interview-empty p {
+        margin: 7px 0 0;
+        color: #748196;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .interview-page {
+            padding: 28px 25px 50px;
+        }
+
+        .interview-layout {
+            grid-template-columns: 360px minmax(0, 1fr);
+            gap: 20px;
+        }
+    }
+
+
+    @@media (max-width: 900px) {
+
+        .interview-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .interview-form-card {
+            max-width: none;
+        }
+    }
+
+
+    @@media (max-width: 700px) {
+
+        .interview-page {
+            padding: 22px 15px 40px;
+        }
+
+        .interview-page-header h1 {
+            font-size: 26px;
+        }
+
+        .interview-search-top {
+            grid-template-columns: 1fr;
+        }
+
+        .interview-search-button {
+            width: 100%;
+        }
+
+        .interview-status-filter {
+            width: 100%;
+        }
+
+        .interview-list-card {
+            overflow-x: auto;
+        }
+
+        .interview-list-header,
+        .interview-list-row {
+            min-width: 720px;
+        }
+
+        .interview-form-header,
+        .interview-form-body {
+            padding-left: 22px;
+            padding-right: 22px;
+        }
+    }
+
+</style>
+
+
+<div class="interview-page">
+
+    <div class="interview-container">
+
+
+        <!-- =========================================================
+             PAGE TITLE
+             ========================================================= -->
+
+        <div class="interview-page-header">
+
+            <div class="interview-eyebrow">
+                HR WORKSPACE · INTERVIEW SETUP
+            </div>
+
+            <h1>
+                Interview Types
+            </h1>
+
+            <p>
+                Manage interview types used in your recruitment process.
+            </p>
+
+        </div>
+
+
+        <!-- =========================================================
+             MESSAGES
+             ========================================================= -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="interview-alert success">
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="interview-alert error">
+                @TempData["Error"]
+            </div>
+        }
+
+
+        <!-- =========================================================
+             MAIN LAYOUT
+             ========================================================= -->
+
+        <div class="interview-layout">
+
+
+            <!-- =====================================================
+                 LEFT - ADD / EDIT
+                 ===================================================== -->
+
+            <section class="interview-card interview-form-card">
+
+                <div class="interview-form-header">
+
+                    <h2>
+                        @(isEditing
+                                                ? "Edit Interview Type"
+                                                : "Add New Interview Type")
+                    </h2>
+
+                    <p>
+                        @(isEditing
+                                                ? "Update the details of this interview type."
+                                                : "Fill in the details to create a new interview type.")
+                    </p>
+
+                </div>
+
+
+                <form asp-controller="InterviewType"
+                      asp-action="@(isEditing ? "Update" : "Create")"
+                      method="post"
+                      class="interview-form-body">
+
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="Form.Id"
+                           type="hidden" />
+
+
+                    <!-- NAME -->
+
+                    <div class="interview-field">
+
+                        <label asp-for="Form.Name"
+                               class="interview-label">
+
+                            Interview Type Name
+
+                            <span class="interview-required">*</span>
+
+                        </label>
+
+                        <input asp-for="Form.Name"
+                               class="form-control interview-control"
+                               maxlength="80"
+                               placeholder="e.g., Technical, HR, Panel, Phone Screen"
+                               required />
+
+                        <span asp-validation-for="Form.Name"
+                              class="text-danger small">
+                        </span>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="interview-field">
+
+                        <label asp-for="Form.Description"
+                               class="interview-label">
+
+                            Description
+
+                        </label>
+
+                        <textarea asp-for="Form.Description"
+                                  class="form-control interview-control"
+                                  maxlength="500"
+                                  rows="5"
+                                  placeholder="Brief description of the interview type"></textarea>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="interview-field">
+
+                        <label asp-for="Form.IsActive"
+                               class="interview-label">
+
+                            Status
+
+                            <span class="interview-required">*</span>
+
+                        </label>
+
+                        <select asp-for="Form.IsActive"
+                                class="form-select interview-control">
+
+                            <option value="true">
+                                Active
+                            </option>
+
+                            <option value="false">
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="interview-form-line"></div>
+
+
+                    <!-- SAVE -->
+
+                    <button type="submit"
+                            class="interview-main-button">
+
+                        @(isEditing
+                                                ? "Save Changes"
+                                                : "Add Interview Type")
+
+                    </button>
+
+
+                    @if (isEditing)
+                    {
+                        <a asp-controller="InterviewType"
+                           asp-action="Index"
+                           class="interview-cancel-button">
+
+                            Cancel Edit
+
+                        </a>
+                    }
+
+                </form>
+
+            </section>
+
+
+            <!-- =====================================================
+                 RIGHT SIDE
+                 ===================================================== -->
+
+            <section class="interview-right">
+
+
+                <!-- =================================================
+                     SEARCH
+                     ================================================= -->
+
+                <form asp-controller="InterviewType"
+                      asp-action="Index"
+                      method="get"
+                      class="interview-card interview-search-card">
+
+                    <div class="interview-search-top">
+
+
+                        <div class="interview-search-box">
+
+                            <svg viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <circle cx="11"
+                                        cy="11"
+                                        r="7">
+                                </circle>
+
+                                <path d="m20 20-3.4-3.4">
+                                </path>
+
+                            </svg>
+
+                            <input type="text"
+                                   name="search"
+                                   value="@Model.Search"
+                                   placeholder="Search interview types..." />
+
+                        </div>
+
+
+                        <button type="submit"
+                                class="interview-search-button">
+
+                            Search
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="interview-filter-row">
+
+                        <select name="status"
+                                class="form-select interview-control interview-status-filter"
+                                onchange="this.form.submit()">
+
+                            @if (Model.Status == "all")
+                            {
+                                <option value="all" selected>
+                                    All Statuses
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="all">
+                                    All Statuses
+                                </option>
+                            }
+
+
+                            @if (Model.Status == "active")
+                            {
+                                <option value="active" selected>
+                                    Active
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="active">
+                                    Active
+                                </option>
+                            }
+
+
+                            @if (Model.Status == "inactive")
+                            {
+                                <option value="inactive" selected>
+                                    Inactive
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="inactive">
+                                    Inactive
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+                </form>
+
+
+                <!-- =================================================
+                     INTERVIEW TYPES LIST
+                     ================================================= -->
+
+                <div class="interview-card interview-list-card">
+
+
+                    <!-- HEADER -->
+
+                    <div class="interview-list-header">
+
+                        <div>
+                            Name
+                        </div>
+
+                        <div>
+                            Status
+                        </div>
+
+                        <div>
+                            Actions
+                        </div>
+
+                    </div>
+
+
+                    <!-- EMPTY -->
+                    @if (!Model.InterviewTypes.Any())
+                    {
+                        <div class="interview-empty">
+
+                            <div class="interview-empty-icon">
+                                ◎
+                            </div>
+
+                            <h3>
+                                No interview types found
+                            </h3>
+
+                            <p>
+                                Add your first interview type using the form on the left.
+                            </p>
+
+                        </div>
+                    }
+
+                    else
+                    {
+
+                        @foreach (var item in Model.InterviewTypes)
+                        {
+
+                            <div class="interview-list-row">
+
+
+                                <!-- NAME -->
+
+                                <div class="interview-name-cell">
+
+                                    <div class="interview-type-icon">
+
+                                        <svg viewBox="0 0 24 24"
+                                             aria-hidden="true">
+
+                                            <path d="M5 5.5h14v10H9l-4 3v-13Z">
+                                            </path>
+
+                                        </svg>
+
+                                    </div>
+
+
+                                    <div class="interview-type-text">
+
+                                        <strong>
+                                            @item.Name
+                                        </strong>
+
+                                        <p>
+                                            @(string.IsNullOrWhiteSpace(item.Description)
+                                                                                ? "No description added."
+                                                                                : item.Description)
+                                                                                               </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- STATUS -->
+
+                                <div class="interview-status-cell">
+
+                                    <span class="interview-status @(item.IsActive ? "active" : "inactive")">
+
+                                        @(item.IsActive
+                                                                        ? "Active"
+                                                                        : "Inactive")
+
+                            </span>
+
+                                </div>
+
+
+                                <!-- ACTIONS -->
+
+                                <div class="interview-actions">
+
+
+                                    <!-- EDIT -->
+
+                                    <a asp-controller="InterviewType"
+                                       asp-action="Index"
+                                       asp-route-editId="@item.Id"
+                                       asp-route-search="@Model.Search"
+                                       asp-route-status="@Model.Status"
+                                       class="interview-action"
+                                       title="Edit">
+
+                                        <svg viewBox="0 0 24 24"
+                                             aria-hidden="true">
+
+                                            <path d="M4 20h4l11-11-4-4L4 16v4Z">
+                                            </path>
+
+                                            <path d="m13.5 6.5 4 4">
+                                            </path>
+
+                                        </svg>
+
+                                    </a>
+
+
+                                    <!-- ACTIVE / INACTIVE -->
+
+                                    <form asp-controller="InterviewType"
+                                          asp-action="ToggleStatus"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@item.Id" />
+
+                                        <button type="submit"
+                                                class="interview-action"
+                                                title="@(item.IsActive ? "Deactivate" : "Activate")">
+
+                                    @if (item.IsActive)
+                                            {
+                                                <svg viewBox="0 0 24 24"
+                                                     aria-hidden="true">
+
+                                                    <rect x="5"
+                                                          y="10"
+                                                          width="14"
+                                                          height="10"
+                                                          rx="2">
+                                                    </rect>
+
+                                                    <path d="M8 10V7a4 4 0 0 1 8 0v3">
+                                                    </path>
+
+                                                </svg>
+                                            }
+                                            else
+                                            {
+                                                <svg viewBox="0 0 24 24"
+                                                     aria-hidden="true">
+
+                                                    <rect x="5"
+                                                          y="10"
+                                                          width="14"
+                                                          height="10"
+                                                          rx="2">
+                                                    </rect>
+
+                                                    <path d="M8 10V7a4 4 0 0 1 7-2.7">
+                                                    </path>
+
+                                                </svg>
+                                            }
+
+                                        </button>
+
+                                    </form>
+
+
+                                    <!-- DELETE -->
+
+                                    <form asp-controller="InterviewType"
+                                          asp-action="Delete"
+                                          method="post"
+                                          onsubmit="return confirm('Are you sure you want to delete this interview type?');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@item.Id" />
+
+                                        <button type="submit"
+                                                class="interview-action delete"
+                                                title="Delete">
+
+                                            <svg viewBox="0 0 24 24"
+                                                 aria-hidden="true">
+
+                                                <path d="M4 7h16">
+                                                </path>
+
+                                                <path d="M9 7V4h6v3">
+                                                </path>
+
+                                                <path d="M7 7l1 13h8l1-13">
+                                                </path>
+
+                                                <path d="M10 11v5M14 11v5">
+                                                </path>
+
+                                            </svg>
+
+                                        </button>
+
+                                    </form>
+
+
+                                </div>
+
+                            </div>
+
+                        }
+
+                    }
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

@@ -1,0 +1,175 @@
+﻿@model RecruitmentTracker.Models.OfferTemplate
+
+@{
+    ViewData["Title"] = "View Offer Template";
+
+    var variables = Model.Variables
+        .Split(
+            ',',
+            StringSplitOptions.RemoveEmptyEntries)
+        .Select(x => x.Trim())
+        .ToList();
+}
+
+<div class="offer-details-page">
+
+
+    <!-- HEADER -->
+
+    <div class="offer-form-header">
+
+        <div>
+
+            <h1>
+                View Offer Template
+            </h1>
+
+            <p>
+                Preview the content and details of this offer template.
+            </p>
+
+        </div>
+
+
+        <a asp-controller="OfferTemplate"
+           asp-action="Index"
+           class="offer-back-btn">
+
+            ← Back
+
+        </a>
+
+    </div>
+
+
+
+    <!-- BASIC INFORMATION -->
+
+    <section class="offer-details-card">
+
+        <div class="offer-details-heading">
+
+            <h2>
+                Basic Information
+            </h2>
+
+        </div>
+
+
+        <div class="offer-details-body">
+
+            <div class="offer-details-grid">
+
+
+                <div class="offer-detail-item">
+
+                    <span>
+                        Template Name
+                    </span>
+
+                    <strong>
+                        @Model.Name
+                    </strong>
+
+                </div>
+
+
+                <div class="offer-detail-item">
+
+                    <span>
+                        Status
+                    </span>
+
+                    @if (Model.IsActive)
+                    {
+                        <strong class="offer-status active">
+                            Active
+                        </strong>
+                    }
+                    else
+                    {
+                        <strong class="offer-status inactive">
+                            Inactive
+                        </strong>
+                    }
+
+                </div>
+
+
+                <div class="offer-detail-item">
+
+                    <span>
+                        Created At
+                    </span>
+
+                    <strong>
+                        @Model.CreatedDate.ToString("yyyy-MM-dd")
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- CONTENT -->
+
+    <section class="offer-details-card">
+
+        <div class="offer-details-heading">
+
+            <h2>
+                Template Content
+            </h2>
+
+        </div>
+
+
+        <div class="offer-details-body">
+
+            <div class="offer-details-content">
+                @Model.Content
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- VARIABLES -->
+
+    <section class="offer-details-card">
+
+        <div class="offer-details-heading">
+
+            <h2>
+                Available Variables
+            </h2>
+
+        </div>
+
+
+        <div class="offer-details-body">
+
+            <div class="preview-variable-list">
+
+                @foreach (var variable in variables)
+                {
+                    <span>
+                        {{@variable}}
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</div>

@@ -2,8 +2,41 @@
 
 @{
     ViewData["Title"] = "Apply";
-    var vacancy = ViewBag.Vacancy as RecruitmentTracker.Models.JobVacancy;
+
+    var vacancy =
+        ViewBag.Vacancy
+        as RecruitmentTracker.Models.JobVacancy;
+
+    var candidate =
+        ViewBag.Candidate
+        as RecruitmentTracker.Models.ApplicationUser;
+
+    var profile =
+        ViewBag.CandidateProfile
+        as RecruitmentTracker.Models.CandidateProfile;
+
+    var candidateName =
+        candidate?.FullName
+        ?? "Candidate";
+
+    var candidateEmail =
+        candidate?.Email
+        ?? "";
+
+    var candidatePhone =
+        profile?.PhoneNumber
+        ?? "";
+
+    var hasProfileCV =
+        profile != null &&
+        !string.IsNullOrWhiteSpace(
+            profile.DefaultCVPath);
+
+    var profileCVName =
+        profile?.DefaultCVFileName
+        ?? "Saved profile CV";
 }
+
 
 <style>
 
@@ -15,11 +48,13 @@
         --border: #d9dee7;
     }
 
+
     .apply-page {
         max-width: 1050px;
         margin: 0 auto;
         padding: 40px 25px 70px;
     }
+
 
     .page-heading {
         display: flex;
@@ -29,6 +64,7 @@
         margin-bottom: 30px;
     }
 
+
     .section-label {
         font-size: 10px;
         font-weight: 700;
@@ -37,6 +73,7 @@
         margin-bottom: 8px;
     }
 
+
     .page-heading h1 {
         margin: 0;
         font-size: 30px;
@@ -44,13 +81,23 @@
         color: var(--navy);
     }
 
+
     .page-heading p {
         margin: 7px 0 0;
         color: var(--muted);
         font-size: 13px;
     }
 
-    .back-btn {
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+
+    .back-btn,
+    .profile-btn {
         text-decoration: none;
         color: var(--navy);
         border: 1px solid var(--border);
@@ -62,10 +109,40 @@
         white-space: nowrap;
     }
 
-        .back-btn:hover {
-            background: #f5f7fa;
-            color: var(--navy);
+
+    .profile-btn {
+        background: var(--navy);
+        color: #fff;
+        border-color: var(--navy);
+    }
+
+
+    .back-btn:hover {
+        background: #f5f7fa;
+        color: var(--navy);
+    }
+
+
+    .profile-btn:hover {
+        background: var(--navy-light);
+        color: #fff;
+    }
+
+
+    .apply-alert {
+        padding: 12px 15px;
+        margin-bottom: 18px;
+        border-radius: 9px;
+        font-size: 11px;
+    }
+
+
+        .apply-alert.error {
+            background: #fef3f2;
+            border: 1px solid #fecdca;
+            color: #b42318;
         }
+
 
     .apply-card {
         background: #fff;
@@ -76,10 +153,12 @@
         box-shadow: 0 4px 15px rgba(30, 41, 59, .035);
     }
 
+
     .card-header {
         padding: 20px 24px 17px;
         border-bottom: 1px solid #eef0f3;
     }
+
 
         .card-header h3 {
             margin: 0;
@@ -88,15 +167,18 @@
             color: var(--navy);
         }
 
+
         .card-header p {
             margin: 5px 0 0;
             font-size: 11px;
             color: #969da7;
         }
 
+
     .card-body {
         padding: 24px;
     }
+
 
     .job-grid {
         display: grid;
@@ -104,12 +186,14 @@
         gap: 15px;
     }
 
+
     .job-item {
         background: #f8fafc;
         border: 1px solid #edf0f4;
         border-radius: 12px;
         padding: 15px 16px;
     }
+
 
     .job-label {
         font-size: 9px;
@@ -120,6 +204,7 @@
         margin-bottom: 6px;
     }
 
+
     .job-value {
         font-size: 13px;
         font-weight: 600;
@@ -127,11 +212,13 @@
         word-break: break-word;
     }
 
+
     .content-section {
         margin-top: 28px;
         padding-top: 22px;
         border-top: 1px solid #eef0f3;
     }
+
 
         .content-section h4 {
             margin: 0 0 9px;
@@ -139,6 +226,7 @@
             font-weight: 700;
             color: var(--navy);
         }
+
 
     .content-text {
         font-size: 12px;
@@ -148,49 +236,194 @@
         margin: 0;
     }
 
-    .form-group {
-        margin-bottom: 20px;
+
+    /* =========================================================
+           PROFILE SUMMARY
+           ========================================================= */
+
+    .profile-summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 13px;
     }
 
-    .form-label {
-        display: block;
-        margin-bottom: 7px;
-        font-size: 11px;
-        font-weight: 600;
-        color: #3c434e;
+
+    .profile-summary-item {
+        padding: 14px 15px;
+        border: 1px solid #edf0f3;
+        border-radius: 11px;
+        background: #f8fafc;
     }
 
-    .required-mark {
-        color: #e05252;
-        margin-left: 2px;
-    }
 
-    .form-control {
-        width: 100%;
-        min-height: 44px;
-        border: 1px solid #dfe3e8;
+        .profile-summary-item span {
+            display: block;
+            margin-bottom: 5px;
+            color: #89919d;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            font-weight: 700;
+        }
+
+
+        .profile-summary-item strong {
+            display: block;
+            color: #252b36;
+            font-size: 12px;
+            font-weight: 650;
+        }
+
+
+    .profile-note {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-top: 16px;
+        padding: 12px 14px;
         border-radius: 10px;
-        font-size: 12px;
-        color: #303640;
-        padding: 10px 13px;
-        outline: none;
-        box-sizing: border-box;
-        background: #fff;
+        background: #f3f6fa;
+        color: #687386;
+        font-size: 10px;
+    }
+
+
+        .profile-note a {
+            color: var(--navy);
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+
+    /* =========================================================
+           CV CHOICE
+           ========================================================= */
+
+    .cv-choice-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+
+    .cv-option {
+        display: block;
+        border: 1px solid #e1e5eb;
+        border-radius: 13px;
+        padding: 16px;
+        cursor: pointer;
         transition: .2s;
     }
 
-        .form-control::placeholder {
-            color: #adb3bc;
+
+        .cv-option:hover {
+            border-color: #aab4c1;
+            background: #fbfcfd;
         }
 
-        .form-control:focus {
-            border-color: var(--navy);
-            box-shadow: 0 0 0 3px rgba(11,31,58,.08);
+
+    .cv-option-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+    }
+
+
+    .cv-option input[type="radio"] {
+        margin-top: 3px;
+        accent-color: var(--navy);
+    }
+
+
+    .cv-option-content {
+        flex: 1;
+    }
+
+
+        .cv-option-content strong {
+            display: block;
+            color: #252b36;
+            font-size: 12px;
         }
+
+
+        .cv-option-content span {
+            display: block;
+            margin-top: 4px;
+            color: #87909d;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+
+    .saved-cv-file {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 9px;
+        background: #f4f6f9;
+    }
+
+
+    .saved-cv-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: #e8edf4;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8px;
+        font-weight: 800;
+    }
+
+
+    .saved-cv-file div:nth-child(2) {
+        flex: 1;
+    }
+
+
+    .saved-cv-file strong {
+        font-size: 10px;
+    }
+
+
+    .saved-cv-file span {
+        margin-top: 2px;
+        font-size: 9px;
+    }
+
+
+    .saved-cv-file a {
+        color: var(--navy);
+        font-size: 9px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+
+    .alternate-cv-area {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #eef0f3;
+        display: none;
+    }
+
+
+        .alternate-cv-area.show {
+            display: block;
+        }
+
 
     .upload-section {
-        margin-top: 30px;
+        margin-top: 24px;
     }
+
 
         .upload-section h3 {
             margin: 0 0 9px;
@@ -199,6 +432,7 @@
             color: var(--navy);
         }
 
+
     .upload-box {
         border: 1.5px dashed #9ca9ba;
         border-radius: 14px;
@@ -206,17 +440,20 @@
         background: rgba(11,31,58,.035);
     }
 
+
         .upload-box p {
             margin: 0 0 13px;
             color: #7a8492;
             font-size: 11px;
         }
 
+
     .file-input {
         width: 100%;
         font-size: 11px;
         color: #727b88;
     }
+
 
         .file-input::file-selector-button {
             background: var(--navy);
@@ -230,13 +467,44 @@
             cursor: pointer;
         }
 
+
+    .no-profile-cv {
+        padding: 13px 15px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+        background: #fffaeb;
+        border: 1px solid #fedf89;
+        color: #b54708;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+
     .submit-area {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
         margin-top: 30px;
         padding-top: 22px;
         border-top: 1px solid #e8ebef;
     }
+
+
+    .submit-copy strong {
+        display: block;
+        color: #344054;
+        font-size: 11px;
+    }
+
+
+    .submit-copy span {
+        display: block;
+        margin-top: 3px;
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
 
     .submit-btn {
         min-height: 43px;
@@ -250,9 +518,11 @@
         cursor: pointer;
     }
 
+
         .submit-btn:hover {
             background: var(--navy-light);
         }
+
 
     @@media (max-width: 750px) {
 
@@ -260,11 +530,23 @@
             padding: 25px 18px 50px;
         }
 
-        .page-heading {
+        .page-heading,
+        .submit-area {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .header-actions {
+            width: 100%;
             flex-direction: column;
         }
 
-        .job-grid {
+            .header-actions a {
+                text-align: center;
+            }
+
+        .job-grid,
+        .profile-summary {
             grid-template-columns: 1fr;
         }
 
@@ -272,18 +554,16 @@
             padding: 20px;
         }
 
-        .submit-area {
-            justify-content: stretch;
-        }
-
         .submit-btn {
             width: 100%;
         }
     }
+
 </style>
 
 
 <div class="apply-page">
+
 
     <!-- =====================================================
          HEADER
@@ -307,12 +587,36 @@
 
         </div>
 
-        <a asp-action="Vacancies"
-           class="back-btn">
-            ← Back to Jobs
-        </a>
+
+        <div class="header-actions">
+
+            <a asp-controller="CandidateProfile"
+               asp-action="Profile"
+               class="profile-btn">
+
+                My Profile
+
+            </a>
+
+            <a asp-action="Vacancies"
+               class="back-btn">
+
+                ← Back to Jobs
+
+            </a>
+
+        </div>
 
     </div>
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="apply-alert error">
+            @TempData["Error"]
+        </div>
+    }
+
 
 
     <!-- =====================================================
@@ -333,11 +637,14 @@
 
         </div>
 
+
         <div class="card-body">
 
             <div class="job-grid">
 
+
                 <div class="job-item">
+
                     <div class="job-label">
                         Job Title
                     </div>
@@ -345,16 +652,20 @@
                     <div class="job-value">
                         @vacancy?.JobTitle
                     </div>
+
                 </div>
 
+
                 <div class="job-item">
+
                     <div class="job-label">
                         Department
                     </div>
 
                     <div class="job-value">
 
-                        @if (!string.IsNullOrWhiteSpace(vacancy?.Department))
+                        @if (!string.IsNullOrWhiteSpace(
+                                                vacancy?.Department))
                         {
                             @vacancy.Department
                         }
@@ -364,9 +675,12 @@
                         }
 
                     </div>
+
                 </div>
 
+
                 <div class="job-item">
+
                     <div class="job-label">
                         Location
                     </div>
@@ -374,9 +688,12 @@
                     <div class="job-value">
                         @vacancy?.Location
                     </div>
+
                 </div>
 
+
                 <div class="job-item">
+
                     <div class="job-label">
                         Employment Type
                     </div>
@@ -384,9 +701,12 @@
                     <div class="job-value">
                         @vacancy?.EmploymentType
                     </div>
+
                 </div>
 
+
                 <div class="job-item">
+
                     <div class="job-label">
                         Salary / Budget
                     </div>
@@ -403,9 +723,12 @@
                         }
 
                     </div>
+
                 </div>
 
+
                 <div class="job-item">
+
                     <div class="job-label">
                         Closing Date
                     </div>
@@ -414,21 +737,24 @@
 
                         @if (vacancy != null)
                         {
-                            @vacancy.ClosingDate.ToString("dd MMM yyyy")
+                            @(vacancy.ClosingDate.ToString("dd MMM yyyy"))
                         }
+                                                
                         else
                         {
                             @:Not specified
                         }
 
                     </div>
+
                 </div>
 
             </div>
 
 
             @if (vacancy != null &&
-                        !string.IsNullOrWhiteSpace(vacancy.Description))
+                        !string.IsNullOrWhiteSpace(
+                        vacancy.Description))
             {
                 <div class="content-section">
 
@@ -445,7 +771,8 @@
 
 
             @if (vacancy != null &&
-                        !string.IsNullOrWhiteSpace(vacancy.Responsibilities))
+                        !string.IsNullOrWhiteSpace(
+                        vacancy.Responsibilities))
             {
                 <div class="content-section">
 
@@ -462,7 +789,8 @@
 
 
             @if (vacancy != null &&
-                        !string.IsNullOrWhiteSpace(vacancy.Requirements))
+                        !string.IsNullOrWhiteSpace(
+                        vacancy.Requirements))
             {
                 <div class="content-section">
 
@@ -479,7 +807,8 @@
 
 
             @if (vacancy != null &&
-                        !string.IsNullOrWhiteSpace(vacancy.PreferredRequirements))
+                        !string.IsNullOrWhiteSpace(
+                        vacancy.PreferredRequirements))
             {
                 <div class="content-section">
 
@@ -499,8 +828,9 @@
     </div>
 
 
+
     <!-- =====================================================
-         APPLICATION DETAILS
+         SAVED CANDIDATE PROFILE
          ===================================================== -->
 
     <div class="apply-card">
@@ -508,107 +838,142 @@
         <div class="card-header">
 
             <h3>
-                Application Details
+                Your Candidate Profile
             </h3>
 
             <p>
-                Enter your details and upload your documents.
+                These details are loaded automatically from your
+                saved HireTrack profile.
             </p>
 
         </div>
 
+
         <div class="card-body">
+
+
+            <div class="profile-summary">
+
+
+                <div class="profile-summary-item">
+
+                    <span>
+                        Full Name
+                    </span>
+
+                    <strong>
+                        @candidateName
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-summary-item">
+
+                    <span>
+                        Email Address
+                    </span>
+
+                    <strong>
+                        @candidateEmail
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-summary-item">
+
+                    <span>
+                        Phone Number
+                    </span>
+
+                    <strong>
+                        @candidatePhone
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-summary-item">
+
+                    <span>
+                        Current Position
+                    </span>
+
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(
+                                                profile?.CurrentPosition)
+                                                ? "Not provided"
+                                                : profile.CurrentPosition)
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="profile-note">
+
+                <span>
+                    Need to change these details?
+                    Update your profile once and the new details
+                    will be reused for future applications.
+                </span>
+
+
+                <a asp-controller="CandidateProfile"
+                   asp-action="Profile">
+
+                    Edit Profile
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         APPLICATION FORM
+         ===================================================== -->
+
+    <div class="apply-card">
+
+        <div class="card-header">
+
+            <h3>
+                Application Documents
+            </h3>
+
+            <p>
+                Use your saved profile CV or upload a different
+                version specifically for this job.
+            </p>
+
+        </div>
+
+
+        <div class="card-body">
+
 
             <form asp-action="Apply"
                   asp-controller="Application"
                   method="post"
-                  enctype="multipart/form-data">
+                  enctype="multipart/form-data"
+                  id="applicationForm">
 
                 @Html.AntiForgeryToken()
+
 
                 <input type="hidden"
                        name="vacancyId"
                        value="@vacancy?.Id" />
 
-
-                <!-- =================================================
-                     FIRST NAME
-                     ================================================= -->
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        First Name
-                        <span class="required-mark">*</span>
-                    </label>
-
-                    <input type="text"
-                           name="firstName"
-                           class="form-control"
-                           placeholder="Enter your first name"
-                           required />
-
-                </div>
-
-
-                <!-- =================================================
-                     LAST NAME
-                     ================================================= -->
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Last Name
-                        <span class="required-mark">*</span>
-                    </label>
-
-                    <input type="text"
-                           name="lastName"
-                           class="form-control"
-                           placeholder="Enter your last name"
-                           required />
-
-                </div>
-
-
-                <!-- =================================================
-                     PHONE
-                     ================================================= -->
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Phone Number
-                        <span class="required-mark">*</span>
-                    </label>
-
-                    <input type="tel"
-                           name="phoneNumber"
-                           class="form-control"
-                           placeholder="Enter your phone number"
-                           required />
-
-                </div>
-
-
-                <!-- =================================================
-                     EMAIL
-                     ================================================= -->
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Email Address
-                        <span class="required-mark">*</span>
-                    </label>
-
-                    <input type="email"
-                           name="email"
-                           class="form-control"
-                           placeholder="Enter your email address"
-                           required />
-
-                </div>
 
 
                 <!-- =================================================
@@ -621,42 +986,179 @@
                         CV / Resume
                     </h3>
 
-                    <div class="upload-box">
 
-                        <p>
-                            Upload your CV or resume in PDF, DOC or DOCX format.
-                            Maximum size: 5 MB.
-                        </p>
+                    @if (hasProfileCV)
+                    {
+                        <div class="cv-choice-list">
 
-                        <input type="file"
-                               name="cvFile"
-                               class="file-input"
-                               accept=".pdf,.doc,.docx"
-                               required />
 
-                    </div>
+                            <label class="cv-option">
+
+                                <div class="cv-option-row">
+
+                                    <input type="radio"
+                                           name="useProfileCV"
+                                           value="true"
+                                           checked
+                                           onchange="updateCVChoice()" />
+
+
+                                    <div class="cv-option-content">
+
+                                        <strong>
+                                            Use my saved profile CV
+                                        </strong>
+
+                                        <span>
+                                            Recommended. HireTrack will use your
+                                            default profile resume for this application.
+                                        </span>
+
+
+                                        <div class="saved-cv-file">
+
+                                            <div class="saved-cv-icon">
+                                                CV
+                                            </div>
+
+
+                                            <div>
+
+                                                <strong>
+                                                    @profileCVName
+                                                </strong>
+
+                                                <span>
+                                                    Current default CV
+                                                </span>
+
+                                            </div>
+
+
+                                            <a asp-controller="CandidateProfile"
+                                               asp-action="ViewCV"
+                                               target="_blank"
+                                               onclick="event.stopPropagation();">
+
+                                                View
+
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </label>
+
+
+
+                            <label class="cv-option">
+
+                                <div class="cv-option-row">
+
+                                    <input type="radio"
+                                           name="useProfileCV"
+                                           value="false"
+                                           onchange="updateCVChoice()" />
+
+
+                                    <div class="cv-option-content">
+
+                                        <strong>
+                                            Upload a different CV
+                                        </strong>
+
+                                        <span>
+                                            Use another resume only for this vacancy.
+                                            Your saved profile CV will not be changed.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div id="alternateCvArea"
+                                     class="alternate-cv-area">
+
+                                    <input type="file"
+                                           id="alternateCvFile"
+                                           name="cvFile"
+                                           class="file-input"
+                                           accept=".pdf,.doc,.docx" />
+
+                                </div>
+
+                            </label>
+
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="no-profile-cv">
+
+                            You do not currently have a default CV
+                            saved in your profile. You can upload a CV
+                            for this application below, or add one to
+                            My Profile for future applications.
+
+                        </div>
+
+
+                        <input type="hidden"
+                               name="useProfileCV"
+                               value="false" />
+
+
+                        <div class="upload-box">
+
+                            <p>
+                                Upload your CV in PDF, DOC or DOCX format.
+                                Maximum size: 5 MB.
+                            </p>
+
+                            <input type="file"
+                                   name="cvFile"
+                                   class="file-input"
+                                   accept=".pdf,.doc,.docx"
+                                   required />
+
+                        </div>
+                    }
 
                 </div>
+
 
 
                 <!-- =================================================
                      COVER LETTER
                      ================================================= -->
-                @if (vacancy != null && vacancy.RequiresCoverLetter)
+                @if (vacancy != null &&
+                                vacancy.RequiresCoverLetter)
                 {
                     <div class="upload-section">
 
                         <h3>
+
                             Cover Letter
-                            <span class="required-mark">*</span>
+
+                            <span class="required-mark">
+                                *
+                            </span>
+
                         </h3>
+
 
                         <div class="upload-box">
 
                             <p>
-                                Upload your cover letter in PDF, DOC or DOCX format.
-                                Maximum size: 5 MB.
+                                A cover letter is required for this vacancy.
+                                PDF, DOC or DOCX · Maximum 5 MB.
                             </p>
+
 
                             <input type="file"
                                    name="coverLetterFile"
@@ -668,6 +1170,36 @@
 
                     </div>
                 }
+                else
+                {
+                    <div class="upload-section">
+
+                        <h3>
+                            Cover Letter
+                            <span style="font-weight:400;color:#98a2b3;font-size:10px;">
+                                · Optional
+                            </span>
+                        </h3>
+
+
+                        <div class="upload-box">
+
+                            <p>
+                                You can optionally attach a cover letter
+                                for this vacancy.
+                            </p>
+
+
+                            <input type="file"
+                                   name="coverLetterFile"
+                                   class="file-input"
+                                   accept=".pdf,.doc,.docx" />
+
+                        </div>
+
+                    </div>
+                }
+
 
 
                 <!-- =================================================
@@ -676,6 +1208,21 @@
 
                 <div class="submit-area">
 
+
+                    <div class="submit-copy">
+
+                        <strong>
+                            Ready to apply?
+                        </strong>
+
+                        <span>
+                            Your saved profile details and selected CV
+                            will be attached to this application.
+                        </span>
+
+                    </div>
+
+
                     <button type="submit"
                             class="submit-btn">
 
@@ -683,19 +1230,93 @@
 
                     </button>
 
+
                 </div>
 
+
             </form>
+
 
         </div>
 
     </div>
 
+
 </div>
+
 
 
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+
+        function updateCVChoice() {
+
+            const selected =
+                document.querySelector(
+                    'input[name="useProfileCV"]:checked'
+                );
+
+
+            const alternateArea =
+                document.getElementById(
+                    'alternateCvArea'
+                );
+
+
+            const alternateFile =
+                document.getElementById(
+                    'alternateCvFile'
+                );
+
+
+            if (!selected ||
+                !alternateArea ||
+                !alternateFile) {
+
+                return;
+            }
+
+
+            const useProfile =
+                selected.value === 'true';
+
+
+            if (useProfile) {
+
+                alternateArea.classList.remove(
+                    'show'
+                );
+
+                alternateFile.required =
+                    false;
+
+                alternateFile.value =
+                    '';
+
+            }
+            else {
+
+                alternateArea.classList.add(
+                    'show'
+                );
+
+                alternateFile.required =
+                    true;
+
+            }
+
+        }
+
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            updateCVChoice
+        );
+
+    </script>
 
 }

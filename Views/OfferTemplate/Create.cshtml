@@ -1,0 +1,289 @@
+﻿@model RecruitmentTracker.Models.OfferTemplate
+
+@{
+    ViewData["Title"] = "Create Offer Template";
+}
+
+<div class="offer-form-page">
+
+    <div class="offer-form-header">
+
+        <div>
+            <h1>Create Offer Template</h1>
+            <p>Create a reusable template for candidate offer letters.</p>
+        </div>
+
+        <a asp-action="Index"
+           class="offer-back-btn">
+            ← Back
+        </a>
+
+    </div>
+
+
+    <form asp-action="Create"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger">
+        </div>
+
+
+        <!-- BASIC INFORMATION -->
+
+        <section class="offer-form-card">
+
+            <div class="offer-form-card-header">
+                <h2>Basic Information</h2>
+            </div>
+
+
+            <div class="offer-form-card-body">
+
+                <div class="offer-form-grid">
+
+                    <div class="offer-field">
+
+                        <label asp-for="Name">
+                            Template Name <span>*</span>
+                        </label>
+
+                        <input asp-for="Name"
+                               placeholder="Enter template name" />
+
+                        <span asp-validation-for="Name"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="offer-field">
+
+                        <label>
+                            Status <span>*</span>
+                        </label>
+
+                        <select asp-for="IsActive">
+
+                            <option value="true">
+                                Active
+                            </option>
+
+                            <option value="false">
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- TEMPLATE CONTENT -->
+
+        <section class="offer-form-card">
+
+            <div class="offer-form-card-header">
+                <h2>Template Content</h2>
+            </div>
+
+
+            <div class="offer-form-card-body">
+
+                <div class="offer-field">
+
+                    <label asp-for="Content">
+                        Content <span>*</span>
+                    </label>
+
+                    <small class="offer-field-help">
+                        Use {{variable_name}} for dynamic content.
+                        Variables will be detected automatically.
+                    </small>
+
+
+                    <textarea asp-for="Content"
+                              id="templateContent"
+                              rows="18"
+                              placeholder="Dear {{candidate_name}},
+
+We are pleased to offer you the position of {{job_title}} at {{company_name}}.
+
+Position Details:
+- Job Title: {{job_title}}
+- Department: {{department}}
+- Start Date: {{start_date}}
+- Reporting Manager: {{manager_name}}
+
+Compensation:
+- Salary: {{salary}}
+
+We look forward to welcoming you to our team."></textarea>
+
+                    <span asp-validation-for="Content"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- VARIABLES -->
+
+        <section class="offer-form-card">
+
+            <div class="offer-form-card-header">
+
+                <div>
+                    <h2>Variables</h2>
+                    <p>
+                        Automatically detected from your template.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="offer-form-card-body">
+
+                <div id="detectedVariables"
+                     class="detected-variable-list">
+
+                    <div class="no-variables">
+                        Add variables such as
+                        {{candidate_name}} to your template.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ACTIONS -->
+
+        <div class="offer-form-actions">
+
+            <a asp-action="Index"
+               class="offer-cancel-btn">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="offer-create-btn">
+                Create Template
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+
+        const contentBox =
+            document.getElementById(
+                "templateContent"
+            );
+
+        const variableContainer =
+            document.getElementById(
+                "detectedVariables"
+            );
+
+
+        function detectVariables() {
+
+            const content =
+                contentBox.value;
+
+            const regex =
+                /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g;
+
+
+            const variables =
+                new Set();
+
+            let match;
+
+
+            while (
+                (match = regex.exec(content)) !== null
+            ) {
+
+                variables.add(
+                    match[1]
+                );
+
+            }
+
+
+            variableContainer.innerHTML = "";
+
+
+            if (variables.size === 0) {
+
+                variableContainer.innerHTML =
+                    `<div class="no-variables">
+                        Add variables such as
+                        {{candidate_name}} to your template.
+                     </div>`;
+
+                return;
+
+            }
+
+
+            variables.forEach(variable => {
+
+                const badge =
+                    document.createElement("span");
+
+                badge.className =
+                    "detected-variable";
+
+                badge.textContent =
+                    `{{${variable}}}`;
+
+                variableContainer.appendChild(
+                    badge
+                );
+
+            });
+
+        }
+
+
+        contentBox.addEventListener(
+            "input",
+            detectVariables
+        );
+
+
+        detectVariables();
+
+    </script>
+}

@@ -1,0 +1,2510 @@
+﻿@{
+    ViewData["Title"] = "My Schedule";
+
+    string interviewerName =
+        ViewBag.InterviewerName ?? "Interviewer";
+
+    string jobTitle =
+        ViewBag.JobTitle ?? "";
+
+    string department =
+        ViewBag.Department ?? "";
+}
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+        --cal-ink: #171717;
+        --cal-muted: #8a8a8a;
+        --cal-line: #e8e8e8;
+        --cal-bg: #f7f7f6;
+        --coral: #f47d6b;
+        --coral-soft: #ffe1dc;
+        --mint: #32b990;
+        --mint-soft: #d8f5ed;
+        --lilac: #7566c8;
+        --lilac-soft: #e5e1f6;
+        --peach: #e9a666;
+        --peach-soft: #ffecd8;
+        --blue: #4e86e8;
+        --blue-soft: #e7f0ff;
+        --pink: #d879a9;
+        --pink-soft: #f7e2ee;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .planner-page {
+        min-height: calc(100vh - 70px);
+        background: var(--cal-bg);
+        padding: 0 34px 34px;
+        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: var(--cal-ink);
+    }
+
+    .calendar-shell {
+        width: min(100%, 1500px);
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 0 0 14px 14px;
+        box-shadow: 0 1px 14px rgba(22,22,22,.045);
+        overflow: hidden;
+        animation: calendarEnter .36s ease both;
+    }
+
+    @@keyframes calendarEnter {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .calendar-topbar {
+        min-height: 96px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 24px;
+        padding: 0 30px;
+        border-bottom: 1px solid var(--cal-line);
+    }
+
+        .calendar-topbar h1 {
+            margin: 0;
+            font-size: 38px;
+            line-height: 1;
+            letter-spacing: -1.7px;
+            font-weight: 700;
+            color: #111;
+        }
+
+    .view-switcher {
+        display: flex;
+        height: 40px;
+        justify-self: center;
+    }
+
+        .view-switcher button {
+            min-width: 92px;
+            border: 1px solid #e3e3e3;
+            border-right: 0;
+            background: #f7f7f7;
+            color: #878787;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+
+            .view-switcher button:first-child {
+                border-radius: 6px 0 0 6px;
+            }
+
+            .view-switcher button:last-child {
+                border-right: 1px solid #e3e3e3;
+                border-radius: 0 6px 6px 0;
+            }
+
+            .view-switcher button:hover {
+                background: #efefef;
+                color: #333;
+            }
+
+            .view-switcher button.active {
+                background: #0d0d0d;
+                border-color: #0d0d0d;
+                color: #fff;
+            }
+
+    .add-event-btn {
+        justify-self: end;
+        border: 0;
+        border-radius: 6px;
+        padding: 11px 18px;
+        background: var(--coral);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(244,125,107,.18);
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+        .add-event-btn span {
+            margin-right: 5px;
+            font-size: 19px;
+            vertical-align: -1px;
+        }
+
+        .add-event-btn:hover {
+            transform: translateY(-1px);
+            background: #ed6b58;
+            box-shadow: 0 5px 14px rgba(244,125,107,.20);
+        }
+
+    .calendar-layout {
+        display: grid;
+        grid-template-columns: 215px minmax(0,1fr);
+        min-height: 690px;
+    }
+
+    .planner-sidebar {
+        border-right: 1px solid var(--cal-line);
+        padding: 26px 16px 20px;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        background: #fff;
+    }
+
+    .sidebar-title {
+        margin: 0 0 22px;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .filter-list {
+        display: grid;
+        gap: 11px;
+    }
+
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        color: #303030;
+        font-size: 11px;
+        cursor: pointer;
+        user-select: none;
+        transition: opacity .18s ease;
+    }
+
+        .filter-item:hover {
+            opacity: .72;
+        }
+
+        .filter-item input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+    .filter-check {
+        width: 21px;
+        height: 21px;
+        display: grid;
+        place-items: center;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        transition: .18s ease;
+    }
+
+    .filter-item input:not(:checked) + .filter-check {
+        filter: grayscale(1);
+        opacity: .30;
+    }
+
+    .filter-check.meeting {
+        color: #2e6478;
+        background: #d9f1f7;
+    }
+
+    .filter-check.interview {
+        color: #50438f;
+        background: var(--lilac-soft);
+    }
+
+    .filter-check.training {
+        color: #a06c37;
+        background: var(--peach-soft);
+    }
+
+    .filter-check.company {
+        color: #158d69;
+        background: var(--mint-soft);
+    }
+
+    .filter-check.leave {
+        color: #ad5146;
+        background: var(--coral-soft);
+    }
+
+    .filter-check.personal {
+        color: #9b4f7c;
+        background: var(--pink-soft);
+    }
+
+    .filter-check.other {
+        color: #5f6771;
+        background: #edf0f2;
+    }
+
+    .interviewer-mini-profile {
+        margin: 26px 0 0;
+        padding: 14px 13px;
+        border-radius: 10px;
+        background: #faf9ff;
+        border: 1px solid #eeeafd;
+    }
+
+        .interviewer-mini-profile .eyebrow {
+            font-size: 9px;
+            letter-spacing: .08em;
+            color: #948aa9;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .interviewer-mini-profile strong {
+            display: block;
+            font-size: 12px;
+            color: #332d3d;
+            margin-bottom: 2px;
+        }
+
+        .interviewer-mini-profile span {
+            display: block;
+            font-size: 9px;
+            color: #948aa9;
+            line-height: 1.4;
+        }
+
+    .mini-calendar-wrap {
+        margin-top: auto;
+        padding-top: 26px;
+    }
+
+    .mini-calendar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+        .mini-calendar-header h3 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+    .mini-nav {
+        display: flex;
+        gap: 4px;
+    }
+
+        .mini-nav button {
+            width: 25px;
+            height: 25px;
+            border: 1px solid #ececec;
+            background: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #606060;
+        }
+
+    #miniCalendar {
+        font-size: 10px;
+    }
+
+    .planner-main {
+        min-width: 0;
+        background: #fff;
+    }
+
+    .month-toolbar {
+        min-height: 63px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px 0 20px;
+        border-bottom: 1px solid var(--cal-line);
+    }
+
+    .planner-title {
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -.5px;
+        color: #171717;
+    }
+
+    .month-arrows {
+        display: flex;
+        gap: 8px;
+    }
+
+        .month-arrows button {
+            width: 39px;
+            height: 39px;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            background: #f8f8f8;
+            color: #333;
+            font-size: 19px;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+
+            .month-arrows button:hover {
+                background: #ededed;
+                transform: translateY(-1px);
+            }
+
+    .date-strip {
+        display: grid;
+        grid-template-columns: repeat(7,minmax(90px,1fr));
+        gap: 0;
+        border-bottom: 1px solid var(--cal-line);
+        overflow-x: auto;
+    }
+
+    .date-box {
+        padding: 10px 8px;
+        text-align: center;
+        border-right: 1px solid var(--cal-line);
+        background: #fff;
+    }
+
+        .date-box.today {
+            background: #fafafa;
+        }
+
+    .date-day {
+        font-size: 9px;
+        color: #999;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .date-number {
+        font-size: 18px;
+        font-weight: 700;
+        color: #222;
+    }
+
+    .calendar-panel {
+        padding: 0;
+        background: #fff;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    /* FullCalendar - large calendar */
+    #interviewerCalendar .fc {
+        --fc-border-color: var(--cal-line);
+        --fc-page-bg-color: #fff;
+        --fc-neutral-bg-color: #fff;
+    }
+
+    #interviewerCalendar .fc-scrollgrid {
+        border: 0 !important;
+    }
+
+    #interviewerCalendar .fc-theme-standard td,
+    #interviewerCalendar .fc-theme-standard th {
+        border-color: var(--cal-line) !important;
+    }
+
+    #interviewerCalendar .fc-col-header-cell {
+        background: #fff;
+        border-top: 0 !important;
+    }
+
+    #interviewerCalendar .fc-col-header-cell-cushion {
+        padding: 9px 8px !important;
+        color: #919191 !important;
+        text-decoration: none !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        text-transform: none;
+    }
+
+    #interviewerCalendar .fc-daygrid-day {
+        min-height: 112px;
+        transition: background .16s ease;
+    }
+
+        #interviewerCalendar .fc-daygrid-day:hover {
+            background: #fcfcfb;
+        }
+
+    #interviewerCalendar .fc-daygrid-day-frame {
+        min-height: 112px;
+        padding: 5px;
+    }
+
+    #interviewerCalendar .fc-daygrid-day-top {
+        flex-direction: row;
+    }
+
+    #interviewerCalendar .fc-daygrid-day-number {
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        padding: 0 !important;
+        margin: 1px 0 6px 1px;
+        color: #222;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 50%;
+    }
+
+    #interviewerCalendar .fc-day-today {
+        background: #fff !important;
+    }
+
+        #interviewerCalendar .fc-day-today .fc-daygrid-day-number {
+            background: #0c0c0c;
+            color: #fff !important;
+        }
+
+    #interviewerCalendar .fc-day-other .fc-daygrid-day-number {
+        color: #c9c9c9 !important;
+    }
+
+    #interviewerCalendar .fc-daygrid-day-events {
+        margin: 0 1px !important;
+    }
+
+    #interviewerCalendar .fc-daygrid-event {
+        min-height: 21px;
+        margin: 1px 0 !important;
+        padding: 3px 5px !important;
+        border: 0 !important;
+        border-radius: 3px !important;
+        box-shadow: none !important;
+        font-size: 9px !important;
+        font-weight: 500 !important;
+        cursor: pointer;
+        overflow: hidden;
+        transition: transform .16s ease, filter .16s ease;
+        animation: eventIn .24s ease both;
+    }
+
+        #interviewerCalendar .fc-daygrid-event:hover {
+            transform: translateY(-1px);
+            filter: saturate(1.08);
+        }
+
+    #interviewerCalendar .fc-daygrid-event-dot {
+        display: none !important;
+    }
+
+    #interviewerCalendar .fc-event-time {
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+    #interviewerCalendar .fc-event-title {
+        font-size: 9px;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #interviewerCalendar .fc-daygrid-more-link {
+        font-size: 9px;
+        color: #6e63a7;
+        font-weight: 700;
+    }
+
+    @@keyframes eventIn {
+        from {
+            opacity: 0;
+            transform: translateY(3px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Week/day */
+    #interviewerCalendar .fc-timegrid-axis,
+    #interviewerCalendar .fc-timegrid-slot-label {
+        color: #9a9a9a;
+        font-size: 9px;
+    }
+
+    #interviewerCalendar .fc-timegrid-slot {
+        height: 36px;
+    }
+
+    #interviewerCalendar .fc-timegrid-event {
+        border: 0 !important;
+        border-radius: 5px !important;
+        padding: 2px 4px;
+        box-shadow: none !important;
+        font-size: 10px;
+    }
+
+    #interviewerCalendar .fc-timegrid-now-indicator-line {
+        border-color: #111 !important;
+    }
+
+    #interviewerCalendar .fc-timegrid-now-indicator-arrow {
+        border-color: #111 !important;
+        border-top-color: transparent !important;
+        border-bottom-color: transparent !important;
+    }
+
+    /* Mini FullCalendar */
+    #miniCalendar .fc-toolbar, #miniCalendar .fc-col-header {
+        display: none !important;
+    }
+
+    #miniCalendar .fc-scrollgrid {
+        border: 0 !important;
+    }
+
+    #miniCalendar .fc-theme-standard td, #miniCalendar .fc-theme-standard th {
+        border: 0 !important;
+    }
+
+    #miniCalendar .fc-daygrid-day-frame {
+        min-height: 27px !important;
+    }
+
+    #miniCalendar .fc-daygrid-day-number {
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto;
+        padding: 0 !important;
+        color: #3f3f3f;
+        text-decoration: none;
+        font-size: 10px;
+        border-radius: 50%;
+    }
+
+    #miniCalendar .fc-day-today {
+        background: transparent !important;
+    }
+
+        #miniCalendar .fc-day-today .fc-daygrid-day-number {
+            background: #0d0d0d;
+            color: #fff !important;
+        }
+
+    #miniCalendar .fc-day-other .fc-daygrid-day-number {
+        color: #d0d0d0 !important;
+    }
+
+    #miniCalendar .fc-daygrid-day-events {
+        display: none !important;
+    }
+
+    /* Modal */
+    .schedule-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(20,20,20,.38);
+        backdrop-filter: blur(3px);
+        z-index: 5000;
+        padding: 20px;
+    }
+
+    .schedule-modal {
+        width: min(100%, 560px);
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 24px 70px rgba(0,0,0,.20);
+        animation: modalIn .22s ease both;
+    }
+
+    @@keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px) scale(.985);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .schedule-modal h3 {
+        margin: 0 0 18px;
+        font-size: 22px;
+        color: #171717;
+    }
+
+    .schedule-field {
+        margin-bottom: 14px;
+    }
+
+        .schedule-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: #777;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .08em;
+        }
+
+        .schedule-field input, .schedule-field select, .schedule-field textarea {
+            width: 100%;
+            border: 1px solid #e2e2e2;
+            border-radius: 7px;
+            padding: 10px 11px;
+            font: inherit;
+            font-size: 12px;
+            color: #222;
+            background: #fff;
+            outline: none;
+            transition: .18s ease;
+        }
+
+        .schedule-field textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+            .schedule-field input:focus, .schedule-field select:focus, .schedule-field textarea:focus {
+                border-color: #8b7ad6;
+                box-shadow: 0 0 0 3px rgba(117,102,200,.10);
+            }
+
+    .schedule-time-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
+    }
+
+    .modal-btn {
+        border: 0;
+        border-radius: 7px;
+        padding: 10px 15px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .cancel-btn {
+        background: #f3f3f3;
+        color: #555;
+    }
+
+    .delete-btn {
+        background: #fff0ee;
+        color: #c6584c;
+    }
+
+    .save-btn {
+        background: #0d0d0d;
+        color: #fff;
+    }
+
+    .schedule-audit-box {
+        margin: 0 0 16px;
+        padding: 12px;
+        border-radius: 8px;
+        background: #faf9ff;
+        border: 1px solid #eeeafd;
+        font-size: 10px;
+        color: #635b70;
+    }
+
+    .audit-title {
+        font-size: 10px;
+        font-weight: 800;
+        margin-bottom: 7px;
+        color: #4f475c;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    #calendarAntiForgery {
+        display: none;
+    }
+
+    @@media (max-width: 980px) {
+        .planner-page {
+            padding: 0 16px 24px;
+        }
+
+        .calendar-topbar {
+            grid-template-columns: 1fr auto;
+        }
+
+            .calendar-topbar h1 {
+                grid-column: 1 / -1;
+                margin-top: 22px;
+            }
+
+        .view-switcher {
+            justify-self: start;
+            margin-bottom: 18px;
+        }
+
+        .add-event-btn {
+            margin-bottom: 18px;
+        }
+
+        .calendar-layout {
+            grid-template-columns: 190px minmax(0,1fr);
+        }
+    }
+
+    @@media (max-width: 720px) {
+        .planner-page {
+            padding: 0;
+        }
+
+        .calendar-shell {
+            border-radius: 0;
+        }
+
+        .calendar-topbar {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 22px 18px;
+            gap: 16px;
+        }
+
+            .calendar-topbar h1 {
+                width: 100%;
+                font-size: 32px;
+                margin: 0;
+            }
+
+        .view-switcher {
+            order: 2;
+            margin: 0;
+        }
+
+            .view-switcher button {
+                min-width: 68px;
+            }
+
+        .add-event-btn {
+            order: 3;
+            margin: 0 0 0 auto;
+        }
+
+        .calendar-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .planner-sidebar {
+            border-right: 0;
+            border-bottom: 1px solid var(--cal-line);
+        }
+
+        .mini-calendar-wrap, .interviewer-mini-profile {
+            display: none;
+        }
+
+        .filter-list {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+
+        .planner-main {
+            overflow-x: auto;
+        }
+
+        .month-toolbar, .date-strip, .calendar-panel {
+            min-width: 690px;
+        }
+
+        .schedule-time-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="planner-page">
+    <div class="calendar-shell">
+
+        <header class="calendar-topbar">
+            <h1>Calendar</h1>
+
+            <nav class="view-switcher" aria-label="Calendar view">
+                <button type="button" id="dayViewButton" onclick="switchView('timeGridDay')">Day</button>
+                <button type="button" id="weekViewButton" onclick="switchView('timeGridWeek')">Week</button>
+                <button type="button" id="monthViewButton" class="active" onclick="switchView('dayGridMonth')">Month</button>
+            </nav>
+
+            <button type="button"
+                    class="add-event-btn"
+                    onclick="openNewSchedule(new Date(), new Date(Date.now() + 60 * 60 * 1000))">
+                <span>＋</span> Add Event
+            </button>
+        </header>
+
+        <section class="calendar-layout">
+            <aside class="planner-sidebar">
+                <div>
+                    <h2 class="sidebar-title">Filters</h2>
+
+                    <div class="filter-list">
+                        <label class="filter-item">
+                            <input type="checkbox" value="Meeting" checked onchange="applyEventFilters()" />
+                            <span class="filter-check meeting">▣</span>
+                            <span>Meetings</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" value="Interview" checked onchange="applyEventFilters()" />
+                            <span class="filter-check interview">↗</span>
+                            <span>Interviews</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" value="Training" checked onchange="applyEventFilters()" />
+                            <span class="filter-check training">▱</span>
+                            <span>Training</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" value="CompanyEvent" checked onchange="applyEventFilters()" />
+                            <span class="filter-check company">↘</span>
+                            <span>Company Events</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" value="Leave" checked onchange="applyEventFilters()" />
+                            <span class="filter-check leave">□</span>
+                            <span>Leave / Time Off</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" value="Personal" checked onchange="applyEventFilters()" />
+                            <span class="filter-check personal">●</span>
+                            <span>Personal</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" value="Other" checked onchange="applyEventFilters()" />
+                            <span class="filter-check other">•</span>
+                            <span>Other</span>
+                        </label>
+                    </div>
+
+                    <div class="interviewer-mini-profile">
+                        <div class="eyebrow">INTERVIEWER</div>
+                        <strong>@interviewerName</strong>
+                        <span>
+                            @if (!string.IsNullOrWhiteSpace(jobTitle))
+                            {
+                                <text>@jobTitle</text>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(department))
+                            {
+                                <text> · @department</text>
+                            }
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mini-calendar-wrap">
+                    <div class="mini-calendar-header">
+                        <h3 id="miniMonthTitle">Month</h3>
+                        <div class="mini-nav">
+                            <button type="button" onclick="miniPrevious()" aria-label="Previous month">‹</button>
+                            <button type="button" onclick="miniNext()" aria-label="Next month">›</button>
+                        </div>
+                    </div>
+                    <div id="miniCalendar"></div>
+                </div>
+            </aside>
+
+            <main class="planner-main">
+                <div class="month-toolbar">
+                    <div id="plannerTitle" class="planner-title">Schedule</div>
+                    <div class="month-arrows">
+                        <button type="button" onclick="goPrevious()" aria-label="Previous">←</button>
+                        <button type="button" onclick="goNext()" aria-label="Next">→</button>
+                    </div>
+                </div>
+
+                <div id="dateStrip" class="date-strip"></div>
+
+                <div class="calendar-panel">
+                    <div id="interviewerCalendar"></div>
+                </div>
+            </main>
+        </section>
+    </div>
+</div>
+
+<!-- =============================================================
+     EVENT MODAL
+     ============================================================= -->
+
+<div id="scheduleOverlay"
+     class="schedule-overlay">
+
+    <div class="schedule-modal">
+
+
+        <h3 id="scheduleModalTitle">
+            Add Schedule
+        </h3>
+
+
+        <input type="hidden"
+               id="scheduleEventId" />
+
+
+
+        <!-- AUDIT -->
+
+        <div id="scheduleAuditBox"
+             class="schedule-audit-box"
+             style="display:none;">
+
+            <div class="audit-title">
+                Activity
+            </div>
+
+            <div id="scheduleAuditContent">
+            </div>
+
+        </div>
+
+
+
+        <div class="schedule-field">
+
+            <label>
+                EVENT TYPE
+            </label>
+
+            <select id="scheduleType">
+
+                <option value="Meeting">
+                    Meeting
+                </option>
+
+                <option value="Training">
+                    Training
+                </option>
+
+                <option value="Leave">
+                    Leave / Time Off
+                </option>
+
+                <option value="Personal">
+                    Personal Block
+                </option>
+
+                <option value="CompanyEvent">
+                    Company Event
+                </option>
+
+                <option value="Other">
+                    Other
+                </option>
+
+            </select>
+
+        </div>
+
+
+
+        <div class="schedule-field">
+
+            <label>
+                TITLE
+            </label>
+
+            <input id="scheduleTitle"
+                   type="text"
+                   placeholder="e.g. Engineering Team Meeting" />
+
+        </div>
+
+
+
+        <div class="schedule-time-row">
+
+
+            <div class="schedule-field">
+
+                <label>
+                    START
+                </label>
+
+                <input id="scheduleStart"
+                       type="datetime-local" />
+
+            </div>
+
+
+            <div class="schedule-field">
+
+                <label>
+                    END
+                </label>
+
+                <input id="scheduleEnd"
+                       type="datetime-local" />
+
+            </div>
+
+        </div>
+
+
+
+        <div class="schedule-field">
+
+            <label>
+                NOTES
+            </label>
+
+            <textarea id="scheduleNotes"
+                      placeholder="Optional notes"></textarea>
+
+        </div>
+
+
+
+        <div class="modal-actions">
+
+
+            <button type="button"
+                    class="modal-btn cancel-btn"
+                    onclick="closeScheduleModal()">
+
+                Cancel
+
+            </button>
+
+
+            <button type="button"
+                    id="deleteScheduleButton"
+                    class="modal-btn delete-btn"
+                    onclick="deleteScheduleEvent()">
+
+                Delete
+
+            </button>
+
+
+            <button type="button"
+                    id="saveScheduleButton"
+                    class="modal-btn save-btn"
+                    onclick="saveScheduleEvent()">
+
+                Save
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<form id="calendarAntiForgery">
+
+    @Html.AntiForgeryToken()
+
+</form>
+
+
+
+<script>
+
+    let interviewerCalendar;
+    let miniCalendar;
+
+
+
+    // =============================================================
+    // START
+    // =============================================================
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            initialiseMainCalendar();
+
+            initialiseMiniCalendar();
+        }
+    );
+
+
+
+    // =============================================================
+    // MAIN CALENDAR
+    // =============================================================
+
+    function initialiseMainCalendar() {
+
+        const element =
+            document.getElementById(
+                "interviewerCalendar"
+            );
+
+
+        interviewerCalendar =
+            new FullCalendar.Calendar(
+                element,
+                {
+
+                    initialView:
+                        "dayGridMonth",
+
+                    firstDay:
+                        1,
+
+                    headerToolbar:
+                        false,
+
+                    nowIndicator:
+                        true,
+
+                    selectable:
+                        true,
+
+                    selectMirror:
+                        true,
+
+                    allDaySlot:
+                        false,
+
+                    slotMinTime:
+                        "08:00:00",
+
+                    slotMaxTime:
+                        "19:00:00",
+
+                    slotDuration:
+                        "00:30:00",
+
+                    height:
+                        "auto",
+
+                    fixedWeekCount:
+                        false,
+
+                    eventDisplay:
+                        "block",
+
+
+                    // =============================================
+                    // EVENTS
+                    // =============================================
+
+                    events:
+                        function (
+                            info,
+                            successCallback,
+                            failureCallback) {
+
+                            const url =
+                                `/Interviewer/GetEvents` +
+                                `?start=${encodeURIComponent(info.startStr)}` +
+                                `&end=${encodeURIComponent(info.endStr)}`;
+
+
+                            fetch(url)
+
+                                .then(response => {
+
+                                    if (!response.ok) {
+
+                                        throw new Error(
+                                            "Unable to load schedule."
+                                        );
+                                    }
+
+                                    return response.json();
+                                })
+
+                                .then(events => {
+
+                                    const formatted =
+                                        events.map(event => {
+
+                                            return {
+
+                                                ...event,
+
+                                                backgroundColor:
+                                                    getBackgroundColor(
+                                                        event.scheduleType
+                                                    ),
+
+                                                borderColor:
+                                                    getBackgroundColor(
+                                                        event.scheduleType
+                                                    ),
+
+                                                textColor:
+                                                    getTextColor(
+                                                        event.scheduleType
+                                                    )
+                                            };
+                                        });
+
+
+                                    successCallback(
+                                        formatted
+                                    );
+                                })
+
+                                .catch(
+                                    failureCallback
+                                );
+                        },
+
+
+                    // =============================================
+                    // NEW
+                    // =============================================
+
+                    select:
+                        function (info) {
+
+                            openNewSchedule(
+                                info.start,
+                                info.end
+                            );
+                        },
+
+
+                    // =============================================
+                    // EXISTING
+                    // =============================================
+
+                    eventClick:
+                        function (info) {
+
+                            openExistingSchedule(
+                                info.event
+                            );
+                        },
+
+
+                    // =============================================
+                    // FILTER
+                    // =============================================
+
+                    eventDidMount:
+                        function (info) {
+
+                            const checked =
+                                getActiveFilters();
+
+                            const type =
+                                info.event
+                                    .extendedProps
+                                    .scheduleType;
+
+
+                            if (
+                                checked.length > 0 &&
+                                !checked.includes(type)
+                            ) {
+
+                                info.el.style.display =
+                                    "none";
+                            }
+                        },
+
+
+                    datesSet:
+                        function () {
+
+                            updatePlannerTitle();
+
+                            updateDateStrip();
+
+
+                            if (miniCalendar) {
+
+                                miniCalendar.gotoDate(
+                                    interviewerCalendar.getDate()
+                                );
+                            }
+                        }
+                }
+            );
+
+
+        interviewerCalendar.render();
+    }
+
+
+
+    // =============================================================
+    // MINI CALENDAR
+    // =============================================================
+
+    function initialiseMiniCalendar() {
+
+        const element =
+            document.getElementById(
+                "miniCalendar"
+            );
+
+
+        miniCalendar =
+            new FullCalendar.Calendar(
+                element,
+                {
+
+                    initialView:
+                        "dayGridMonth",
+
+                    headerToolbar:
+                        false,
+
+                    height:
+                        "auto",
+
+                    firstDay:
+                        1,
+
+                    fixedWeekCount:
+                        false,
+
+                    showNonCurrentDates:
+                        true,
+
+
+                    dateClick:
+                        function (info) {
+
+                            interviewerCalendar.gotoDate(
+                                info.date
+                            );
+
+                            interviewerCalendar.changeView(
+                                "timeGridDay"
+                            );
+
+                            updateViewButtons(
+                                "timeGridDay"
+                            );
+                        },
+
+
+                    datesSet:
+                        function () {
+
+                            document.getElementById(
+                                "miniMonthTitle"
+                            ).textContent =
+                                miniCalendar
+                                    .view
+                                    .title;
+                        }
+                }
+            );
+
+
+        miniCalendar.render();
+    }
+
+
+
+    // =============================================================
+    // NAVIGATION
+    // =============================================================
+
+    function goPrevious() {
+
+        interviewerCalendar.prev();
+    }
+
+
+    function goNext() {
+
+        interviewerCalendar.next();
+    }
+
+
+    function miniPrevious() {
+
+        miniCalendar.prev();
+    }
+
+
+    function miniNext() {
+
+        miniCalendar.next();
+    }
+
+
+
+    // =============================================================
+    // VIEW SWITCHING
+    // =============================================================
+
+    function switchView(
+        viewName) {
+
+        interviewerCalendar.changeView(
+            viewName
+        );
+
+        updateViewButtons(
+            viewName
+        );
+    }
+
+
+    function updateViewButtons(
+        viewName) {
+
+        document.querySelectorAll(
+            ".view-switcher button"
+        ).forEach(button => {
+
+            button.classList.remove(
+                "active"
+            );
+        });
+
+
+        if (
+            viewName ===
+            "timeGridDay"
+        ) {
+
+            document.getElementById(
+                "dayViewButton"
+            ).classList.add(
+                "active"
+            );
+        }
+
+        else if (
+            viewName ===
+            "dayGridMonth"
+        ) {
+
+            document.getElementById(
+                "monthViewButton"
+            ).classList.add(
+                "active"
+            );
+        }
+
+        else {
+
+            document.getElementById(
+                "weekViewButton"
+            ).classList.add(
+                "active"
+            );
+        }
+    }
+
+
+
+    // =============================================================
+    // TITLE
+    // =============================================================
+
+    function updatePlannerTitle() {
+
+        if (!interviewerCalendar) {
+
+            return;
+        }
+
+
+        document.getElementById(
+            "plannerTitle"
+        ).textContent =
+            interviewerCalendar
+                .view
+                .title;
+    }
+
+
+
+    // =============================================================
+    // DATE STRIP
+    // =============================================================
+
+    function updateDateStrip() {
+
+        const strip =
+            document.getElementById(
+                "dateStrip"
+            );
+
+
+        if (!interviewerCalendar) {
+
+            return;
+        }
+
+
+        const viewType =
+            interviewerCalendar
+                .view
+                .type;
+
+
+        if (
+            viewType ===
+            "dayGridMonth"
+        ) {
+
+            strip.style.display =
+                "none";
+
+            return;
+        }
+
+
+        strip.style.display =
+            "grid";
+
+        strip.innerHTML =
+            "";
+
+
+        const start =
+            new Date(
+                interviewerCalendar
+                    .view
+                    .activeStart
+            );
+
+
+        const numberOfDays =
+            viewType ===
+            "timeGridDay"
+                ? 1
+                : 7;
+
+
+        const today =
+            new Date();
+
+
+        for (
+            let i = 0;
+            i < numberOfDays;
+            i++
+        ) {
+
+            const date =
+                new Date(start);
+
+
+            date.setDate(
+                start.getDate() + i
+            );
+
+
+            const box =
+                document.createElement(
+                    "div"
+                );
+
+
+            box.className =
+                "date-box";
+
+
+            if (
+                date.toDateString() ===
+                today.toDateString()
+            ) {
+
+                box.classList.add(
+                    "today"
+                );
+            }
+
+
+            box.innerHTML = `
+
+                <div class="date-day">
+
+                    ${date.toLocaleDateString(
+                        undefined,
+                        {
+                            weekday:
+                                "long"
+                        }
+                    )}
+
+                </div>
+
+                <div class="date-number">
+
+                    ${date.getDate()}
+
+                </div>
+            `;
+
+
+            strip.appendChild(
+                box
+            );
+        }
+
+
+        strip.style.gridTemplateColumns =
+            numberOfDays === 1
+                ? "minmax(150px, 260px)"
+                : "repeat(7, minmax(90px, 1fr))";
+    }
+
+
+
+    // =============================================================
+    // FILTERS
+    // =============================================================
+
+    function getActiveFilters() {
+
+        return Array.from(
+            document.querySelectorAll(
+                ".filter-item input:checked"
+            )
+        ).map(
+            checkbox =>
+                checkbox.value
+        );
+    }
+
+
+    function applyEventFilters() {
+
+        interviewerCalendar
+            .rerenderEvents();
+    }
+
+
+
+    // =============================================================
+    // COLOURS
+    // =============================================================
+
+    function getBackgroundColor(type) {
+
+        switch (type) {
+
+            case "Interview":
+                return "#cabdf4";
+
+            case "Meeting":
+                return "#b7e6f2";
+
+            case "Training":
+                return "#f7d7b4";
+
+            case "Leave":
+                return "#f6c8cf";
+
+            case "CompanyEvent":
+                return "#bee5df";
+
+            case "Personal":
+                return "#efc7e8";
+
+            default:
+                return "#e8ecef";
+        }
+    }
+
+
+    function getTextColor(type) {
+
+        switch (type) {
+
+            case "Interview":
+                return "#50438f";
+
+            case "Meeting":
+                return "#2e6478";
+
+            case "Training":
+                return "#8b5a28";
+
+            case "Leave":
+                return "#934951";
+
+            case "CompanyEvent":
+                return "#316d64";
+
+            case "Personal":
+                return "#76506e";
+
+            default:
+                return "#586474";
+        }
+    }
+
+
+
+    // =============================================================
+    // DATE HELPERS
+    // =============================================================
+
+    function toLocalInput(
+        dateValue) {
+
+        if (!dateValue) {
+
+            return "";
+        }
+
+
+        const date =
+            new Date(
+                dateValue
+            );
+
+
+        const offset =
+            date.getTimezoneOffset();
+
+
+        const local =
+            new Date(
+                date.getTime() -
+                offset * 60000
+            );
+
+
+        return local
+            .toISOString()
+            .slice(0, 16);
+    }
+
+
+    function formatAuditDate(
+        value) {
+
+        if (!value) {
+
+            return "";
+        }
+
+
+        const date =
+            new Date(
+                value
+            );
+
+
+        if (isNaN(
+            date.getTime()
+        )) {
+
+            return "";
+        }
+
+
+        return date.toLocaleString(
+            undefined,
+            {
+                day:
+                    "2-digit",
+
+                month:
+                    "short",
+
+                year:
+                    "numeric",
+
+                hour:
+                    "2-digit",
+
+                minute:
+                    "2-digit"
+            }
+        );
+    }
+
+
+    function escapeAuditHtml(
+        value) {
+
+        if (!value) {
+
+            return "";
+        }
+
+
+        return String(value)
+
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
+    }
+
+
+
+    // =============================================================
+    // NEW EVENT
+    // =============================================================
+
+    function openNewSchedule(
+        start,
+        end) {
+
+        document.getElementById(
+            "scheduleModalTitle"
+        ).textContent =
+            "Add Schedule";
+
+
+        document.getElementById(
+            "scheduleEventId"
+        ).value =
+            "";
+
+
+        document.getElementById(
+            "scheduleType"
+        ).value =
+            "Meeting";
+
+
+        document.getElementById(
+            "scheduleTitle"
+        ).value =
+            "";
+
+
+        document.getElementById(
+            "scheduleStart"
+        ).value =
+            toLocalInput(
+                start
+            );
+
+
+        document.getElementById(
+            "scheduleEnd"
+        ).value =
+            toLocalInput(
+                end
+            );
+
+
+        document.getElementById(
+            "scheduleNotes"
+        ).value =
+            "";
+
+
+        // Hide audit for new event
+
+        document.getElementById(
+            "scheduleAuditContent"
+        ).innerHTML =
+            "";
+
+
+        document.getElementById(
+            "scheduleAuditBox"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "deleteScheduleButton"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "saveScheduleButton"
+        ).style.display =
+            "inline-block";
+
+
+        lockScheduleFields(
+            false
+        );
+
+
+        document.getElementById(
+            "scheduleOverlay"
+        ).style.display =
+            "flex";
+    }
+
+
+
+    // =============================================================
+    // EXISTING EVENT
+    // =============================================================
+
+    function openExistingSchedule(
+        event) {
+
+        const locked =
+            event.extendedProps
+                .isSystemGenerated === true;
+
+
+        document.getElementById(
+            "scheduleModalTitle"
+        ).textContent =
+            locked
+                ? "Scheduled Interview"
+                : "Edit Schedule";
+
+
+        document.getElementById(
+            "scheduleEventId"
+        ).value =
+            event.id;
+
+
+        document.getElementById(
+            "scheduleType"
+        ).value =
+            event.extendedProps
+                .scheduleType
+            ?? "Other";
+
+
+        document.getElementById(
+            "scheduleTitle"
+        ).value =
+            event.title
+            ?? "";
+
+
+        document.getElementById(
+            "scheduleStart"
+        ).value =
+            toLocalInput(
+                event.start
+            );
+
+
+        document.getElementById(
+            "scheduleEnd"
+        ).value =
+            event.end
+                ? toLocalInput(
+                    event.end
+                )
+                : "";
+
+
+        document.getElementById(
+            "scheduleNotes"
+        ).value =
+            event.extendedProps
+                .notes
+            ?? "";
+
+
+        // =========================================================
+        // AUDIT
+        // =========================================================
+
+        const auditBox =
+            document.getElementById(
+                "scheduleAuditBox"
+            );
+
+
+        const auditContent =
+            document.getElementById(
+                "scheduleAuditContent"
+            );
+
+
+        const createdBy =
+            event.extendedProps
+                .createdBy;
+
+
+        const createdAt =
+            event.extendedProps
+                .createdAt;
+
+
+        const updatedBy =
+            event.extendedProps
+                .updatedBy;
+
+
+        const updatedAt =
+            event.extendedProps
+                .updatedAt;
+
+
+        let auditHtml =
+            "";
+
+
+        if (createdBy) {
+
+            auditHtml += `
+
+                <div class="audit-row">
+
+                    <div class="audit-icon">
+                        +
+                    </div>
+
+                    <div>
+
+                        <div class="audit-label">
+                            Created by
+                        </div>
+
+                        <div class="audit-person">
+                            ${escapeAuditHtml(createdBy)}
+                        </div>
+
+                        <div class="audit-date">
+                            ${formatAuditDate(createdAt)}
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+
+        if (updatedBy) {
+
+            auditHtml += `
+
+                <div class="audit-row">
+
+                    <div class="audit-icon">
+                        ✎
+                    </div>
+
+                    <div>
+
+                        <div class="audit-label">
+                            Last updated by
+                        </div>
+
+                        <div class="audit-person">
+                            ${escapeAuditHtml(updatedBy)}
+                        </div>
+
+                        <div class="audit-date">
+                            ${formatAuditDate(updatedAt)}
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+
+        if (auditHtml) {
+
+            auditContent.innerHTML =
+                auditHtml;
+
+            auditBox.style.display =
+                "block";
+        }
+
+        else {
+
+            auditContent.innerHTML =
+                "";
+
+            auditBox.style.display =
+                "none";
+        }
+
+
+        // =========================================================
+        // BUTTONS
+        // =========================================================
+
+        document.getElementById(
+            "deleteScheduleButton"
+        ).style.display =
+            locked
+                ? "none"
+                : "inline-block";
+
+
+        document.getElementById(
+            "saveScheduleButton"
+        ).style.display =
+            locked
+                ? "none"
+                : "inline-block";
+
+
+        lockScheduleFields(
+            locked
+        );
+
+
+        document.getElementById(
+            "scheduleOverlay"
+        ).style.display =
+            "flex";
+    }
+
+
+
+    // =============================================================
+    // LOCK SYSTEM EVENTS
+    // =============================================================
+
+    function lockScheduleFields(
+        locked) {
+
+        document.getElementById(
+            "scheduleType"
+        ).disabled =
+            locked;
+
+
+        document.getElementById(
+            "scheduleTitle"
+        ).disabled =
+            locked;
+
+
+        document.getElementById(
+            "scheduleStart"
+        ).disabled =
+            locked;
+
+
+        document.getElementById(
+            "scheduleEnd"
+        ).disabled =
+            locked;
+
+
+        document.getElementById(
+            "scheduleNotes"
+        ).disabled =
+            locked;
+    }
+
+
+
+    // =============================================================
+    // CLOSE
+    // =============================================================
+
+    function closeScheduleModal() {
+
+        document.getElementById(
+            "scheduleOverlay"
+        ).style.display =
+            "none";
+
+
+        lockScheduleFields(
+            false
+        );
+    }
+
+
+
+    // =============================================================
+    // SAVE
+    // =============================================================
+
+    async function saveScheduleEvent() {
+
+        const id =
+            document.getElementById(
+                "scheduleEventId"
+            ).value;
+
+
+        const start =
+            document.getElementById(
+                "scheduleStart"
+            ).value;
+
+
+        const end =
+            document.getElementById(
+                "scheduleEnd"
+            ).value;
+
+
+        if (
+            !start ||
+            !end
+        ) {
+
+            alert(
+                "Please select start and end time."
+            );
+
+            return;
+        }
+
+
+        if (
+            new Date(end) <=
+            new Date(start)
+        ) {
+
+            alert(
+                "End time must be after start time."
+            );
+
+            return;
+        }
+
+
+        const token =
+            document.querySelector(
+                '#calendarAntiForgery input[name="__RequestVerificationToken"]'
+            ).value;
+
+
+        const body =
+            new URLSearchParams();
+
+
+        if (id) {
+
+            body.append(
+                "id",
+                id
+            );
+        }
+
+
+        body.append(
+            "scheduleType",
+            document.getElementById(
+                "scheduleType"
+            ).value
+        );
+
+
+        body.append(
+            "title",
+            document.getElementById(
+                "scheduleTitle"
+            ).value
+        );
+
+
+        body.append(
+            "start",
+            start
+        );
+
+
+        body.append(
+            "end",
+            end
+        );
+
+
+        body.append(
+            "notes",
+            document.getElementById(
+                "scheduleNotes"
+            ).value
+        );
+
+
+        body.append(
+            "isAllDay",
+            "false"
+        );
+
+
+        body.append(
+            "__RequestVerificationToken",
+            token
+        );
+
+
+        const url =
+            id
+                ? "/Interviewer/UpdateEvent"
+                : "/Interviewer/AddEvent";
+
+
+        const response =
+            await fetch(
+                url,
+                {
+
+                    method:
+                        "POST",
+
+                    headers:
+                    {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+
+                    body:
+                        body.toString()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            alert(
+                await response.text()
+            );
+
+            return;
+        }
+
+
+        closeScheduleModal();
+
+
+        interviewerCalendar
+            .refetchEvents();
+    }
+
+
+
+    // =============================================================
+    // DELETE
+    // =============================================================
+
+    async function deleteScheduleEvent() {
+
+        const id =
+            document.getElementById(
+                "scheduleEventId"
+            ).value;
+
+
+        if (!id) {
+
+            return;
+        }
+
+
+        if (!confirm(
+            "Delete this schedule item?"
+        )) {
+
+            return;
+        }
+
+
+        const token =
+            document.querySelector(
+                '#calendarAntiForgery input[name="__RequestVerificationToken"]'
+            ).value;
+
+
+        const body =
+            new URLSearchParams();
+
+
+        body.append(
+            "id",
+            id
+        );
+
+
+        body.append(
+            "__RequestVerificationToken",
+            token
+        );
+
+
+        const response =
+            await fetch(
+                "/Interviewer/DeleteEvent",
+                {
+
+                    method:
+                        "POST",
+
+                    headers:
+                    {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+
+                    body:
+                        body.toString()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            alert(
+                await response.text()
+            );
+
+            return;
+        }
+
+
+        closeScheduleModal();
+
+
+        interviewerCalendar
+            .refetchEvents();
+    }
+
+</script>

@@ -1,0 +1,4605 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Interviewer Management";
+
+    var interviewers =
+        Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.ApplicationUser>();
+}
+
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
+
+
+<style>
+
+    /* ============================================================
+           PAGE
+           ============================================================ */
+
+    .calendar-page {
+        min-height: calc(100vh - 75px);
+        padding: 16px;
+        background: #f6f6fb;
+    }
+
+    .calendar-shell {
+        max-width: 1540px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 68px 285px minmax(0, 1fr);
+        gap: 14px;
+        align-items: stretch;
+    }
+
+    .calendar-surface {
+        background: #ffffff;
+        border: 1px solid #e8e8ef;
+        border-radius: 19px;
+        box-shadow: 0 4px 18px rgba(23, 23, 45, .035);
+    }
+
+
+    /* ============================================================
+           AVATAR RAIL
+           ============================================================ */
+
+    .avatar-rail {
+        min-height: 790px;
+        padding: 12px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        overflow: visible;
+        z-index: 100;
+    }
+
+    .avatar-rail-logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #806cf4;
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 11px;
+    }
+
+    .avatar-rail-divider {
+        width: 38px;
+        height: 1px;
+        background: #ededf2;
+        margin-bottom: 12px;
+    }
+
+    .avatar-list {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .avatar-person {
+        width: 100%;
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+
+    .avatar-button {
+        width: 45px;
+        height: 45px;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: #eeeaff;
+        color: #654fda;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 0 0 1px #e0e2e9;
+        transition: transform .22s cubic-bezier(.22, .8, .25, 1), box-shadow .22s ease;
+    }
+
+        .avatar-button:hover {
+            transform: translateY(-2px) scale(1.035);
+            box-shadow: 0 0 0 4px #efecff, 0 8px 18px rgba(97, 76, 210, .13);
+        }
+
+        .avatar-button.active {
+            outline: 2px solid #806cf4;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px #efecff;
+        }
+
+        .avatar-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+    /* ============================================================
+           SMOOTH HOVER PROFILE POPUP
+           ============================================================ */
+
+    .avatar-profile-popup {
+        position: absolute;
+        left: calc(100% + 14px);
+        top: 50%;
+        width: 300px;
+        padding: 16px;
+        background: #ffffff;
+        border: 1px solid #e3e5ec;
+        border-radius: 16px;
+        box-shadow: 0 22px 55px rgba(15, 23, 42, .14), 0 5px 15px rgba(15, 23, 42, .04);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-50%) translateX(-12px) scale(.97);
+        transform-origin: left center;
+        transition: opacity .24s ease, transform .24s cubic-bezier(.22, .8, .25, 1), visibility .24s ease;
+        will-change: opacity, transform;
+        z-index: 5000;
+    }
+
+        .avatar-profile-popup::before {
+            content: "";
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            left: -7px;
+            top: 50%;
+            background: #ffffff;
+            border-left: 1px solid #e3e5ec;
+            border-bottom: 1px solid #e3e5ec;
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+    .avatar-person:hover .avatar-profile-popup,
+    .avatar-person:focus-within .avatar-profile-popup {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(-50%) translateX(0) scale(1);
+    }
+
+    .profile-popup-head {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 14px;
+    }
+
+    .profile-popup-avatar {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eeeaff;
+        color: #654fda;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+        .profile-popup-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .profile-popup-name {
+        color: #17172d;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .profile-popup-role {
+        margin-top: 3px;
+        color: #9299a7;
+        font-size: 10px;
+    }
+
+    .profile-popup-grid {
+        padding: 12px 0;
+        display: grid;
+        grid-template-columns: 83px 1fr;
+        gap: 8px 10px;
+        border-top: 1px solid #efeff4;
+        border-bottom: 1px solid #efeff4;
+    }
+
+    .profile-popup-label {
+        color: #a0a6b2;
+        font-size: 8px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .profile-popup-value {
+        color: #4f5b6c;
+        font-size: 9px;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .profile-popup-skills {
+        margin-top: 11px;
+        color: #697486;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+        .profile-popup-skills strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #a0a6b2;
+            font-size: 8px;
+            text-transform: uppercase;
+        }
+
+    .profile-popup-button {
+        width: 100%;
+        height: 37px;
+        margin-top: 12px;
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: white;
+        font-size: 9px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: transform .15s ease, background .15s ease;
+    }
+
+        .profile-popup-button:hover {
+            background: #152f52;
+            transform: translateY(-1px);
+        }
+
+
+    /* ============================================================
+           LEFT COLUMN
+           ============================================================ */
+
+    .left-column {
+        min-height: 790px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+
+    
+
+
+    /* ============================================================
+           REMINDERS
+           ============================================================ */
+
+    .reminders-card {
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e8e8ef;
+        border-radius: 17px;
+        box-shadow: 0 4px 14px rgba(20, 25, 45, .035);
+    }
+
+    .reminders-header {
+        min-height: 52px;
+        padding: 0 17px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #efeff4;
+    }
+
+        .reminders-header h3 {
+            margin: 0;
+            color: #17172c;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+    .reminders-menu {
+        color: #a3a8b2;
+        font-size: 17px;
+        letter-spacing: 2px;
+    }
+
+    .reminder-list {
+        padding: 8px 17px 11px;
+    }
+
+    .reminder-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #f2f2f6;
+    }
+
+        .reminder-item:last-child {
+            border-bottom: none;
+        }
+
+    .reminder-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 9px;
+    }
+
+    .reminder-copy {
+        min-width: 0;
+    }
+
+    .reminder-title {
+        overflow: hidden;
+        color: #29293a;
+        font-size: 10px;
+        font-weight: 750;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .reminder-time {
+        margin-top: 3px;
+        color: #9198a6;
+        font-size: 8px;
+    }
+
+    .reminder-type {
+        min-height: 21px;
+        padding: 0 8px;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        font-size: 7px;
+        font-weight: 750;
+    }
+
+        .reminder-type.interview {
+            background: #eeeaff;
+            color: #6853d8;
+        }
+
+        .reminder-type.meeting {
+            background: #e2f3fc;
+            color: #4684aa;
+        }
+
+        .reminder-type.training {
+            background: #f5e5f2;
+            color: #9e5e8a;
+        }
+
+        .reminder-type.leave {
+            background: #e4f4e8;
+            color: #558567;
+        }
+
+        .reminder-type.companyevent {
+            background: #fff0da;
+            color: #9b732e;
+        }
+
+        .reminder-type.personal {
+            background: #ffe7e9;
+            color: #a9585f;
+        }
+
+        .reminder-type.other {
+            background: #eef0f3;
+            color: #697586;
+        }
+
+    .empty-reminder {
+        padding: 14px 0;
+        color: #9da4b0;
+        font-size: 9px;
+    }
+
+
+    /* ============================================================
+           EVENT TYPE CARD
+           ============================================================ */
+
+    .event-type-card {
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e8e8ef;
+        border-radius: 17px;
+        box-shadow: 0 4px 14px rgba(20, 25, 45, .035);
+    }
+
+    .event-type-header {
+        min-height: 52px;
+        padding: 0 17px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #efeff4;
+    }
+
+        .event-type-header h3 {
+            margin: 0;
+            color: #17172c;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+    .event-type-chevron {
+        color: #969eaa;
+        font-size: 13px;
+    }
+
+    .event-type-list {
+        padding: 13px 17px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .event-filter-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    .event-pill {
+        min-height: 22px;
+        padding: 0 8px;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 750;
+    }
+
+        .event-pill::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+
+        .event-pill.all {
+            background: #f1f2f5;
+            color: #697487;
+        }
+
+            .event-pill.all::before {
+                background: #9ba4b2;
+            }
+
+        .event-pill.interview {
+            background: #eeeaff;
+            color: #6956da;
+        }
+
+            .event-pill.interview::before {
+                background: #806cf4;
+            }
+
+        .event-pill.meeting {
+            background: #e4f3fc;
+            color: #4784aa;
+        }
+
+            .event-pill.meeting::before {
+                background: #58a8dc;
+            }
+
+        .event-pill.training {
+            background: #f6e7f2;
+            color: #9f6089;
+        }
+
+            .event-pill.training::before {
+                background: #d58fbd;
+            }
+
+        .event-pill.leave {
+            background: #e5f4e9;
+            color: #548665;
+        }
+
+            .event-pill.leave::before {
+                background: #6eb780;
+            }
+
+        .event-pill.companyevent {
+            background: #fff1dc;
+            color: #99702d;
+        }
+
+            .event-pill.companyevent::before {
+                background: #e6ad4d;
+            }
+
+        .event-pill.personal {
+            background: #ffe7e9;
+            color: #aa575f;
+        }
+
+            .event-pill.personal::before {
+                background: #df787f;
+            }
+
+        .event-pill.other {
+            background: #eef0f3;
+            color: #6a7585;
+        }
+
+            .event-pill.other::before {
+                background: #9aa4b1;
+            }
+
+
+    /* ============================================================
+           SWITCHES
+           ============================================================ */
+
+    .pretty-switch {
+        width: 34px;
+        height: 19px;
+        position: relative;
+        flex: 0 0 34px;
+    }
+
+        .pretty-switch input {
+            position: absolute;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+    .pretty-slider {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: #c7cbd4;
+        transition: background .18s ease;
+    }
+
+        .pretty-slider::before {
+            content: "";
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            left: 2px;
+            top: 2px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 1px 4px rgba(0,0,0,.15);
+            transition: transform .18s ease;
+        }
+
+    .pretty-switch input:checked + .pretty-slider {
+        background: #2d7cf0;
+    }
+
+        .pretty-switch input:checked + .pretty-slider::before {
+            transform: translateX(15px);
+        }
+
+
+    /* ============================================================
+           MAIN CALENDAR
+           ============================================================ */
+
+    .main-calendar {
+        min-width: 0;
+        min-height: 790px;
+        overflow: hidden;
+    }
+
+    .main-calendar-header {
+        min-height: 79px;
+        padding: 16px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        border-bottom: 1px solid #f0f0f4;
+    }
+
+    .calendar-navigation {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .calendar-title {
+        margin: 0 4px;
+        color: #17172b;
+        font-size: 20px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .calendar-arrow {
+        width: 31px;
+        height: 31px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: #979eaa;
+        font-size: 19px;
+        cursor: pointer;
+    }
+
+        .calendar-arrow:hover {
+            background: #f4f4f8;
+            color: #4f5060;
+        }
+
+    .today-button {
+        height: 29px;
+        padding: 0 11px;
+        border: none;
+        border-radius: 8px;
+        background: #161628;
+        color: #ffffff;
+        font-size: 8px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .view-switch {
+        padding: 4px;
+        display: flex;
+        gap: 3px;
+        background: #f2f2f6;
+        border-radius: 11px;
+    }
+
+    .view-button {
+        min-width: 76px;
+        height: 31px;
+        padding: 0 13px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: #9297a4;
+        font-size: 9px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .view-button.active {
+            background: #ffffff;
+            color: #1f1f30;
+            box-shadow: 0 2px 7px rgba(15,23,42,.08);
+        }
+
+    .calendar-container {
+        position: relative;
+        padding: 14px 18px 22px;
+        background: linear-gradient( 180deg, #fbfbfe 0, #ffffff 130px );
+    }
+
+
+    /* ============================================================
+           FULLCALENDAR BASE
+           ============================================================ */
+
+    #mainCalendar .fc-toolbar {
+        display: none;
+    }
+
+    #mainCalendar .fc-scrollgrid {
+        border: none !important;
+    }
+
+    #mainCalendar .fc-theme-standard td,
+    #mainCalendar .fc-theme-standard th {
+        border-color: #efeff4;
+    }
+
+
+    /* ============================================================
+           WEEK VIEW HEADER CARDS
+           ============================================================ */
+
+    #mainCalendar
+    .fc-timeGridWeek-view
+    .fc-col-header-cell {
+        padding: 5px;
+        border: none !important;
+        background: transparent;
+    }
+
+    #mainCalendar
+    .fc-timeGridWeek-view
+    .fc-col-header-cell-cushion {
+        width: calc(100% - 8px);
+        min-height: 81px;
+        margin: 0 auto;
+        padding: 12px 7px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: #f8f8fb;
+        border-radius: 15px;
+        text-decoration: none;
+        transition: transform .16s ease, background .16s ease;
+    }
+
+        #mainCalendar
+        .fc-timeGridWeek-view
+        .fc-col-header-cell-cushion:hover {
+            transform: translateY(-2px);
+            background: #f3f2f8;
+        }
+
+    #mainCalendar
+    .fc-timeGridWeek-view
+    .fc-day-today
+    .fc-col-header-cell-cushion {
+        background: linear-gradient( 135deg, #dff6f4, #edf8ff );
+    }
+
+    .week-day-name {
+        color: #959ba7;
+        font-size: 8px;
+        font-weight: 650;
+    }
+
+    .week-day-number {
+        color: #1f202c;
+        font-size: 26px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    #mainCalendar
+    .fc-day-today
+    .week-day-number {
+        color: #163b50;
+    }
+
+
+    /* ============================================================
+           WEEK GRID
+           ============================================================ */
+
+    #mainCalendar .fc-timegrid-axis {
+        width: 62px !important;
+    }
+
+    #mainCalendar .fc-timegrid-slot {
+        height: 43px;
+        border-top: 1px solid #f1f0f5;
+    }
+
+    #mainCalendar .fc-timegrid-slot-label {
+        border: none;
+    }
+
+    #mainCalendar
+    .fc-timegrid-slot-label-cushion {
+        padding-right: 10px;
+        color: #9297a3;
+        font-size: 8px;
+    }
+
+    #mainCalendar
+    .fc-timegrid-col {
+        background: #ffffff;
+    }
+
+        #mainCalendar
+        .fc-timegrid-col.fc-day-today {
+            background: rgba(223,246,244,.17) !important;
+        }
+
+    #mainCalendar
+    .fc-timegrid-now-indicator-line {
+        border-color: #4c89f7;
+        border-width: 2px;
+    }
+
+
+    /* ============================================================
+           MONTHLY PRETTY CARDS
+           ============================================================ */
+
+    #mainCalendar .fc-dayGridMonth-view {
+        padding: 9px;
+        background: #f8f8fc;
+        border-radius: 17px;
+    }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-scrollgrid-section > td {
+            border: none !important;
+        }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-col-header-cell {
+            padding: 0 5px 8px;
+            border: none !important;
+            background: transparent;
+        }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-col-header-cell-cushion {
+            padding: 8px 0;
+            color: #b0b2bc;
+            font-size: 8px;
+            font-weight: 750;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-daygrid-day {
+            padding: 5px;
+            border: none !important;
+            background: transparent !important;
+            overflow: hidden;
+        }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-daygrid-day-frame {
+            min-height: 120px;
+            padding: 8px;
+            overflow: hidden;
+            border-radius: 15px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(20,25,45,.025);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+            #mainCalendar
+            .fc-dayGridMonth-view
+            .fc-daygrid-day-frame:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 7px 16px rgba(20,25,45,.055);
+            }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-daygrid-day-top {
+            flex-direction: row;
+            justify-content: flex-end;
+        }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-daygrid-day-number {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #484956;
+            font-size: 10px;
+            font-weight: 750;
+            text-decoration: none;
+        }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-day-other
+        .fc-daygrid-day-number {
+            color: #c7c9d0;
+        }
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-day-today {
+            background: transparent !important;
+        }
+
+            #mainCalendar
+            .fc-dayGridMonth-view
+            .fc-day-today
+            .fc-daygrid-day-number {
+                background: #4f68e8;
+                color: #ffffff;
+                box-shadow: 0 3px 8px rgba(79,104,232,.22);
+            }
+
+
+    /* ============================================================
+           CUTE EVENT CARDS
+           ONLY TITLE + TIME
+           ============================================================ */
+
+    #mainCalendar .fc-event {
+        padding: 0 !important;
+        border: none !important;
+        border-radius: 12px !important;
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(32,32,50,.035);
+    }
+
+    #mainCalendar .fc-event-main {
+        padding: 0 !important;
+    }
+
+    .cute-event {
+        width: 100%;
+        height: 100%;
+        padding: 7px 8px;
+        overflow: hidden;
+        color: inherit;
+    }
+
+    .cute-event-title {
+        overflow: hidden;
+        color: inherit;
+        font-size: 9px;
+        font-weight: 750;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cute-event-time {
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        overflow: hidden;
+        color: inherit;
+        font-size: 7px;
+        font-weight: 600;
+        opacity: .68;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .cute-event-clock {
+        flex: 0 0 auto;
+        font-size: 8px;
+    }
+
+    #mainCalendar
+    .fc-timeGridWeek-view
+    .cute-event {
+        padding: 8px 9px;
+    }
+
+    #mainCalendar
+    .fc-timeGridWeek-view
+    .cute-event-title {
+        font-size: 9px;
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    #mainCalendar
+    .fc-timeGridWeek-view
+    .cute-event-time {
+        margin-top: 5px;
+        font-size: 7px;
+    }
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .fc-daygrid-event {
+        max-width: 100% !important;
+        margin: 3px 0 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border-radius: 7px !important;
+    }
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event {
+        padding: 4px 6px;
+    }
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event-title {
+        font-size: 7px;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event-time {
+        margin-top: 2px;
+        font-size: 6px;
+    }
+
+
+    /* ============================================================
+           MODAL
+           ============================================================ */
+
+    .event-modal-overlay {
+        position: fixed;
+        inset: 0;
+        padding: 20px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15,23,42,.36);
+        backdrop-filter: blur(3px);
+        z-index: 8000;
+    }
+
+        .event-modal-overlay.show {
+            display: flex;
+        }
+
+    .event-modal {
+        width: min(620px, 100%);
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 28px 80px rgba(15,23,42,.22);
+    }
+
+    .event-modal-header {
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #ededf2;
+    }
+
+        .event-modal-header h3 {
+            margin: 0;
+            color: #111d32;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+    .event-modal-close {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 9px;
+        background: #f4f5f8;
+        color: #758195;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .event-modal-body {
+        padding: 20px;
+    }
+
+    .event-field {
+        margin-bottom: 14px;
+    }
+
+        .event-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: #647084;
+            font-size: 8px;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: .45px;
+        }
+
+        .event-field input,
+        .event-field select,
+        .event-field textarea {
+            width: 100%;
+            border: 1px solid #dfe3ea;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #2d3b50;
+            font-size: 10px;
+            outline: none;
+        }
+
+        .event-field input,
+        .event-field select {
+            min-height: 42px;
+            padding: 0 11px;
+        }
+
+        .event-field textarea {
+            min-height: 88px;
+            padding: 10px 11px;
+            resize: vertical;
+        }
+
+    .event-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 13px;
+    }
+
+    .audit-card {
+        margin-top: 5px;
+        padding: 13px 14px;
+        background: #f8f9fb;
+        border: 1px solid #e7eaf0;
+        border-radius: 11px;
+    }
+
+    .audit-heading {
+        margin-bottom: 9px;
+        color: #536174;
+        font-size: 8px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .45px;
+    }
+
+    .audit-grid {
+        display: grid;
+        grid-template-columns: 95px 1fr;
+        gap: 7px 10px;
+    }
+
+    .audit-label {
+        color: #9ba5b3;
+        font-size: 8px;
+    }
+
+    .audit-value {
+        color: #465469;
+        font-size: 8px;
+        font-weight: 600;
+    }
+
+    .locked-message {
+        display: none;
+        margin-top: 12px;
+        padding: 11px 13px;
+        background: #fff7e7;
+        color: #93651a;
+        border-radius: 10px;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+        .locked-message.show {
+            display: block;
+        }
+
+    .modal-error {
+        display: none;
+        margin: 0 20px 15px;
+        padding: 10px 12px;
+        background: #fff0f1;
+        color: #a23c44;
+        border-radius: 9px;
+        font-size: 9px;
+    }
+
+        .modal-error.show {
+            display: block;
+        }
+
+    .event-modal-actions {
+        padding: 14px 20px 19px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid #ededf2;
+    }
+
+    .event-action-button {
+        min-height: 38px;
+        padding: 0 15px;
+        border-radius: 9px;
+        font-size: 9px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .event-close-button {
+        border: 1px solid #dfe3ea;
+        background: #ffffff;
+        color: #657387;
+    }
+
+    .event-delete-button {
+        border: 1px solid #f0c8ca;
+        background: #ffffff;
+        color: #b44349;
+    }
+
+    .event-save-button {
+        border: none;
+        background: #0b1f3a;
+        color: #ffffff;
+    }
+
+    .event-action-button:disabled,
+    .event-field input:disabled,
+    .event-field select:disabled,
+    .event-field textarea:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+
+    /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+
+    @@media (max-width: 1100px) {
+
+        .calendar-shell {
+            grid-template-columns: 64px minmax(0, 1fr);
+        }
+
+        .left-column {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 760px) {
+
+        .calendar-page {
+            padding: 9px;
+        }
+
+        .calendar-shell {
+            display: block;
+        }
+
+        .avatar-rail {
+            min-height: auto;
+            margin-bottom: 10px;
+            padding: 9px;
+            flex-direction: row;
+            overflow-x: auto;
+        }
+
+        .avatar-rail-logo {
+            flex: 0 0 44px;
+            width: 44px;
+            height: 44px;
+            margin: 0 8px 0 0;
+        }
+
+        .avatar-rail-divider {
+            display: none;
+        }
+
+        .avatar-list {
+            width: auto;
+            flex-direction: row;
+        }
+
+        .avatar-person {
+            width: auto;
+            flex: 0 0 auto;
+        }
+
+        .avatar-profile-popup {
+            display: none;
+        }
+
+        .main-calendar-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .view-switch {
+            width: 100%;
+        }
+
+        .view-button {
+            flex: 1;
+        }
+
+        .calendar-container {
+            overflow-x: auto;
+        }
+
+        #mainCalendar {
+            min-width: 760px;
+        }
+
+        .event-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ============================================================
+       MONTH VIEW EVENT TEXT
+       ============================================================ */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event-title {
+        font-size: 9px;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.2;
+    }
+
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event-time {
+        margin-top: 3px;
+        font-size: 7px;
+        font-weight: 500;
+        color: #111827;
+        opacity: 1;
+    }
+
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event-clock {
+        color: #111827;
+        font-size: 7px;
+    }
+
+    /* ============================================================
+       FIX EVENT MODAL BUTTONS
+       ============================================================ */
+
+    .event-modal-actions {
+        padding: 15px 20px 18px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        border-top: 1px solid #edf0f4;
+        background: #ffffff;
+    }
+
+
+    .event-action-button {
+        min-width: 92px;
+        height: 40px;
+        padding: 0 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 9px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        transition: background .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+    }
+
+
+    /* CLOSE */
+
+    .event-close-button {
+        border: 1px solid #dce2ea;
+        background: #ffffff;
+        color: #64748b;
+    }
+
+        .event-close-button:hover {
+            background: #f8fafc;
+            color: #334155;
+            transform: translateY(-1px);
+        }
+
+
+    /* DELETE */
+
+    .event-delete-button {
+        border: 1px solid #f3c4c8;
+        background: #ffffff;
+        color: #c64750;
+    }
+
+        .event-delete-button:hover {
+            background: #fff5f5;
+            border-color: #eca8ae;
+            transform: translateY(-1px);
+        }
+
+
+    /* SAVE */
+
+    .event-save-button {
+        min-width: 112px;
+        border: 1px solid #0b1f3a;
+        background: #0b1f3a;
+        color: #ffffff;
+        box-shadow: 0 3px 8px rgba(11, 31, 58, .12);
+    }
+
+        .event-save-button:hover {
+            background: #17385d;
+            border-color: #17385d;
+            transform: translateY(-1px);
+        }
+
+
+    /* DISABLED */
+
+    .event-action-button:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ============================================================
+       MONTH DAY CARDS - SOFT COLOURED OUTER LAYER
+       ============================================================ */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .fc-daygrid-day-frame {
+        background: linear-gradient( 145deg, #ffffff 0%, #faf8ff 100% ) !important;
+        border: 1px solid #eeeaff;
+        box-shadow: 0 4px 12px rgba(103, 83, 216, .05);
+    }
+
+
+        /* SLIGHTLY DIFFERENT HOVER */
+
+        #mainCalendar
+        .fc-dayGridMonth-view
+        .fc-daygrid-day-frame:hover {
+            background: linear-gradient( 145deg, #ffffff 0%, #f5f1ff 100% ) !important;
+            border-color: #dfd8ff;
+            box-shadow: 0 8px 18px rgba(103, 83, 216, .09);
+            transform: translateY(-2px);
+        }
+
+
+    /* TODAY CARD */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .fc-day-today
+    .fc-daygrid-day-frame {
+        background: linear-gradient( 145deg, #f6f3ff 0%, #eef5ff 100% ) !important;
+        border-color: #d9d2ff;
+    }
+
+    /* ============================================================
+       MONTH EVENT CARD - COLOUR THE WHOLE CARD
+       ============================================================ */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .fc-daygrid-event {
+        padding: 0 !important;
+        margin: 4px 0 !important;
+        border: none !important;
+        border-radius: 9px !important;
+        overflow: hidden !important;
+        box-shadow: 0 3px 8px rgba(20, 25, 45, .06) !important;
+    }
+
+
+    /* REMOVE THE WHITE INNER LAYER */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .fc-event-main,
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .fc-event-main-frame {
+        background: transparent !important;
+        border-radius: inherit !important;
+    }
+
+
+    /* THE TITLE + TIME AREA USES THE EVENT COLOUR */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event {
+        width: 100%;
+        padding: 6px 8px !important;
+        border-radius: 9px;
+        background: inherit !important;
+        box-sizing: border-box;
+    }
+
+
+    /* TITLE */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event-title {
+        color: #111827 !important;
+        font-size: 9px !important;
+        font-weight: 800 !important;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+
+    /* TIME */
+
+    #mainCalendar
+    .fc-dayGridMonth-view
+    .cute-event-time {
+        margin-top: 3px;
+        color: #111827 !important;
+        font-size: 7px !important;
+        font-weight: 500 !important;
+        opacity: .78 !important;
+    }
+</style>
+
+
+<div class="calendar-page">
+
+
+    @if (!interviewers.Any())
+    {
+        <div class="calendar-surface"
+             style="padding:60px;text-align:center;color:#8e97a7;">
+
+            No interviewer accounts found.
+
+        </div>
+    }
+    else
+    {
+
+        <div class="calendar-shell">
+
+
+            <!-- =================================================
+                 INTERVIEWER AVATAR RAIL
+                 ================================================= -->
+
+            <aside class="calendar-surface avatar-rail">
+
+
+                <div class="avatar-rail-logo"
+                     title="Interviewer Calendars">
+
+                    ◷
+
+                </div>
+
+
+                <div class="avatar-rail-divider"></div>
+
+
+                <div class="avatar-list">
+
+
+                    @foreach (var employee in interviewers)
+                    {
+
+                        var displayName =
+                        employee.FullName
+                        ?? employee.Email
+                        ?? "Unknown";
+
+
+                        var initial =
+                        !string.IsNullOrWhiteSpace(displayName)
+                        ? displayName.Substring(0, 1).ToUpper()
+                        : "?";
+
+
+                        <div class="avatar-person">
+
+
+                            <button type="button"
+                                    class="avatar-button"
+                                    data-interviewer-id="@employee.Id"
+                                    data-name="@displayName"
+                                    data-email="@(employee.Email ?? "")"
+                                    data-job-title="@(employee.JobTitle ?? "Interviewer")"
+                                    data-department="@(employee.Department ?? "-")"
+                                    data-seniority="@(employee.SeniorityLevel ?? "-")"
+                                    data-experience="@employee.YearsOfExperience"
+                                    data-skills="@(employee.Skills ?? "")"
+                                    data-image="@(employee.ProfileImagePath ?? "")"
+                                    data-initial="@initial">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                                        employee.ProfileImagePath))
+                                {
+                                    <img src="@employee.ProfileImagePath"
+                                         alt="@displayName" />
+                                }
+                                else
+                                {
+                                    @initial
+                                }
+
+                            </button>
+
+
+                            <!-- HOVER -->
+
+                            <div class="avatar-profile-popup">
+
+
+                                <div class="profile-popup-head">
+
+
+                                    <div class="profile-popup-avatar">
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                                                        employee.ProfileImagePath))
+                                        {
+                                            <img src="@employee.ProfileImagePath"
+                                                 alt="@displayName" />
+                                        }
+                                        else
+                                        {
+                                            @initial
+                                        }
+
+                                </div>
+
+
+                                <div>
+
+                                    <div class="profile-popup-name">
+                                        @displayName
+                                    </div>
+
+                                    <div class="profile-popup-role">
+                                        @(employee.JobTitle ?? "Interviewer")
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="profile-popup-grid">
+
+
+                                <div class="profile-popup-label">
+                                    Department
+                                </div>
+
+                                <div class="profile-popup-value">
+                                    @(employee.Department ?? "-")
+                                </div>
+
+
+                                <div class="profile-popup-label">
+                                    Seniority
+                                </div>
+
+                                <div class="profile-popup-value">
+                                    @(employee.SeniorityLevel ?? "-")
+                                </div>
+
+
+                                <div class="profile-popup-label">
+                                    Experience
+                                </div>
+
+                                <div class="profile-popup-value">
+                                    @employee.YearsOfExperience year(s)
+                                </div>
+
+
+                                <div class="profile-popup-label">
+                                    Email
+                                </div>
+
+                                <div class="profile-popup-value">
+                                    @(employee.Email ?? "-")
+                                </div>
+
+
+                            </div>
+
+
+                            <div class="profile-popup-skills">
+
+                                <strong>
+                                    Skills
+                                </strong>
+
+                                @(string.IsNullOrWhiteSpace(employee.Skills)
+                                                            ? "No skills added"
+                                                            : employee.Skills)
+
+                        </div>
+
+
+                               
+
+
+                            </div>
+
+
+                        </div>
+                                }
+
+
+                </div>
+
+
+            </aside>
+
+
+            <!-- =================================================
+                 LEFT COLUMN
+                 ================================================= -->
+
+            <aside class="left-column">
+
+
+
+                <!-- REMINDERS -->
+
+                <div class="reminders-card">
+
+
+                    <div class="reminders-header">
+
+                        <h3>
+                            Reminders
+                        </h3>
+
+                        <span class="reminders-menu">
+                            •••
+                        </span>
+
+                    </div>
+
+
+                    <div class="reminder-list"
+                         id="reminderList">
+
+                        <div class="empty-reminder">
+
+                            Loading upcoming schedule...
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- EVENT TYPE -->
+
+                <div class="event-type-card">
+
+
+                    <div class="event-type-header">
+
+                        <h3>
+                            Event Type
+                        </h3>
+
+                        <span class="event-type-chevron">
+                            ⌃
+                        </span>
+
+                    </div>
+
+
+                    <div class="event-type-list">
+
+
+                        <label class="event-filter-row">
+
+                            <span class="event-pill all">
+                                All Events
+                            </span>
+
+                            <span class="pretty-switch">
+
+                                <input type="checkbox"
+                                       id="allEventsToggle"
+                                       checked />
+
+                                <span class="pretty-slider"></span>
+
+                            </span>
+
+                        </label>
+
+
+                        
+
+
+                        <label class="event-filter-row">
+
+                            <span class="event-pill meeting">
+                                Meeting
+                            </span>
+
+                            <span class="pretty-switch">
+
+                                <input type="checkbox"
+                                       class="event-type-toggle"
+                                       value="Meeting"
+                                       checked />
+
+                                <span class="pretty-slider"></span>
+
+                            </span>
+
+                        </label>
+
+
+                        <label class="event-filter-row">
+
+                            <span class="event-pill training">
+                                Training
+                            </span>
+
+                            <span class="pretty-switch">
+
+                                <input type="checkbox"
+                                       class="event-type-toggle"
+                                       value="Training"
+                                       checked />
+
+                                <span class="pretty-slider"></span>
+
+                            </span>
+
+                        </label>
+
+
+                        <label class="event-filter-row">
+
+                            <span class="event-pill leave">
+                                Leave
+                            </span>
+
+                            <span class="pretty-switch">
+
+                                <input type="checkbox"
+                                       class="event-type-toggle"
+                                       value="Leave"
+                                       checked />
+
+                                <span class="pretty-slider"></span>
+
+                            </span>
+
+                        </label>
+
+
+                        <label class="event-filter-row">
+
+                            <span class="event-pill companyevent">
+                                Company Event
+                            </span>
+
+                            <span class="pretty-switch">
+
+                                <input type="checkbox"
+                                       class="event-type-toggle"
+                                       value="CompanyEvent"
+                                       checked />
+
+                                <span class="pretty-slider"></span>
+
+                            </span>
+
+                        </label>
+
+
+                        <label class="event-filter-row">
+
+                            <span class="event-pill personal">
+                                Personal
+                            </span>
+
+                            <span class="pretty-switch">
+
+                                <input type="checkbox"
+                                       class="event-type-toggle"
+                                       value="Personal"
+                                       checked />
+
+                                <span class="pretty-slider"></span>
+
+                            </span>
+
+                        </label>
+
+
+                        <label class="event-filter-row">
+
+                            <span class="event-pill other">
+                                Other
+                            </span>
+
+                            <span class="pretty-switch">
+
+                                <input type="checkbox"
+                                       class="event-type-toggle"
+                                       value="Other"
+                                       checked />
+
+                                <span class="pretty-slider"></span>
+
+                            </span>
+
+                        </label>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </aside>
+
+
+            <!-- =================================================
+                 MAIN CALENDAR
+                 ================================================= -->
+
+            <main class="calendar-surface main-calendar">
+
+
+                <div class="main-calendar-header">
+
+
+                    <div class="calendar-navigation">
+
+
+                        <button type="button"
+                                class="calendar-arrow"
+                                id="prevBtn">
+
+                            ‹
+
+                        </button>
+
+
+                        <div class="calendar-title"
+                             id="calendarTitle">
+
+                            Calendar
+
+                        </div>
+
+
+                        <button type="button"
+                                class="calendar-arrow"
+                                id="nextBtn">
+
+                            ›
+
+                        </button>
+
+
+                        <button type="button"
+                                class="today-button"
+                                id="todayBtn">
+
+                            Today
+
+                        </button>
+
+
+                    </div>
+
+
+                    <div class="view-switch">
+
+
+                        <button type="button"
+                                class="view-button active"
+                                data-view="timeGridWeek">
+
+                            Weekly
+
+                        </button>
+
+
+                        <button type="button"
+                                class="view-button"
+                                data-view="dayGridMonth">
+
+                            Monthly
+
+                        </button>
+
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="calendar-container">
+
+                    <div id="mainCalendar"></div>
+
+                </div>
+
+
+            </main>
+
+
+        </div>
+    }
+
+
+</div>
+
+
+<!-- =============================================================
+     EVENT MODAL
+     ============================================================= -->
+
+<div class="event-modal-overlay"
+     id="eventModalOverlay">
+
+
+    <div class="event-modal">
+
+
+        <div class="event-modal-header">
+
+
+            <h3 id="eventModalHeading">
+
+                Calendar Event
+
+            </h3>
+
+
+            <button type="button"
+                    class="event-modal-close"
+                    id="eventModalClose">
+
+                ×
+
+            </button>
+
+
+        </div>
+
+
+        <div class="event-modal-body">
+
+
+            <input type="hidden"
+                   id="eventId" />
+
+
+            <div class="event-field">
+
+                <label>
+                    Title
+                </label>
+
+                <input type="text"
+                       id="eventTitle"
+                       placeholder="Enter event title" />
+
+            </div>
+
+
+            <!--
+                Event Type stays for manual events,
+                but automatically disappears for Interview events.
+            -->
+
+            <div class="event-field"
+                 id="eventTypeField">
+
+                <label>
+                    Event Type
+                </label>
+
+                <select id="eventType">
+
+                    <option value="Meeting">
+                        Meeting
+                    </option>
+
+                    <option value="Training">
+                        Training
+                    </option>
+
+                    <option value="Leave">
+                        Leave
+                    </option>
+
+                    <option value="Personal">
+                        Personal
+                    </option>
+
+                    <option value="CompanyEvent">
+                        Company Event
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="event-grid">
+
+
+                <div class="event-field">
+
+                    <label>
+                        Start
+                    </label>
+
+                    <input type="datetime-local"
+                           id="eventStart" />
+
+                </div>
+
+
+                <div class="event-field">
+
+                    <label>
+                        End
+                    </label>
+
+                    <input type="datetime-local"
+                           id="eventEnd" />
+
+                </div>
+
+
+            </div>
+
+
+            <div class="event-field">
+
+                <label>
+                    Notes
+                </label>
+
+                <textarea id="eventNotes"
+                          placeholder="Optional notes"></textarea>
+
+            </div>
+
+
+            <!-- AUDIT -->
+
+            <div class="audit-card"
+                 id="auditCard">
+
+
+                <div class="audit-heading">
+
+                    Audit Information
+
+                </div>
+
+
+                <div class="audit-grid">
+
+
+                    <div class="audit-label">
+                        Created By
+                    </div>
+
+                    <div class="audit-value"
+                         id="createdByValue">
+                        -
+                    </div>
+
+
+                    <div class="audit-label">
+                        Created At
+                    </div>
+
+                    <div class="audit-value"
+                         id="createdAtValue">
+                        -
+                    </div>
+
+
+                    <div class="audit-label">
+                        Updated By
+                    </div>
+
+                    <div class="audit-value"
+                         id="updatedByValue">
+                        -
+                    </div>
+
+
+                    <div class="audit-label">
+                        Updated At
+                    </div>
+
+                    <div class="audit-value"
+                         id="updatedAtValue">
+                        -
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+            <div class="locked-message"
+                 id="lockedMessage">
+
+                This interview was created automatically by the interview
+                scheduling process. It can be viewed here, but it cannot
+                be edited or deleted from the calendar.
+
+            </div>
+
+
+        </div>
+
+
+        <div class="modal-error"
+             id="modalError">
+        </div>
+
+
+        <div class="event-modal-actions">
+
+
+            <button type="button"
+                    class="event-action-button event-close-button"
+                    id="cancelEventButton">
+
+                Close
+
+            </button>
+
+
+            <button type="button"
+                    class="event-action-button event-delete-button"
+                    id="deleteEventButton">
+
+                Delete
+
+            </button>
+
+
+            <button type="button"
+                    class="event-action-button event-save-button"
+                    id="saveEventButton">
+
+                Save Event
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<form id="calendarAntiForgery">
+
+    @Html.AntiForgeryToken()
+
+</form>
+
+
+<script>
+
+    (() => {
+
+
+        const STORAGE_KEY =
+            "hiretrack_last_hr_interviewer";
+
+
+        const avatarButtons =
+            Array.from(
+                document.querySelectorAll(
+                    ".avatar-button"
+                )
+            );
+
+
+        if (
+            avatarButtons.length === 0 ||
+            typeof FullCalendar === "undefined"
+        ) {
+
+            return;
+        }
+
+
+        let selectedInterviewerId =
+            null;
+
+
+        let mainCalendar =
+            null;
+
+
+        let miniCalendar =
+            null;
+
+
+        let modalMode =
+            "create";
+
+
+        let currentCalendarEvent =
+            null;
+
+
+        /* =========================================================
+           BASIC HELPERS
+           ========================================================= */
+
+        function element(id) {
+
+            return document.getElementById(
+                id
+            );
+        }
+
+
+        function findAvatar(
+            interviewerId) {
+
+            return avatarButtons.find(
+                button =>
+                    button.dataset.interviewerId ===
+                    interviewerId
+            ) || null;
+        }
+
+
+        function currentAvatar() {
+
+            return findAvatar(
+                selectedInterviewerId
+            );
+        }
+
+
+        function safe(value) {
+
+            if (
+                value === undefined ||
+                value === null ||
+                value === ""
+            ) {
+
+                return "-";
+            }
+
+            return value;
+        }
+
+
+        function antiForgeryToken() {
+
+            return document
+                .querySelector(
+                    '#calendarAntiForgery input[name="__RequestVerificationToken"]'
+                )
+                ?.value ?? "";
+        }
+
+
+        function escapeCalendarText(
+            value) {
+
+            return String(
+                value ?? ""
+            )
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
+        }
+
+
+        function toInputDateTime(
+            date) {
+
+            if (!date) {
+
+                return "";
+            }
+
+
+            const pad =
+                value =>
+                    String(value)
+                        .padStart(
+                            2,
+                            "0"
+                        );
+
+
+            return (
+                date.getFullYear() +
+                "-" +
+
+                pad(
+                    date.getMonth() + 1
+                ) +
+
+                "-" +
+
+                pad(
+                    date.getDate()
+                ) +
+
+                "T" +
+
+                pad(
+                    date.getHours()
+                ) +
+
+                ":" +
+
+                pad(
+                    date.getMinutes()
+                )
+            );
+        }
+
+
+        function formatDateTime(
+            value) {
+
+            if (!value) {
+
+                return "-";
+            }
+
+
+            const date =
+                new Date(
+                    value
+                );
+
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return "-";
+            }
+
+
+            return new Intl.DateTimeFormat(
+                undefined,
+                {
+                    dateStyle:
+                        "medium",
+
+                    timeStyle:
+                        "short"
+                }
+            )
+            .format(
+                date
+            );
+        }
+
+
+        function eventColors(
+            type) {
+
+            const key =
+                String(
+                    type || "Other"
+                )
+                .toLowerCase();
+
+
+            const map = {
+
+                interview: {
+                    background:
+                        "#cfc7ff",
+
+                    text:
+                        "#40328f"
+                },
+
+                meeting: {
+                    background:
+                        "#d8eef8",
+
+                    text:
+                        "#2f6680"
+                },
+
+                training: {
+                    background:
+                        "#f2d8eb",
+
+                    text:
+                        "#8e4e77"
+                },
+
+                leave: {
+                    background:
+                        "#d9f0df",
+
+                    text:
+                        "#34734b"
+                },
+
+                companyevent: {
+                    background:
+                        "#fae4c7",
+
+                    text:
+                        "#87601d"
+                },
+
+                personal: {
+                    background:
+                        "#f7d8dc",
+
+                    text:
+                        "#8d474e"
+                },
+
+                other: {
+                    background:
+                        "#e7e9ee",
+
+                    text:
+                        "#596677"
+                }
+            };
+
+
+            return map[key] ||
+                map.other;
+        }
+
+
+        /* =========================================================
+           ACTIVE EVENT TYPES
+           ========================================================= */
+
+        function selectedEventTypes() {
+
+            return Array
+                .from(
+                    document.querySelectorAll(
+                        ".event-type-toggle:checked"
+                    )
+                )
+                .map(
+                    input =>
+                        input.value
+                );
+        }
+
+
+        /* =========================================================
+           SELECT INTERVIEWER
+           ========================================================= */
+
+        function selectInterviewer(
+            interviewerId) {
+
+
+            const button =
+                findAvatar(
+                    interviewerId
+                );
+
+
+            if (!button) {
+
+                return;
+            }
+
+
+            selectedInterviewerId =
+                interviewerId;
+
+
+            avatarButtons.forEach(
+                avatar => {
+
+                    avatar.classList.toggle(
+                        "active",
+                        avatar === button
+                    );
+
+                }
+            );
+
+
+            try {
+
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    interviewerId
+                );
+
+            }
+            catch {
+
+            }
+
+
+            closeEventModal();
+
+
+            if (mainCalendar) {
+
+                mainCalendar.refetchEvents();
+            }
+
+
+            loadUpcomingEvents();
+        }
+
+
+        /* =========================================================
+           UPCOMING / REMINDERS
+           ========================================================= */
+
+        async function loadUpcomingEvents() {
+
+
+            const container =
+                element(
+                    "reminderList"
+                );
+
+
+            if (
+                !container ||
+                !selectedInterviewerId
+            ) {
+
+                return;
+            }
+
+
+            container.innerHTML =
+                '<div class="empty-reminder">Loading schedule...</div>';
+
+
+            const start =
+                new Date();
+
+
+            const end =
+                new Date();
+
+
+            end.setDate(
+                end.getDate() + 14
+            );
+
+
+            const url =
+                `/InterviewerManagement/GetEvents` +
+                `?interviewerId=${encodeURIComponent(selectedInterviewerId)}` +
+                `&start=${encodeURIComponent(start.toISOString())}` +
+                `&end=${encodeURIComponent(end.toISOString())}`;
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        url
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error();
+                }
+
+
+                const events =
+                    await response.json();
+
+
+                const upcoming =
+                    events
+                        .filter(
+                            event =>
+                                new Date(
+                                    event.end
+                                ) >=
+                                new Date()
+                        )
+
+                        .sort(
+                            (a, b) =>
+                                new Date(a.start) -
+                                new Date(b.start)
+                        )
+
+                        .slice(
+                            0,
+                            5
+                        );
+
+
+                container.innerHTML =
+                    "";
+
+
+                if (
+                    upcoming.length === 0
+                ) {
+
+                    container.innerHTML =
+                        '<div class="empty-reminder">No upcoming events.</div>';
+
+                    return;
+                }
+
+
+                upcoming.forEach(
+                    event => {
+
+
+                        const item =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        item.className =
+                            "reminder-item";
+
+
+                        const row =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        row.className =
+                            "reminder-row";
+
+
+                        const copy =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        copy.className =
+                            "reminder-copy";
+
+
+                        const title =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        title.className =
+                            "reminder-title";
+
+
+                        title.textContent =
+                            event.title ||
+                            "Calendar Event";
+
+
+                        const time =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        time.className =
+                            "reminder-time";
+
+
+                        time.textContent =
+                            formatDateTime(
+                                event.start
+                            );
+
+
+                        copy.appendChild(
+                            title
+                        );
+
+
+                        copy.appendChild(
+                            time
+                        );
+
+
+                        const type =
+                            String(
+                                event.scheduleType ||
+                                "Other"
+                            );
+
+
+                        const badge =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        badge.className =
+                            `reminder-type ${type.toLowerCase()}`;
+
+
+                        badge.textContent =
+                            type;
+
+
+                        row.appendChild(
+                            copy
+                        );
+
+
+                        row.appendChild(
+                            badge
+                        );
+
+
+                        item.appendChild(
+                            row
+                        );
+
+
+                        container.appendChild(
+                            item
+                        );
+
+                    }
+                );
+
+            }
+            catch {
+
+
+                container.innerHTML =
+                    '<div class="empty-reminder">Could not load schedule.</div>';
+
+            }
+        }
+
+
+        /* =========================================================
+           MAIN CALENDAR
+           ========================================================= */
+
+        function initialiseMainCalendar() {
+
+
+            mainCalendar =
+                new FullCalendar.Calendar(
+                    element(
+                        "mainCalendar"
+                    ),
+                    {
+
+
+                        initialView:
+                            "timeGridWeek",
+
+
+                        firstDay:
+                            1,
+
+
+                        headerToolbar:
+                            false,
+
+
+                        nowIndicator:
+                            true,
+
+
+                        selectable:
+                            true,
+
+
+                        selectMirror:
+                            true,
+
+
+                        allDaySlot:
+                            false,
+
+
+                        slotMinTime:
+                            "08:00:00",
+
+
+                        slotMaxTime:
+                            "18:00:00",
+
+
+                        slotDuration:
+                            "00:30:00",
+
+
+                        height:
+                            "auto",
+
+
+                        fixedWeekCount:
+                            false,
+
+
+                        dayMaxEvents:
+                            3,
+
+
+                        /* =========================================
+                           TITLE + SMALL TIME ONLY
+                           ========================================= */
+
+                        eventContent:
+                            function (arg) {
+
+
+                                const calendarEvent =
+                                    arg.event;
+
+
+                                const title =
+                                    calendarEvent.title ||
+                                    "Event";
+
+
+                                const formatTime =
+                                    date => {
+
+
+                                        if (!date) {
+
+                                            return "";
+                                        }
+
+
+                                        return new Intl.DateTimeFormat(
+                                            undefined,
+                                            {
+                                                hour:
+                                                    "numeric",
+
+                                                minute:
+                                                    "2-digit"
+                                            }
+                                        )
+                                        .format(
+                                            date
+                                        );
+                                    };
+
+
+                                const startTime =
+                                    formatTime(
+                                        calendarEvent.start
+                                    );
+
+
+                                const endTime =
+                                    formatTime(
+                                        calendarEvent.end
+                                    );
+
+
+                                const timeText =
+                                    endTime
+                                        ? `${startTime} – ${endTime}`
+                                        : startTime;
+
+
+                                return {
+
+                                    html:
+                                        `
+                                        <div class="cute-event">
+
+                                            <div class="cute-event-title">
+
+                                                ${escapeCalendarText(title)}
+
+                                            </div>
+
+                                            <div class="cute-event-time">
+
+                                                <span class="cute-event-clock">
+                                                    ◷
+                                                </span>
+
+                                                ${escapeCalendarText(timeText)}
+
+                                            </div>
+
+                                        </div>
+                                        `
+                                };
+                            },
+
+
+                        /* =========================================
+                           WEEK HEADER
+                           ========================================= */
+
+                        dayHeaderContent:
+                            function (info) {
+
+
+                                if (
+                                    mainCalendar &&
+                                    mainCalendar.view.type ===
+                                    "timeGridWeek"
+                                ) {
+
+
+                                    const day =
+                                        new Intl.DateTimeFormat(
+                                            undefined,
+                                            {
+                                                weekday:
+                                                    "long"
+                                            }
+                                        )
+                                        .format(
+                                            info.date
+                                        );
+
+
+                                    const number =
+                                        info.date.getDate();
+
+
+                                    return {
+
+                                        html:
+                                            `<span class="week-day-name">${day}</span>` +
+                                            `<span class="week-day-number">${number}</span>`
+
+                                    };
+                                }
+
+
+                                return {
+
+                                    html:
+                                        new Intl.DateTimeFormat(
+                                            undefined,
+                                            {
+                                                weekday:
+                                                    "short"
+                                            }
+                                        )
+                                        .format(
+                                            info.date
+                                        )
+                                };
+                            },
+
+
+                        /* =========================================
+                           LOAD EVENTS
+                           ========================================= */
+
+                        events:
+                            function (
+                                info,
+                                successCallback,
+                                failureCallback) {
+
+
+                                if (
+                                    !selectedInterviewerId
+                                ) {
+
+                                    successCallback([]);
+
+                                    return;
+                                }
+
+
+                                const url =
+                                    `/InterviewerManagement/GetEvents` +
+                                    `?interviewerId=${encodeURIComponent(selectedInterviewerId)}` +
+                                    `&start=${encodeURIComponent(info.startStr)}` +
+                                    `&end=${encodeURIComponent(info.endStr)}`;
+
+
+                                fetch(
+                                    url
+                                )
+
+                                .then(
+                                    response => {
+
+
+                                        if (!response.ok) {
+
+                                            throw new Error(
+                                                "Could not load calendar."
+                                            );
+                                        }
+
+
+                                        return response.json();
+
+                                    }
+                                )
+
+                                .then(
+                                    events => {
+
+
+                                        const enabledTypes =
+                                            selectedEventTypes();
+
+
+                                        const visibleEvents =
+                                            events.filter(
+                                                event =>
+                                                    enabledTypes.includes(
+                                                        event.scheduleType
+                                                    )
+                                            );
+
+
+                                        const formatted =
+                                            visibleEvents.map(
+                                                event => {
+
+
+                                                    const colours =
+                                                        eventColors(
+                                                            event.scheduleType
+                                                        );
+
+
+                                                    const originalStart =
+                                                        event.start
+                                                            ? new Date(event.start)
+                                                            : null;
+
+
+                                                    const originalEnd =
+                                                        event.end
+                                                            ? new Date(event.end)
+                                                            : null;
+
+
+                                                    let displayEnd =
+                                                        originalEnd;
+
+
+                                                    /*
+                                                       Prevent event stretching
+                                                       across different month cells.
+                                                    */
+
+                                                    if (
+                                                        originalStart &&
+                                                        originalEnd &&
+                                                        !event.allDay &&
+                                                        originalStart.toDateString() !==
+                                                            originalEnd.toDateString()
+                                                    ) {
+
+
+                                                        displayEnd =
+                                                            new Date(
+                                                                originalStart
+                                                            );
+
+
+                                                        displayEnd.setHours(
+                                                            23,
+                                                            59,
+                                                            59,
+                                                            999
+                                                        );
+                                                    }
+
+
+                                                    return {
+
+                                                        ...event,
+
+
+                                                        end:
+                                                            displayEnd
+                                                                ? displayEnd.toISOString()
+                                                                : event.end,
+
+
+                                                        backgroundColor:
+                                                            colours.background,
+
+
+                                                        borderColor:
+                                                            colours.background,
+
+
+                                                        textColor:
+                                                            colours.text,
+
+
+                                                        extendedProps: {
+
+                                                            ...event,
+
+
+                                                            originalEnd:
+                                                                event.end
+
+                                                        }
+
+                                                    };
+                                                }
+                                            );
+
+
+                                        successCallback(
+                                            formatted
+                                        );
+
+                                    }
+                                )
+
+                                .catch(
+                                    failureCallback
+                                );
+
+                            },
+
+
+                        /* =========================================
+                           BLANK SPACE = CREATE
+                           ========================================= */
+
+                        select:
+                            function (info) {
+
+
+                                openCreateEvent(
+                                    info.start,
+                                    info.end
+                                );
+
+                            },
+
+
+                        /* =========================================
+                           CLICK EVENT = VIEW / EDIT
+                           ========================================= */
+
+                        eventClick:
+                            function (info) {
+
+
+                                openExistingEvent(
+                                    info.event
+                                );
+
+                            },
+
+
+                        datesSet:
+                            function () {
+
+
+                                updateMainCalendarTitle();
+
+
+                                if (
+                                    miniCalendar
+                                ) {
+
+
+                                    miniCalendar.gotoDate(
+                                        mainCalendar.getDate()
+                                    );
+
+                                }
+
+                            }
+
+                    }
+                );
+
+
+            mainCalendar.render();
+        }
+
+
+       
+
+
+        /* =========================================================
+           MAIN TITLE
+           ========================================================= */
+
+        function updateMainCalendarTitle() {
+
+
+            if (!mainCalendar) {
+
+                return;
+            }
+
+
+            element(
+                "calendarTitle"
+            ).textContent =
+                new Intl.DateTimeFormat(
+                    undefined,
+                    {
+                        month:
+                            "long",
+
+                        year:
+                            "numeric"
+                    }
+                )
+                .format(
+                    mainCalendar.getDate()
+                );
+        }
+
+
+        /* =========================================================
+           MODAL
+           ========================================================= */
+
+        function showModalError(
+            message) {
+
+
+            const target =
+                element(
+                    "modalError"
+                );
+
+
+            target.textContent =
+                message || "";
+
+
+            target.classList.toggle(
+                "show",
+                !!message
+            );
+        }
+
+
+        function resetAudit() {
+
+
+            element(
+                "createdByValue"
+            ).textContent =
+                "-";
+
+
+            element(
+                "createdAtValue"
+            ).textContent =
+                "-";
+
+
+            element(
+                "updatedByValue"
+            ).textContent =
+                "-";
+
+
+            element(
+                "updatedAtValue"
+            ).textContent =
+                "-";
+        }
+
+
+        function populateAudit(
+            event) {
+
+
+            const props =
+                event.extendedProps ||
+                {};
+
+
+            element(
+                "createdByValue"
+            ).textContent =
+                safe(
+                    props.createdBy
+                );
+
+
+            element(
+                "createdAtValue"
+            ).textContent =
+                formatDateTime(
+                    props.createdAt
+                );
+
+
+            element(
+                "updatedByValue"
+            ).textContent =
+                safe(
+                    props.updatedBy
+                );
+
+
+            element(
+                "updatedAtValue"
+            ).textContent =
+                formatDateTime(
+                    props.updatedAt
+                );
+        }
+
+
+        function lockModal(
+            locked) {
+
+
+            [
+                "eventTitle",
+                "eventType",
+                "eventStart",
+                "eventEnd",
+                "eventNotes"
+            ]
+            .forEach(
+                id => {
+
+
+                    element(
+                        id
+                    ).disabled =
+                        locked;
+
+                }
+            );
+
+
+            element(
+                "saveEventButton"
+            ).disabled =
+                locked;
+
+
+            element(
+                "deleteEventButton"
+            ).disabled =
+                locked;
+
+
+            element(
+                "lockedMessage"
+            ).classList.toggle(
+                "show",
+                locked
+            );
+        }
+
+
+        /* =========================================================
+           CREATE EVENT
+           ========================================================= */
+
+        function openCreateEvent(
+            start,
+            end) {
+
+
+            modalMode =
+                "create";
+
+
+            currentCalendarEvent =
+                null;
+
+
+            element(
+                "eventModalHeading"
+            ).textContent =
+                "Create Event";
+
+
+            element(
+                "eventId"
+            ).value =
+                "";
+
+
+            element(
+                "eventTitle"
+            ).value =
+                "";
+
+
+            element(
+                "eventType"
+            ).value =
+                "Meeting";
+
+
+            /*
+                Manual event:
+                show Event Type.
+            */
+
+            element(
+                "eventTypeField"
+            ).style.display =
+                "block";
+
+
+            element(
+                "eventStart"
+            ).value =
+                toInputDateTime(
+                    start
+                );
+
+
+            element(
+                "eventEnd"
+            ).value =
+                toInputDateTime(
+                    end
+                );
+
+
+            element(
+                "eventNotes"
+            ).value =
+                "";
+
+
+            element(
+                "auditCard"
+            ).style.display =
+                "none";
+
+
+            element(
+                "deleteEventButton"
+            ).style.display =
+                "none";
+
+
+            element(
+                "saveEventButton"
+            ).style.display =
+                "inline-flex";
+
+
+            element(
+                "saveEventButton"
+            ).textContent =
+                "Create Event";
+
+
+            lockModal(
+                false
+            );
+
+
+            resetAudit();
+
+
+            showModalError(
+                ""
+            );
+
+
+            element(
+                "eventModalOverlay"
+            ).classList.add(
+                "show"
+            );
+        }
+
+
+        /* =========================================================
+           EXISTING EVENT
+           ========================================================= */
+
+        function openExistingEvent(
+            event) {
+
+
+            modalMode =
+                "edit";
+
+
+            currentCalendarEvent =
+                event;
+
+
+            const props =
+                event.extendedProps ||
+                {};
+
+
+            const systemGenerated =
+                props.isSystemGenerated ===
+                true;
+
+
+            /*
+                System Interview:
+                hide Event Type completely.
+            */
+
+            element(
+                "eventTypeField"
+            ).style.display =
+                systemGenerated
+                    ? "none"
+                    : "block";
+
+
+            element(
+                "eventModalHeading"
+            ).textContent =
+                systemGenerated
+                    ? "Interview Event"
+                    : "Edit Event";
+
+
+            element(
+                "eventId"
+            ).value =
+                event.id ||
+                "";
+
+
+            element(
+                "eventTitle"
+            ).value =
+                event.title ||
+                "";
+
+
+            element(
+                "eventType"
+            ).value =
+                props.scheduleType === "Interview"
+                    ? "Other"
+                    : (
+                        props.scheduleType ||
+                        "Other"
+                    );
+
+
+            element(
+                "eventStart"
+            ).value =
+                toInputDateTime(
+                    event.start
+                );
+
+
+            /*
+                Use the actual DB end time,
+                not the visually shortened Month end.
+            */
+
+            const originalEnd =
+                props.originalEnd;
+
+
+            const actualEnd =
+                originalEnd
+                    ? new Date(
+                        originalEnd
+                    )
+                    : (
+                        event.end ||
+                        new Date(
+                            event.start.getTime() +
+                            30 * 60 * 1000
+                        )
+                    );
+
+
+            element(
+                "eventEnd"
+            ).value =
+                toInputDateTime(
+                    actualEnd
+                );
+
+
+            element(
+                "eventNotes"
+            ).value =
+                props.notes ||
+                "";
+
+
+            element(
+                "auditCard"
+            ).style.display =
+                "block";
+
+
+            element(
+                "deleteEventButton"
+            ).style.display =
+                systemGenerated
+                    ? "none"
+                    : "inline-flex";
+
+
+            element(
+                "saveEventButton"
+            ).style.display =
+                systemGenerated
+                    ? "none"
+                    : "inline-flex";
+
+
+            element(
+                "saveEventButton"
+            ).textContent =
+                "Save Changes";
+
+
+            populateAudit(
+                event
+            );
+
+
+            lockModal(
+                systemGenerated
+            );
+
+
+            showModalError(
+                ""
+            );
+
+
+            element(
+                "eventModalOverlay"
+            ).classList.add(
+                "show"
+            );
+        }
+
+
+        function closeEventModal() {
+
+
+            element(
+                "eventModalOverlay"
+            )
+            ?.classList.remove(
+                "show"
+            );
+
+
+            showModalError(
+                ""
+            );
+        }
+
+
+        /* =========================================================
+           POST
+           ========================================================= */
+
+        async function postCalendarData(
+            url,
+            values) {
+
+
+            const body =
+                new URLSearchParams();
+
+
+            Object.entries(
+                values
+            )
+            .forEach(
+                ([key, value]) => {
+
+
+                    body.append(
+                        key,
+                        value ?? ""
+                    );
+
+                }
+            );
+
+
+            body.append(
+                "__RequestVerificationToken",
+                antiForgeryToken()
+            );
+
+
+            const response =
+                await fetch(
+                    url,
+                    {
+
+
+                        method:
+                            "POST",
+
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/x-www-form-urlencoded; charset=UTF-8"
+
+                        },
+
+
+                        body:
+                            body.toString()
+
+                    }
+                );
+
+
+            if (!response.ok) {
+
+
+                const message =
+                    await response.text();
+
+
+                throw new Error(
+                    message ||
+                    "The operation could not be completed."
+                );
+            }
+
+
+            return response;
+        }
+
+
+        /* =========================================================
+           SAVE EVENT
+           ========================================================= */
+
+        async function saveEvent() {
+
+
+            const title =
+                element(
+                    "eventTitle"
+                ).value.trim();
+
+
+            const eventType =
+                element(
+                    "eventType"
+                ).value;
+
+
+            const start =
+                element(
+                    "eventStart"
+                ).value;
+
+
+            const end =
+                element(
+                    "eventEnd"
+                ).value;
+
+
+            const notes =
+                element(
+                    "eventNotes"
+                ).value.trim();
+
+
+            if (
+                !start ||
+                !end
+            ) {
+
+
+                showModalError(
+                    "Please choose a start and end time."
+                );
+
+
+                return;
+            }
+
+
+            if (
+                new Date(end) <=
+                new Date(start)
+            ) {
+
+
+                showModalError(
+                    "End time must be after the start time."
+                );
+
+
+                return;
+            }
+
+
+            element(
+                "saveEventButton"
+            ).disabled =
+                true;
+
+
+            try {
+
+
+                if (
+                    modalMode ===
+                    "create"
+                ) {
+
+
+                    await postCalendarData(
+                        "/InterviewerManagement/AddEvent",
+                        {
+
+
+                            interviewerId:
+                                selectedInterviewerId,
+
+
+                            start:
+                                start,
+
+
+                            end:
+                                end,
+
+
+                            scheduleType:
+                                eventType,
+
+
+                            title:
+                                title,
+
+
+                            notes:
+                                notes,
+
+
+                            isAllDay:
+                                false
+
+                        }
+                    );
+
+
+                }
+                else {
+
+
+                    await postCalendarData(
+                        "/InterviewerManagement/UpdateEvent",
+                        {
+
+
+                            id:
+                                element(
+                                    "eventId"
+                                ).value,
+
+
+                            start:
+                                start,
+
+
+                            end:
+                                end,
+
+
+                            scheduleType:
+                                eventType,
+
+
+                            title:
+                                title,
+
+
+                            notes:
+                                notes,
+
+
+                            isAllDay:
+                                false
+
+                        }
+                    );
+
+                }
+
+
+                closeEventModal();
+
+
+                mainCalendar.refetchEvents();
+
+
+                loadUpcomingEvents();
+
+            }
+            catch (error) {
+
+
+                showModalError(
+                    error.message
+                );
+
+            }
+            finally {
+
+
+                element(
+                    "saveEventButton"
+                ).disabled =
+                    false;
+
+            }
+        }
+
+
+        /* =========================================================
+           DELETE EVENT
+           ========================================================= */
+
+        async function deleteEvent() {
+
+
+            const id =
+                element(
+                    "eventId"
+                ).value;
+
+
+            if (!id) {
+
+                return;
+            }
+
+
+            if (
+                !confirm(
+                    "Delete this calendar event?"
+                )
+            ) {
+
+                return;
+            }
+
+
+            element(
+                "deleteEventButton"
+            ).disabled =
+                true;
+
+
+            try {
+
+
+                await postCalendarData(
+                    "/InterviewerManagement/DeleteEvent",
+                    {
+                        id:
+                            id
+                    }
+                );
+
+
+                closeEventModal();
+
+
+                mainCalendar.refetchEvents();
+
+
+                loadUpcomingEvents();
+
+            }
+            catch (error) {
+
+
+                showModalError(
+                    error.message
+                );
+
+            }
+            finally {
+
+
+                element(
+                    "deleteEventButton"
+                ).disabled =
+                    false;
+
+            }
+        }
+
+
+        /* =========================================================
+           AVATAR EVENTS
+           ========================================================= */
+
+        avatarButtons.forEach(
+            button => {
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+
+                        selectInterviewer(
+                            this.dataset
+                                .interviewerId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        document
+            .querySelectorAll(
+                "[data-open-interviewer]"
+            )
+            .forEach(
+                button => {
+
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+
+                            selectInterviewer(
+                                this.dataset
+                                    .openInterviewer
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =========================================================
+           FILTERS
+           ========================================================= */
+
+        const allEventsToggle =
+            element(
+                "allEventsToggle"
+            );
+
+
+        const eventTypeToggles =
+            Array.from(
+                document.querySelectorAll(
+                    ".event-type-toggle"
+                )
+            );
+
+
+        allEventsToggle
+            ?.addEventListener(
+                "change",
+                function () {
+
+
+                    eventTypeToggles
+                        .forEach(
+                            toggle => {
+
+
+                                toggle.checked =
+                                    this.checked;
+
+                            }
+                        );
+
+
+                    mainCalendar
+                        ?.refetchEvents();
+
+                }
+            );
+
+
+        eventTypeToggles
+            .forEach(
+                toggle => {
+
+
+                    toggle.addEventListener(
+                        "change",
+                        function () {
+
+
+                            const allChecked =
+                                eventTypeToggles.every(
+                                    item =>
+                                        item.checked
+                                );
+
+
+                            const noneChecked =
+                                eventTypeToggles.every(
+                                    item =>
+                                        !item.checked
+                                );
+
+
+                            allEventsToggle.checked =
+                                allChecked;
+
+
+                            allEventsToggle.indeterminate =
+                                !allChecked &&
+                                !noneChecked;
+
+
+                            mainCalendar
+                                ?.refetchEvents();
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =========================================================
+           WEEK / MONTH SWITCH
+           ========================================================= */
+
+        document
+            .querySelectorAll(
+                ".view-button"
+            )
+            .forEach(
+                button => {
+
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+
+                            const view =
+                                this.dataset.view;
+
+
+                            mainCalendar.changeView(
+                                view
+                            );
+
+
+                            document
+                                .querySelectorAll(
+                                    ".view-button"
+                                )
+                                .forEach(
+                                    item => {
+
+
+                                        item.classList.toggle(
+                                            "active",
+                                            item === this
+                                        );
+
+                                    }
+                                );
+
+
+                            updateMainCalendarTitle();
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =========================================================
+           NAVIGATION
+           ========================================================= */
+
+        element(
+            "prevBtn"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                mainCalendar.prev();
+
+            }
+        );
+
+
+        element(
+            "nextBtn"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                mainCalendar.next();
+
+            }
+        );
+
+
+        element(
+            "todayBtn"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                mainCalendar.today();
+
+            }
+        );
+
+
+        element(
+            "miniPrevBtn"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                miniCalendar.prev();
+
+            }
+        );
+
+
+        element(
+            "miniNextBtn"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                miniCalendar.next();
+
+            }
+        );
+
+
+        /* =========================================================
+           MODAL BUTTONS
+           ========================================================= */
+
+        element(
+            "eventModalClose"
+        )
+        ?.addEventListener(
+            "click",
+            closeEventModal
+        );
+
+
+        element(
+            "cancelEventButton"
+        )
+        ?.addEventListener(
+            "click",
+            closeEventModal
+        );
+
+
+        element(
+            "saveEventButton"
+        )
+        ?.addEventListener(
+            "click",
+            saveEvent
+        );
+
+
+        element(
+            "deleteEventButton"
+        )
+        ?.addEventListener(
+            "click",
+            deleteEvent
+        );
+
+
+        element(
+            "eventModalOverlay"
+        )
+        ?.addEventListener(
+            "click",
+            function (event) {
+
+
+                if (
+                    event.target ===
+                    this
+                ) {
+
+                    closeEventModal();
+
+                }
+
+            }
+        );
+
+
+        /* =========================================================
+           LAST CLICKED INTERVIEWER
+           ========================================================= */
+
+        let initialInterviewerId =
+            null;
+
+
+        try {
+
+
+            initialInterviewerId =
+                localStorage.getItem(
+                    STORAGE_KEY
+                );
+
+        }
+        catch {
+
+
+            initialInterviewerId =
+                null;
+
+        }
+
+
+        if (
+            !findAvatar(
+                initialInterviewerId
+            )
+        ) {
+
+
+            initialInterviewerId =
+                avatarButtons[0]
+                    .dataset
+                    .interviewerId;
+
+        }
+
+
+        selectedInterviewerId =
+            initialInterviewerId;
+
+
+        avatarButtons.forEach(
+            avatar => {
+
+                avatar.classList.toggle(
+                    "active",
+                    avatar.dataset.interviewerId ===
+                        selectedInterviewerId
+                );
+
+            }
+        );
+
+
+        /* =========================================================
+           START
+           ========================================================= */
+
+        initialiseMainCalendar();
+
+
+        initialiseMiniCalendar();
+
+
+        updateMainCalendarTitle();
+
+
+        loadUpcomingEvents();
+
+
+    })();
+
+</script>

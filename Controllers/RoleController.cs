@@ -23,36 +23,42 @@ namespace RecruitmentTracker.Controllers
 
         public async Task<IActionResult> Index(string? search)
         {
-            var users = _userManager.Users.ToList();
+            var users =
+                _userManager.Users.ToList();
 
-
-            // =====================================================
-            // SEARCH BY EMAIL
-            // =====================================================
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 users = users
                     .Where(u =>
-                        !string.IsNullOrWhiteSpace(u.Email) &&
-                        u.Email.Contains(
-                            search,
-                            StringComparison.OrdinalIgnoreCase))
+                        (
+                            !string.IsNullOrWhiteSpace(u.Email) &&
+                            u.Email.Contains(
+                                search,
+                                StringComparison.OrdinalIgnoreCase)
+                        )
+                        ||
+                        (
+                            !string.IsNullOrWhiteSpace(u.FullName) &&
+                            u.FullName.Contains(
+                                search,
+                                StringComparison.OrdinalIgnoreCase)
+                        )
+                    )
                     .ToList();
             }
 
 
-            // =====================================================
-            // GET USER ROLES
-            // =====================================================
-
             var userRoles =
                 new Dictionary<string, string>();
+
 
             foreach (var user in users)
             {
                 var roles =
-                    await _userManager.GetRolesAsync(user);
+                    await _userManager
+                        .GetRolesAsync(user);
+
 
                 userRoles[user.Id] =
                     roles.FirstOrDefault()
@@ -60,10 +66,11 @@ namespace RecruitmentTracker.Controllers
             }
 
 
-            ViewBag.UserRoles = userRoles;
+            ViewBag.UserRoles =
+                userRoles;
 
-            // Keep search value in the view
-            ViewBag.Search = search;
+            ViewBag.Search =
+                search;
 
 
             return View(users);
@@ -81,7 +88,9 @@ namespace RecruitmentTracker.Controllers
             string role)
         {
             var user =
-                await _userManager.FindByIdAsync(userId);
+                await _userManager
+                    .FindByIdAsync(userId);
+
 
             if (user == null)
             {
@@ -93,13 +102,14 @@ namespace RecruitmentTracker.Controllers
             // VALID ROLES
             // =====================================================
 
-            var validRoles = new[]
-            {
-                "HR",
-                "Candidate",
-                "Interviewer",
-                "HiringManager"
-            };
+            var validRoles =
+                new[]
+                {
+                    "HR",
+                    "Candidate",
+                    "Interviewer",
+                    "HiringManager"
+                };
 
 
             if (!validRoles.Contains(role))
@@ -109,17 +119,39 @@ namespace RecruitmentTracker.Controllers
 
 
             // =====================================================
-            // REMOVE CURRENT ROLE
+            // CURRENT ROLES
             // =====================================================
 
             var currentRoles =
-                await _userManager.GetRolesAsync(user);
+                await _userManager
+                    .GetRolesAsync(user);
+
+
+            var previousRole =
+                currentRoles.FirstOrDefault();
+
+
+            // =====================================================
+            // REMOVE OLD ROLES
+            // =====================================================
 
             if (currentRoles.Any())
             {
-                await _userManager.RemoveFromRolesAsync(
-                    user,
-                    currentRoles);
+                var removeResult =
+                    await _userManager
+                        .RemoveFromRolesAsync(
+                            user,
+                            currentRoles);
+
+
+                if (!removeResult.Succeeded)
+                {
+                    TempData["Error"] =
+                        "Could not remove the user's previous role.";
+
+                    return RedirectToAction(
+                        nameof(Index));
+                }
             }
 
 
@@ -127,12 +159,61 @@ namespace RecruitmentTracker.Controllers
             // ADD NEW ROLE
             // =====================================================
 
-            await _userManager.AddToRoleAsync(
-                user,
-                role);
+            var addResult =
+                await _userManager
+                    .AddToRoleAsync(
+                        user,
+                        role);
 
 
-            return RedirectToAction(nameof(Index));
+            if (!addResult.Succeeded)
+            {
+                TempData["Error"] =
+                    "Could not assign the new role.";
+
+                return RedirectToAction(
+                    nameof(Index));
+            }
+
+
+            // =====================================================
+            // INTERVIEWER PROFILE SETUP
+            //
+            // If somebody becomes an Interviewer for the first time,
+            // force them through the profile setup screen.
+            // =====================================================
+
+            if (role == "Interviewer" &&
+                previousRole != "Interviewer")
+            {
+                user.InterviewerProfileCompleted =
+                    false;
+
+
+                var updateResult =
+                    await _userManager
+                        .UpdateAsync(user);
+
+
+                if (!updateResult.Succeeded)
+                {
+                    TempData["Error"] =
+                        "Role changed, but interviewer profile status could not be updated.";
+
+                    return RedirectToAction(
+                        nameof(Index));
+                }
+            }
+
+
+            TempData["Success"] =
+                role == "Interviewer"
+                    ? "User has been assigned as an Interviewer. They will complete their interviewer profile on their next login."
+                    : $"User role changed to {role} successfully.";
+
+
+            return RedirectToAction(
+                nameof(Index));
         }
     }
 }

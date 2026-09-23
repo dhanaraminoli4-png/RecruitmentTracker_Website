@@ -1,0 +1,731 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.Interview>
+
+@{
+    ViewData["Title"] = "My Interviews";
+
+    var interviews = Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.Interview>();
+
+    var today = DateTime.Today;
+
+    var upcomingCount =
+        interviews.Count(x =>
+            x.InterviewDate.Date >= today &&
+            x.Status != "Completed" &&
+            x.Status != "Cancelled");
+
+    var completedCount =
+        interviews.Count(x =>
+            x.Status == "Completed");
+}
+
+
+<div class="my-interviews-page">
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="interview-page-header">
+
+        <div>
+            <h1>My Interviews</h1>
+
+            <p>
+                View your assigned candidate interviews,
+                assessments and feedback.
+            </p>
+        </div>
+
+
+        <a asp-controller="Interviewer"
+           asp-action="Calendar"
+           class="calendar-btn">
+
+            View Calendar
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================================
+         STATS
+         ========================================================= -->
+
+    <div class="interview-stats">
+
+        <div class="stat-card">
+
+            <span>Total Assigned</span>
+
+            <strong>
+                @interviews.Count
+            </strong>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <span>Upcoming</span>
+
+            <strong>
+                @upcomingCount
+            </strong>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <span>Completed</span>
+
+            <strong>
+                @completedCount
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         ALERTS
+         ========================================================= -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="page-alert success">
+            @TempData["Success"]
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="page-alert error">
+            @TempData["Error"]
+        </div>
+    }
+
+
+    <!-- =========================================================
+         INTERVIEWS
+         ========================================================= -->
+
+    @if (!interviews.Any())
+    {
+        <div class="empty-interviews">
+
+            <div class="empty-icon">
+                ◷
+            </div>
+
+            <h3>No interviews assigned yet</h3>
+
+            <p>
+                Interviews assigned to you by HR
+                will appear here.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="interview-list">
+
+            @foreach (var interview in interviews)
+            {
+                var application =
+                    interview.JobApplication;
+
+                var candidate =
+                    application?.Candidate;
+
+                var vacancy =
+                    application?.JobVacancy;
+
+                var candidateName =
+                    candidate?.FullName
+                    ?? "Unknown Candidate";
+
+                var firstLetter =
+                    !string.IsNullOrWhiteSpace(candidateName)
+                        ? candidateName.Substring(0, 1).ToUpper()
+                        : "?";
+
+                var assessment =
+                    interview.Assessments?
+                        .FirstOrDefault();
+
+                var statusClass =
+                    (interview.Status ?? "Scheduled")
+                        .ToLower()
+                        .Replace(" ", "-");
+
+                var isPast =
+                    interview.InterviewDate.Date < today;
+
+
+                <div class="interview-card">
+
+                    <!-- CANDIDATE -->
+
+                    <div class="candidate-section">
+
+                        <div class="candidate-avatar">
+                            @firstLetter
+                        </div>
+
+
+                        <div class="candidate-details">
+
+                            <h3>
+                                @candidateName
+                            </h3>
+
+                            <span>
+                                @(candidate?.Email ?? "")
+                            </span>
+
+
+                            <div class="job-title">
+
+                                @(vacancy?.JobTitle
+                                    ?? "Unknown Position")
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    vacancy?.JobCode))
+                                {
+                                    <small>
+                                        @vacancy.JobCode
+                                    </small>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- INTERVIEW INFORMATION -->
+
+                    <div class="interview-information">
+
+                        <div class="info-item">
+
+                            <span>Round</span>
+
+                            <strong>
+                                @(interview.InterviewRound?.Name
+                                    ?? "—")
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span>Type</span>
+
+                            <strong>
+                                @(interview.InterviewType?.Name
+                                    ?? "—")
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span>Date</span>
+
+                            <strong>
+                                @interview.InterviewDate
+                                    .ToString("dd MMM yyyy")
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span>Time</span>
+
+                            <strong>
+                                @(interview.InterviewTime.ToString("hh\\:mm"))
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ASSESSMENT -->
+
+                    <div class="assessment-section">
+
+                        <span class="section-label">
+                            Assessment
+                        </span>
+
+
+                        @if (assessment != null)
+                        {
+                            <div class="assessment-box">
+
+                                <div>
+
+                                    <strong>
+                                        @(assessment
+                                            .AssessmentTemplate
+                                            ?.Name
+                                            ?? "Assessment")
+                                    </strong>
+
+
+                                    <span>
+                                        @if (assessment.Status ==
+                                             "Submitted")
+                                        {
+                                            @("Assessment submitted")
+                                        }
+                                        else
+                                        {
+                                            @("Assessment pending")
+                                        }
+                                    </span>
+
+                                </div>
+
+
+                                <span class="assessment-status @(assessment.Status == "Submitted" ? "submitted" : "pending")">
+
+                                    @assessment.Status
+
+                                </span>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="no-assessment">
+
+                                No assessment assigned
+
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <!-- FOOTER -->
+
+                    <div class="interview-card-footer">
+
+                        <div class="footer-left">
+
+                            <span class="interview-status @statusClass">
+
+                                @(interview.Status
+                                    ?? "Scheduled")
+
+                            </span>
+
+
+                            @if (isPast &&
+                                 interview.Status ==
+                                 "Scheduled")
+                            {
+                                <small class="past-label">
+                                    Interview date passed
+                                </small>
+                            }
+
+                        </div>
+
+
+                        <a asp-controller="Interviewer"
+                           asp-action="InterviewDetails"
+                           asp-route-id="@interview.Id"
+                           class="view-interview-btn">
+
+                            View Interview
+
+                        </a>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+
+<style>
+
+    .my-interviews-page {
+        max-width: 1250px;
+        margin: 0 auto;
+        padding: 32px;
+        color: #172033;
+    }
+
+
+    /* HEADER */
+
+    .interview-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .interview-page-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 750;
+        color: #111827;
+    }
+
+    .interview-page-header p {
+        margin: 7px 0 0;
+        color: #7b8495;
+        font-size: 14px;
+    }
+
+    .calendar-btn {
+        background: white;
+        border: 1px solid #d9dee7;
+        color: #344054;
+        padding: 10px 16px;
+        border-radius: 9px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+
+    /* STATS */
+
+    .interview-stats {
+        display: grid;
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e4e7ec;
+        border-radius: 14px;
+        padding: 17px 19px;
+    }
+
+    .stat-card span {
+        display: block;
+        color: #7b8495;
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .stat-card strong {
+        font-size: 25px;
+        color: #111827;
+    }
+
+
+    /* ALERT */
+
+    .page-alert {
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 18px;
+        font-size: 13px;
+    }
+
+    .page-alert.success {
+        background: #ecfdf3;
+        border: 1px solid #abefc6;
+        color: #067647;
+    }
+
+    .page-alert.error {
+        background: #fef3f2;
+        border: 1px solid #fecdca;
+        color: #b42318;
+    }
+
+
+    /* INTERVIEW LIST */
+
+    .interview-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .interview-card {
+        background: white;
+        border: 1px solid #e4e7ec;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+    }
+
+
+    /* CANDIDATE */
+
+    .candidate-section {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 19px 20px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .candidate-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        font-weight: 750;
+    }
+
+    .candidate-details h3 {
+        margin: 0;
+        font-size: 15px;
+        color: #101828;
+    }
+
+    .candidate-details > span {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        color: #8a94a6;
+    }
+
+    .job-title {
+        margin-top: 6px;
+        color: #475467;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .job-title small {
+        margin-left: 7px;
+        color: #98a2b3;
+        font-weight: 500;
+    }
+
+
+    /* INFORMATION */
+
+    .interview-information {
+        display: grid;
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+        gap: 15px;
+        padding: 17px 20px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .info-item span,
+    .section-label {
+        display: block;
+        color: #8a94a6;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 5px;
+    }
+
+    .info-item strong {
+        color: #344054;
+        font-size: 13px;
+    }
+
+
+    /* ASSESSMENT */
+
+    .assessment-section {
+        padding: 16px 20px;
+        background: #fbfcfd;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .assessment-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-top: 6px;
+    }
+
+    .assessment-box strong {
+        display: block;
+        font-size: 13px;
+        color: #273248;
+    }
+
+    .assessment-box div span {
+        display: block;
+        margin-top: 3px;
+        color: #8a94a6;
+        font-size: 12px;
+    }
+
+    .assessment-status {
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .assessment-status.pending {
+        background: #fffaeb;
+        color: #b54708;
+    }
+
+    .assessment-status.submitted {
+        background: #ecfdf3;
+        color: #067647;
+    }
+
+    .no-assessment {
+        color: #98a2b3;
+        font-size: 12px;
+    }
+
+
+    /* FOOTER */
+
+    .interview-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 20px;
+    }
+
+    .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .interview-status {
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 650;
+        background: #f2f4f7;
+        color: #475467;
+    }
+
+    .interview-status.scheduled {
+        background: #eff8ff;
+        color: #175cd3;
+    }
+
+    .interview-status.in-progress {
+        background: #fff6ed;
+        color: #c4320a;
+    }
+
+    .interview-status.completed {
+        background: #ecfdf3;
+        color: #067647;
+    }
+
+    .interview-status.cancelled {
+        background: #fef3f2;
+        color: #b42318;
+    }
+
+    .past-label {
+        color: #b54708;
+        font-size: 11px;
+    }
+
+    .view-interview-btn {
+        background: #111827;
+        color: white;
+        border-radius: 9px;
+        padding: 9px 14px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .view-interview-btn:hover {
+        color: white;
+        opacity: .9;
+    }
+
+
+    /* EMPTY */
+
+    .empty-interviews {
+        background: white;
+        border: 1px dashed #d0d5dd;
+        border-radius: 15px;
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 13px;
+        background: #eef2ff;
+        color: #4f46e5;
+        margin: 0 auto 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .empty-interviews h3 {
+        margin: 0;
+        font-size: 15px;
+        color: #344054;
+    }
+
+    .empty-interviews p {
+        color: #98a2b3;
+        font-size: 12px;
+        margin: 6px 0 0;
+    }
+
+
+    @@media (max-width: 800px) {
+
+        .interview-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .interview-information {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .interview-page-header {
+            flex-direction: column;
+        }
+
+    }
+
+</style>

@@ -6,6 +6,7 @@ namespace RecruitmentTracker.Models
     {
         public JobApplication Application { get; set; } = null!;
 
+
         public List<AIAnalysisRequirement> RequiredResults { get; set; }
             = new();
 

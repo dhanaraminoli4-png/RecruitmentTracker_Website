@@ -1,34 +1,86 @@
 @using Microsoft.AspNetCore.Identity
-@inject SignInManager<RecruitmentTracker.Models.ApplicationUser> SignInManager
-@inject UserManager<RecruitmentTracker.Models.ApplicationUser> UserManager
+@using RecruitmentTracker.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ApplicationUser? currentLayoutUser = null;
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        currentLayoutUser =
+            await UserManager.GetUserAsync(User);
+    }
+}
+
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>@ViewData["Title"] - HireTrack</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RecruitmentTracker.styles.css" asp-append-version="true" />
+    <title>
+        @ViewData["Title"] - HireTrack
+    </title>
+
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/RecruitmentTracker.styles.css"
+          asp-append-version="true" />
+
 </head>
+
 
 <body>
 
+
     @if (SignInManager.IsSignedIn(User))
     {
-        var isHR = User.IsInRole("HR");
-        var isCandidate = User.IsInRole("Candidate");
-        var isHM = User.IsInRole("HiringManager");
-        var isAdmin = User.IsInRole("SystemAdmin");
+        var isHR =
+        User.IsInRole("HR");
+
+        var isCandidate =
+        User.IsInRole("Candidate");
+
+        var isHM =
+        User.IsInRole("HiringManager");
+
+        var isAdmin =
+        User.IsInRole("SystemAdmin");
+
+        var isInterviewer =
+        User.IsInRole("Interviewer");
+
 
         var controller =
-        ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        ViewContext.RouteData.Values["controller"]?
+        .ToString()
+        ?? "";
+
+
+        var action =
+        ViewContext.RouteData.Values["action"]?
+        .ToString()
+        ?? "";
+
+
 
         <div class="site-app">
+
 
             <!-- =====================================================
                  LOGGED-IN NAVIGATION
@@ -38,141 +90,548 @@
 
                 <div class="nav-inner">
 
-                    <!-- LOGO -->
+
+                    <!-- =====================================================
+                         LOGO
+                         ===================================================== -->
 
                     <a class="site-logo"
                        asp-controller="Dashboard"
                        asp-action="Index">
 
-                        <span class="logo-mark">H</span>
+                        <span class="logo-mark">
+                            H
+                        </span>
 
-                        <span>HireTrack</span>
+                        <span>
+                            HireTrack
+                        </span>
 
                     </a>
 
 
+
                     <!-- =====================================================
-                    NAVIGATION
-                    ===================================================== -->
+                         NAVIGATION LINKS
+                         ===================================================== -->
 
                     <nav class="nav-links">
 
-                        @if (isHR || isAdmin)
-                        {
-                            <!-- JOB POSTINGS -->
 
-                            <a class="@(controller == "Vacancy" ? "active" : "")"
-                               asp-controller="Vacancy"
-                               asp-action="Index">
-                                Job Postings
+                        <!-- =================================================
+                             INTERVIEWER
+                             ================================================= -->
+                        @if (isInterviewer)
+                        {
+                            <a class="@(
+                               controller == "Interviewer" &&
+                               (
+                                   action == "MyInterviews" ||
+                                   action == "InterviewDetails"
+                               )
+                                   ? "active"
+                                   : ""
+                                                )"
+                           asp-controller="Interviewer"
+                           asp-action="MyInterviews">
+
+                                My Interviews
+
                             </a>
 
 
-                            <!-- APPLICATIONS -->
+                            
 
-                            <a class="@(controller == "HRApplication" ? "active" : "")"
-                               asp-controller="HRApplication"
-                               asp-action="Management">
+
+                            <a class="@(
+                                                   controller == "InterviewerProfile" &&
+                                                   (
+                                                       action == "Profile" ||
+                                                       action == "Setup"
+                                                   )
+                                                       ? "active"
+                                                       : ""
+                                                )"
+                           asp-controller="InterviewerProfile"
+                           asp-action="Profile">
+
+                                My Profile
+
+                            </a>
+                                        }
+
+
+
+                        <!-- =================================================
+                             HR
+                             ================================================= -->
+                        @if (isHR)
+                        {
+                            <a class="@(
+                               controller == "Vacancy"
+                                   ? "active"
+                                   : ""
+                                                )"
+                           asp-controller="Vacancy"
+                           asp-action="Index">
+
+                                Vacancies 
+
+                            </a>
+
+
+                            <a class="@(
+                                                   controller == "HRApplication"
+                                                       ? "active"
+                                                       : ""
+                                                )"
+                           asp-controller="HRApplication"
+                           asp-action="Management">
+
                                 Applications
+
                             </a>
-                        }
 
-                        else if (isCandidate)
+
+
+                            <!-- INTERVIEW MANAGEMENT DROPDOWN -->
+
+                            <div class="nav-dropdown interview-nav-dropdown">
+
+                                <button type="button"
+                                        class="nav-dropdown-button @(
+                                                                        controller == "Interview" ||
+                                                                        controller == "InterviewerManagement" ||
+                                                                        controller == "InterviewRound" ||
+                                                                        controller == "InterviewType" ||
+                                                                        controller == "Assessment"
+                                                                            ? "active"
+                                                                            : ""
+                                                                        )"
+                                    onclick="toggleInterviewNav(event)">
+
+                                    Interview Management
+
+                                    <span class="nav-dropdown-arrow">
+                                        ▾
+                                    </span>
+
+                                </button>
+
+
+
+                                <div id="interviewNavMenu"
+                                     class="nav-dropdown-menu">
+
+
+                                    <a asp-controller="Interview"
+                                       asp-action="Index"
+                                       class="@(
+                                                                      controller == "Interview"
+                                                                          ? "active-item"
+                                                                          : ""
+                                                                      )">
+
+                                Interviews
+
+                                    </a>
+
+
+                               
+
+
+                                    <a asp-controller="InterviewRound"
+                                       asp-action="Index"
+                                       class="@(
+                                                                      controller == "InterviewRound"
+                                                                          ? "active-item"
+                                                                          : ""
+                                                                      )">
+
+                                Interview Rounds
+
+                                    </a>
+
+
+                                    <a asp-controller="InterviewType"
+                                       asp-action="Index"
+                                       class="@(
+                                                                      controller == "InterviewType"
+                                                                          ? "active-item"
+                                                                          : ""
+                                                                      )">
+
+                                Interview Types
+
+                                    </a>
+
+
+                                    <a asp-controller="Assessment"
+                                       asp-action="Index"
+                                       class="@(
+                                                                      controller == "Assessment"
+                                                                          ? "active-item"
+                                                                          : ""
+                                                                      )">
+
+                                Assessments
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <a class="@(
+                                                   controller == "OfferTemplate"
+                                                       ? "active"
+                                                       : ""
+                                                )"
+                           asp-controller="OfferTemplate"
+                           asp-action="Index">
+
+                                Offer Letters
+
+                            </a>
+
+
+                            <a class="@(
+                                                   controller == "HRApplication" &&
+                                                   action == "Reports"
+                                                       ? "active"
+                                                       : ""
+                                                )"
+                           asp-controller="HRApplication"
+                           asp-action="Reports">
+
+                                Reports
+
+                            </a>
+                                        }
+
+
+
+                        <!-- =================================================
+                             HIRING MANAGER
+                             ================================================= -->
+                        @if (isHM)
                         {
-                            var action =
-                            ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+                            <a class="@(
+                               controller == "HiringManager" &&
+                               (
+                                   action == "Applications" ||
+                                   action == "Review" ||
+                                   action == "AIAnalysis"
+                               )
+                                   ? "active"
+                                   : ""
+                                                )"
+                           asp-controller="HiringManager"
+                           asp-action="Applications">
 
-                            <!-- FIND JOB -->
+                                Candidate Approvals
 
-                            <a class="@(controller == "Application" && action == "Vacancies" ? "active" : "")"
-                               asp-controller="Application"
-                               asp-action="Vacancies">
+                            </a>
+
+
+                            <a class="@(
+                                                   controller == "HiringManager" &&
+                                                   (
+                                                       action == "InterviewReviews" ||
+                                                       action == "InterviewReview"
+                                                   )
+                                                       ? "active"
+                                                       : ""
+                                                )"
+                           asp-controller="HiringManager"
+                           asp-action="InterviewReviews">
+
+                                Interview Reviews
+
+                            </a>
+                                        }
+
+
+
+                        <!-- =================================================
+                             CANDIDATE
+                             ================================================= -->
+                        @if (isCandidate)
+                        {
+
+                            <a class="@(
+                               controller == "CandidateProfile"
+                                   ? "active"
+                                   : ""
+)"
+                           asp-controller="CandidateProfile"
+                           asp-action="Profile">
+
+                                My Profile
+
+                            </a>
+
+                            <a class="@(
+                               controller == "Application" &&
+                               action == "Vacancies"
+                                   ? "active"
+                                   : ""
+                                                )"
+                           asp-controller="Application"
+                           asp-action="Vacancies">
 
                                 Find Job
 
                             </a>
 
 
-                            <!-- MY APPLICATIONS -->
-
-                            <a class="@(controller == "Application" && action == "MyApplications" ? "active" : "")"
-                               asp-controller="Application"
-                               asp-action="MyApplications">
+                            <a class="@(
+                                                   controller == "Application" &&
+                                                   action == "MyApplications"
+                                                       ? "active"
+                                                       : ""
+                                                )"
+                           asp-controller="Application"
+                           asp-action="MyApplications">
 
                                 My Applications
 
                             </a>
-                        }
 
-                        else if (isHM)
+                                  }
+
+
+
+                        <!-- =================================================
+                             SYSTEM ADMIN
+                             ================================================= -->
+                        @if (isAdmin)
                         {
-                            <!-- CANDIDATES -->
+                           
 
-                            <a class="@(controller == "HiringManager" ? "active" : "")"
-                               asp-controller="HiringManager"
-                               asp-action="Applications">
 
-                                Candidates
+                            <a class="@(
+                                                   controller == "Role"
+                                                       ? "active"
+                                                       : ""
+                                                )"
+                           asp-controller="Role"
+                           asp-action="Index">
+
+                                Roles
 
                             </a>
-                        }
+                                        }
 
-                        else
+
+                    </nav>
+
+
+
+                    <!-- =====================================================
+                         RIGHT USER AREA
+                         ===================================================== -->
+
+                    <div class="nav-actions">
+
+
+                        <!-- =================================================
+                             INTERVIEWER PROFILE DROPDOWN
+                             ================================================= -->
+                        @if (isInterviewer &&
+                                            currentLayoutUser != null)
                         {
-                            <!-- DASHBOARD -->
-
-                            <a class="@(controller == "Dashboard" ? "active" : "")"
-                               asp-controller="Dashboard"
-                               asp-action="Index">
-
-                                Dashboard
-
-                            </a>
-                        }
-
-                </nav>
+                            var displayName =
+                            currentLayoutUser.FullName
+                            ?? "Interviewer";
 
 
-                <!-- USER / LOGOUT -->
+                            var initial =
+                            !string.IsNullOrWhiteSpace(
+                            displayName
+                            )
 
-                <div class="nav-actions">
+                            ? displayName
+                            .Substring(0, 1)
+                            .ToUpper()
 
-                    <span class="nav-user">
-
-                        <span class="nav-avatar">
-
-                            @(string.IsNullOrWhiteSpace(User.Identity?.Name)
-                                                        ? "U"
-                                                        : User.Identity!.Name.Substring(0, 1).ToUpper())
-
-                        </span>
-
-                            <span class="nav-user-name">
-
-                                @(User.Identity?.Name ?? "User")
-
-                            </span>
-
-                        </span>
+                            : "?";
 
 
-                        <form asp-area="Identity"
-                              asp-page="/Account/Logout"
-                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                            <div class="interviewer-profile-menu">
 
-                            <button class="nav-logout"
-                                    type="submit">
 
-                                Sign out
+                                <button type="button"
+                                        id="interviewerProfileButton"
+                                        class="interviewer-profile-button"
+                                        onclick="toggleInterviewerProfileMenu(event)">
+
+
+                                    <div class="interviewer-top-avatar">
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                                                        currentLayoutUser.ProfileImagePath))
+                                        {
+                                            <img src="@currentLayoutUser.ProfileImagePath"
+                                                 alt="@displayName" />
+                                        }
+                                        else
+                                        {
+                                            @initial
+                                        }
+
+                                </div>
+
+
+                                <span class="interviewer-online-dot"></span>
+
+
+                                <span class="interviewer-chevron">
+                                    ▾
+                                </span>
+
 
                             </button>
 
-                        </form>
+
+
+                            <div id="interviewerProfileDropdown"
+                                 class="interviewer-profile-dropdown">
+
+
+                                <div class="profile-dropdown-header">
+
+
+                                    <div class="profile-dropdown-name">
+
+                                        @displayName
+
+                                    </div>
+
+
+                                    <div class="profile-dropdown-role">
+
+                                        @(currentLayoutUser.JobTitle
+                                                                            ?? "Interviewer")
+
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                        currentLayoutUser.Department))
+                                            {
+                                                <text>
+                                                    · @currentLayoutUser.Department
+                                                </text>
+                                            }
+
+                                        </div>
+
+
+                                    </div>
+
+
+
+                                    <a asp-controller="InterviewerProfile"
+                                       asp-action="Profile"
+                                       class="profile-dropdown-link">
+
+                                        My Profile
+
+                                    </a>
+
+
+
+                                    <a asp-controller="Interviewer"
+                                       asp-action="Calendar"
+                                       class="profile-dropdown-link">
+
+                                        My Calendar
+
+                                    </a>
+
+
+
+                                    <a asp-controller="Dashboard"
+                                       asp-action="Interviewer"
+                                       class="profile-dropdown-link">
+
+                                        Dashboard
+
+                                    </a>
+
+
+
+                                    <div class="profile-dropdown-divider"></div>
+
+
+
+                                    <form asp-area="Identity"
+                                          asp-page="/Account/Logout"
+                                          asp-route-returnUrl="@Url.Action(
+                                                                                    "Index",
+                                                                                    "Home",
+                                                                                    new
+                                                                                    {
+                                                                                        area = ""
+                                                                                    }
+                                                                                )">
+
+
+                                <button type="submit"
+                                        class="profile-dropdown-logout">
+
+                                            Sign out
+
+                                        </button>
+
+
+                                    </form>
+
+
+                                </div>
+
+                            </div>
+                                        }
+
+
+
+                        <!-- =================================================
+                             NORMAL SIGN OUT
+                             ================================================= -->
+                        @if (!isInterviewer)
+                        {
+                            <form asp-area="Identity"
+                                  asp-page="/Account/Logout"
+                                  asp-route-returnUrl="@Url.Action(
+                                                                    "Index",
+                                                                    "Home",
+                                                                    new
+                                                                    {
+                                                                        area = ""
+                                                                    }
+                                                                )">
+
+
+                        <button class="nav-logout"
+                                type="submit">
+
+                                    Sign out
+
+                                </button>
+
+
+                            </form>
+                                        }
+
 
                     </div>
 
 
-                    <!-- MOBILE MENU -->
+
+                    <!-- =====================================================
+                         MOBILE MENU
+                         ===================================================== -->
 
                     <button class="mobile-menu-button"
                             type="button"
@@ -183,76 +642,268 @@
 
                     </button>
 
+
                 </div>
 
             </header>
 
 
-            <!-- LOGGED-IN CONTENT -->
 
-            <main class="site-content" role="main">
+            <!-- =========================================================
+                 LOGGED-IN PAGE CONTENT
+                 ========================================================= -->
+
+            <main class="site-content"
+                  role="main">
 
                 @RenderBody()
 
             </main>
 
-        </div>
-        }
 
+        </div>
+    }
     else
     {
         var currentPage =
-        ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+        ViewContext.RouteData.Values["page"]?
+        .ToString()
+        ?? "";
 
-        <!-- =========================================================
+
+
+        <!-- =============================================================
              PUBLIC / LOGGED-OUT HEADER
-
-             Login + Register both show ONLY the HireTrack logo.
-             No Login/Register buttons.
-             ========================================================= -->
-        if (currentPage == "/Account/Login" ||
+             ============================================================= -->
+        if (
+        currentPage == "/Account/Login" ||
         currentPage == "/Account/Register")
         {
             <header class="public-header login-public-header">
+
 
                 <a class="brand"
                    asp-controller="Home"
                    asp-action="Index">
 
+
                     <span class="brand-mark">
                         H
                     </span>
+
 
                     <span>
                         HireTrack
                     </span>
 
+
                 </a>
+
 
             </header>
         }
 
-        <main class="public-main @(currentPage == "/Account/Register" ? "register-public-main" : "")"
-              role="main">
+
+
+        <main class="public-main @(
+              currentPage == "/Account/Register"
+                  ? "register-public-main"
+                  : ""
+        )"
+          role="main">
 
             @RenderBody()
 
         </main>
-    }
+        }
+
 
 
     <!-- =============================================================
          JAVASCRIPT
          ============================================================= -->
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js">
+    </script>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
+    </script>
+
 
     <script src="~/js/site.js"
-            asp-append-version="true"></script>
+            asp-append-version="true">
+    </script>
 
-    @await RenderSectionAsync("Scripts", required: false)
+
+
+    <script>
+
+
+        // =============================================================
+        // HR INTERVIEW MANAGEMENT DROPDOWN
+        // =============================================================
+
+        function toggleInterviewNav(event) {
+
+            if (event) {
+                event.stopPropagation();
+            }
+
+
+            const menu =
+                document.getElementById(
+                    "interviewNavMenu"
+                );
+
+
+            if (!menu) {
+                return;
+            }
+
+
+            menu.classList.toggle(
+                "show"
+            );
+        }
+
+
+
+        document.addEventListener(
+            "click",
+
+            function (event) {
+
+                const dropdown =
+                    document.querySelector(
+                        ".interview-nav-dropdown"
+                    );
+
+
+                const menu =
+                    document.getElementById(
+                        "interviewNavMenu"
+                    );
+
+
+                if (!dropdown ||
+                    !menu) {
+
+                    return;
+                }
+
+
+                if (!dropdown.contains(
+                    event.target)) {
+
+                    menu.classList.remove(
+                        "show"
+                    );
+                }
+            }
+        );
+
+
+
+        // =============================================================
+        // INTERVIEWER PROFILE DROPDOWN
+        // =============================================================
+
+        function toggleInterviewerProfileMenu(
+            event) {
+
+            if (event) {
+                event.stopPropagation();
+            }
+
+
+            const dropdown =
+                document.getElementById(
+                    "interviewerProfileDropdown"
+                );
+
+
+            const button =
+                document.getElementById(
+                    "interviewerProfileButton"
+                );
+
+
+            if (!dropdown ||
+                !button) {
+
+                return;
+            }
+
+
+            dropdown.classList.toggle(
+                "show"
+            );
+
+
+            button.classList.toggle(
+                "open"
+            );
+        }
+
+
+
+        document.addEventListener(
+            "click",
+
+            function (event) {
+
+                const menu =
+                    document.querySelector(
+                        ".interviewer-profile-menu"
+                    );
+
+
+                const dropdown =
+                    document.getElementById(
+                        "interviewerProfileDropdown"
+                    );
+
+
+                const button =
+                    document.getElementById(
+                        "interviewerProfileButton"
+                    );
+
+
+                if (!menu ||
+                    !dropdown ||
+                    !button) {
+
+                    return;
+                }
+
+
+                if (!menu.contains(
+                    event.target)) {
+
+                    dropdown.classList.remove(
+                        "show"
+                    );
+
+
+                    button.classList.remove(
+                        "open"
+                    );
+                }
+            }
+        );
+
+
+    </script>
+
+
+
+    @await RenderSectionAsync(
+    "Scripts",
+        required: false
+        )
+
 
 </body>
 

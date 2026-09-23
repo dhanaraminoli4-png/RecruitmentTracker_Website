@@ -16,8 +16,8 @@
 <style>
 
     /* =========================================================
-       PAGE
-       ========================================================= */
+               PAGE
+               ========================================================= */
 
     .candidates-page {
         background: #f5f7fb;
@@ -32,8 +32,8 @@
 
 
     /* =========================================================
-       HEADER
-       ========================================================= */
+               HEADER
+               ========================================================= */
 
     .candidate-header {
         display: flex;
@@ -65,8 +65,8 @@
 
 
     /* =========================================================
-       SEARCH
-       ========================================================= */
+               SEARCH
+               ========================================================= */
 
     .candidate-search {
         display: flex;
@@ -81,7 +81,7 @@
 
         .candidate-search input {
             height: 45px;
-            background: #ffffff;
+            background: white;
             border: 1px solid #d8e0ea;
             border-radius: 9px;
             padding: 0 14px;
@@ -96,31 +96,44 @@
             .candidate-search input:focus {
                 outline: none;
                 border-color: #0b1f3a;
-                box-shadow: 0 0 0 3px rgba(11, 31, 58, .07);
+                box-shadow: 0 0 0 3px rgba(11, 31, 58, .08);
             }
+
+    .search-btn {
+        height: 45px;
+        padding: 0 17px;
+        border: none;
+        border-radius: 9px;
+        background: #0b1f3a;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+        .search-btn:hover {
+            background: #132f55;
+        }
 
     .filter-button {
         height: 45px;
         padding: 0 16px;
         border: 1px solid #d8e0ea;
         border-radius: 9px;
-        background: #ffffff;
+        background: white;
         color: #526174;
         font-size: 12px;
         font-weight: 600;
-        cursor: pointer;
     }
 
         .filter-button:hover {
             border-color: #0b1f3a;
             color: #0b1f3a;
-            background: #fafbfd;
         }
 
 
     /* =========================================================
-       TABS
-       ========================================================= */
+               TABS
+               ========================================================= */
 
     .pipeline-tabs {
         display: flex;
@@ -167,12 +180,12 @@
 
 
     /* =========================================================
-       FILTER PANEL
-       ========================================================= */
+               FILTER PANEL
+               ========================================================= */
 
     .filter-panel {
         display: none;
-        background: #ffffff;
+        background: white;
         border: 1px solid #e8edf3;
         border-radius: 15px;
         padding: 20px;
@@ -216,7 +229,6 @@
         border-radius: 8px;
         font-size: 12px;
         color: #26374d;
-        background: #ffffff;
     }
 
         .filter-panel .form-control:focus {
@@ -226,11 +238,11 @@
 
 
     /* =========================================================
-       TABLE CARD
-       ========================================================= */
+               TABLE CARD
+               ========================================================= */
 
     .table-wrap {
-        background: #ffffff;
+        background: white;
         border: 1px solid #e8edf3;
         border-radius: 15px;
         overflow: hidden;
@@ -239,31 +251,130 @@
 
 
     /* =========================================================
-       TABLE
-       ========================================================= */
+               TABLE TOOLBAR
+               ========================================================= */
+
+    .table-toolbar {
+        padding: 21px 24px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .table-toolbar strong {
+            display: block;
+            color: #0b1f3a;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .table-toolbar span {
+            display: block;
+            color: #8a96a6;
+            font-size: 12px;
+        }
+
+
+    /* =========================================================
+               SELECTION TOOLBAR
+               ========================================================= */
+
+    .candidate-selection-toolbar {
+        padding: 18px 24px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        background: white;
+    }
+
+        .candidate-selection-toolbar strong {
+            display: block;
+            color: #0b1f3a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .candidate-selection-toolbar span {
+            display: block;
+            margin-top: 3px;
+            color: #8a96a6;
+            font-size: 11px;
+        }
+
+    .selection-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .selection-btn {
+        height: 35px;
+        padding: 0 13px;
+        border-radius: 7px;
+        border: 1px solid #d8e0ea;
+        background: white;
+        color: #526174;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .selection-btn:hover {
+            border-color: #0b1f3a;
+            color: #0b1f3a;
+        }
+
+    .pass-btn {
+        border-color: #a9d8c2;
+        color: #287a5b;
+    }
+
+        .pass-btn:hover {
+            background: #e9f7f1;
+            border-color: #287a5b;
+        }
+
+    .fail-btn {
+        border-color: #e2b4b8;
+        color: #b64e55;
+    }
+
+        .fail-btn:hover {
+            background: #fbeeee;
+            border-color: #b64e55;
+        }
+
+
+
+
+    /* =========================================================
+               TABLE
+               ========================================================= */
 
     .candidate-table {
         width: 100%;
-        min-width: 950px;
+        min-width: 1150px;
         border-collapse: collapse;
         margin-bottom: 0;
-        background: #ffffff;
     }
 
         .candidate-table thead {
-            background: #f8fafc;
+            background: #0b1f3a;
         }
 
         .candidate-table th {
             padding: 13px 15px;
             text-align: left;
-            color: #718096;
+            color: white;
             font-size: 10px;
             font-weight: 700;
             letter-spacing: .7px;
-            border-bottom: 1px solid #e4e9ef;
+            border-bottom: 1px solid #18365f;
             white-space: nowrap;
-            background: #f8fafc;
         }
 
         .candidate-table td {
@@ -272,11 +383,9 @@
             font-size: 12px;
             border-bottom: 1px solid #edf0f4;
             vertical-align: middle;
-            background: #ffffff;
         }
 
         .candidate-table tbody tr {
-            background: #ffffff;
             transition: .15s ease;
         }
 
@@ -284,24 +393,20 @@
                 background: #fafbfd;
             }
 
-                .candidate-table tbody tr:hover td {
-                    background: #fafbfd;
-                }
-
             .candidate-table tbody tr:last-child td {
                 border-bottom: none;
             }
 
 
     /* =========================================================
-       CANDIDATE
-       ========================================================= */
+               CANDIDATE
+               ========================================================= */
 
     .candidate-info {
         display: flex;
         align-items: center;
         gap: 11px;
-        min-width: 230px;
+        min-width: 220px;
     }
 
     .candidate-avatar {
@@ -332,8 +437,8 @@
 
 
     /* =========================================================
-       JOB
-       ========================================================= */
+               JOB
+               ========================================================= */
 
     .job-title {
         color: #0b1f3a;
@@ -350,8 +455,8 @@
 
 
     /* =========================================================
-       AI SCORE
-       ========================================================= */
+               AI SCORE
+               ========================================================= */
 
     .score-wrapper {
         min-width: 105px;
@@ -380,15 +485,46 @@
 
 
     /* =========================================================
-       ACTIONS
-       ========================================================= */
+               STATUS
+               ========================================================= */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-passed {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .status-review {
+        background: #fff5e8;
+        color: #a56820;
+    }
+
+    .status-failed {
+        background: #fbeeee;
+        color: #b64e55;
+    }
+
+
+    /* =========================================================
+               ACTIONS
+               ========================================================= */
 
     .action-buttons {
         display: flex;
         align-items: center;
         gap: 5px;
         flex-wrap: wrap;
-        min-width: 180px;
+        min-width: 190px;
     }
 
         .action-buttons .btn {
@@ -398,32 +534,20 @@
             font-weight: 600;
         }
 
-
-    /* =========================================================
-       REVIEW BUTTON
-       ========================================================= */
-
     .btn-outline-primary {
         color: #0b1f3a;
         border-color: #d8e0ea;
-        background: #ffffff;
     }
 
         .btn-outline-primary:hover {
             background: #0b1f3a;
             border-color: #0b1f3a;
-            color: #ffffff;
+            color: white;
         }
-
-
-    /* =========================================================
-       CV BUTTON
-       ========================================================= */
 
     .btn-outline-secondary {
         color: #526174;
         border-color: #d8e0ea;
-        background: #ffffff;
     }
 
         .btn-outline-secondary:hover {
@@ -432,90 +556,45 @@
             background: #f8fafc;
         }
 
-
-    /* =========================================================
-       COVER LETTER
-       ========================================================= */
-
     .btn-outline-success {
         color: #287a5b;
-        border-color: #b9dfce;
-        background: #ffffff;
+        border-color: #b8ddcc;
     }
 
         .btn-outline-success:hover {
-            background: #e9f7f1;
+            color: white;
+            background: #287a5b;
             border-color: #287a5b;
-            color: #287a5b;
         }
 
 
     /* =========================================================
-       REVIEW SELECTION TOOLBAR
-       ========================================================= */
+               EMPTY STATE
+               ========================================================= */
 
-    .candidate-selection-toolbar {
-        padding: 18px 24px;
-        border-bottom: 1px solid #edf0f4;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        background: #ffffff;
+    .empty-state {
+        padding: 65px 25px;
+        text-align: center;
+        background: white;
     }
 
-        .candidate-selection-toolbar strong {
-            display: block;
+        .empty-state h5 {
             color: #0b1f3a;
-            font-size: 13px;
+            font-size: 17px;
             font-weight: 700;
+            margin-bottom: 6px;
         }
 
-        .candidate-selection-toolbar span {
-            display: block;
-            margin-top: 3px;
-            color: #8a96a6;
-            font-size: 11px;
-        }
-
-    .selection-actions {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-    }
-
-    .selection-btn {
-        height: 35px;
-        padding: 0 13px;
-        border-radius: 7px;
-        border: 1px solid #d8e0ea;
-        background: #ffffff;
-        color: #526174;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-        .selection-btn:hover {
-            border-color: #0b1f3a;
-            color: #0b1f3a;
-            background: #f8fafc;
-        }
-
-    .pass-btn {
-        border-color: #a9d8c2;
-        color: #287a5b;
-    }
-
-        .pass-btn:hover {
-            background: #e9f7f1;
-            border-color: #287a5b;
+        .empty-state p {
+            color: #718096;
+            font-size: 12px;
+            margin: 0;
         }
 
 
     /* =========================================================
-       CHECKBOX
-       ========================================================= */
+               CHECKBOX
+               ========================================================= */
 
     .select-column {
         width: 55px;
@@ -539,32 +618,8 @@
 
 
     /* =========================================================
-       EMPTY STATE
-       ========================================================= */
-
-    .empty-state {
-        padding: 65px 25px;
-        text-align: center;
-        background: #ffffff;
-    }
-
-        .empty-state h5 {
-            color: #0b1f3a;
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .empty-state p {
-            color: #718096;
-            font-size: 12px;
-            margin: 0;
-        }
-
-
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
+               RESPONSIVE
+               ========================================================= */
 
     @@media (max-width: 900px) {
 
@@ -599,18 +654,6 @@
             width: 100%;
             flex-wrap: wrap;
         }
-    }
-
-    /* =========================================================
-       TABLE HEADINGS - UPPERCASE
-       ========================================================= */
-
-    .candidates-page .candidate-table th {
-        text-transform: uppercase !important;
-        letter-spacing: .7px;
-        color: #718096;
-        font-size: 10px;
-        font-weight: 700;
     }
 </style>
 
@@ -668,11 +711,11 @@
                     <input type="text"
                            name="search"
                            value="@search"
-                           placeholder="Search candidates..."
-                           class="form-control" />
+                           class="form-control"
+                           placeholder="Search candidates..." />
 
                     <button type="submit"
-                            class="btn btn-primary">
+                            class="search-btn">
                         Search
                     </button>
 
@@ -783,7 +826,6 @@
                    name="search"
                    value="@search" />
 
-
             <div class="filter-title">
 
                 <div>
@@ -888,153 +930,507 @@
 
                 </div>
             }
-            else if (selectedStatus == "review")
+            else
             {
 
                 <!-- =================================================
-                     REVIEW SELECTION
+                     REVIEW TABLE
                      ================================================= -->
+                @if (selectedStatus == "review")
+                {
+                    <form method="post"
+                          id="candidateForm">
 
-                <form method="post"
-                      id="candidateForm">
+                        @Html.AntiForgeryToken()
 
-                    @Html.AntiForgeryToken()
-
-                    <input type="hidden"
-                           name="vacancyId"
-                           id="vacancyId"
-                           value="" />
+                        <input type="hidden"
+                               name="vacancyId"
+                               id="vacancyId"
+                               value="" />
 
 
-                    <div class="candidate-selection-toolbar">
+                        <div class="candidate-selection-toolbar">
 
-                        <div>
+                            <div>
 
-                            <strong>
-                                Review Candidates
-                            </strong>
+                                <strong>
+                                    Review Candidates
+                                </strong>
 
-                            <span id="selectionText">
-                                Select candidates to pass.
-                            </span>
+                                <span id="selectionText">
+                                    Select candidates to pass.
+                                </span>
+
+                            </div>
+
+
+                            <div class="selection-actions">
+
+                                <button type="button"
+                                        id="selectAllBtn"
+                                        class="selection-btn">
+                                    Select All
+                                </button>
+
+                                <button type="submit"
+                                        formaction="@Url.Action("MarkPassed", "HRApplication")"
+                                        class="selection-btn pass-btn">
+                                    Pass Selected
+                                </button>
+
+                                <button type="submit"
+                                        formaction="@Url.Action("MarkFailed", "HRApplication")"
+                                        class="selection-btn fail-btn">
+                                    Fail Selected
+                                </button>
+
+                            </div>
 
                         </div>
 
 
-                        <div class="selection-actions">
+                        <div class="table-responsive">
 
-                            <button type="button"
-                                    id="selectAllBtn"
-                                    class="selection-btn">
-                                Select All
-                            </button>
+                            <table class="table candidate-table align-middle">
 
-                            <button type="submit"
-                                    formaction="@Url.Action("MarkPassed", "HRApplication")"
-                                    class="selection-btn pass-btn">
-                                Pass Selected
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         REVIEW TABLE
-                         ================================================= -->
-
-                    <div class="table-responsive">
-
-                        <table class="candidate-table">
-                            <thead>
-
-                                <tr>
-
-                                    <th class="select-column">
-
-                                        <input type="checkbox"
-                                               id="selectAllCheckbox" />
-
-                                    </th>
-
-                                    <th>
-                                        Candidate
-                                    </th>
-
-                                    <th>
-                                        Job
-                                    </th>
-
-                                    <th>
-                                        AI Score
-                                    </th>
-
-                                    <th>
-                                        Applied
-                                    </th>
-
-                                    <th>
-                                        Actions
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                @foreach (var application in applications)
-                                {
-                                   var candidateName =
-    $"{application.FirstName} {application.LastName}".Trim();
-
-if (string.IsNullOrWhiteSpace(candidateName))
-{
-    candidateName = "Unknown Candidate";
-}
-
-                                    var email =
-                                    application.Candidate?.Email ?? "";
-
-                                    var initials = "??";
-
-                                    var nameParts = candidateName
-                                    .Trim()
-                                    .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                                    if (nameParts.Length >= 2)
-                                    {
-                                        initials =
-                                        $"{nameParts[0][0]}{nameParts[^1][0]}"
-                                        .ToUpper();
-                                    }
-                                    else if (nameParts.Length == 1)
-                                    {
-                                        initials =
-                                        nameParts[0]
-                                        .Substring(0, Math.Min(2, nameParts[0].Length))
-                                        .ToUpper();
-                                    }
-
-                                    var score =
-                                    Math.Min(100, Math.Max(0, application.AIScore));
+                                <thead>
 
                                     <tr>
 
-                                        <!-- SELECT -->
-
-                                        <td class="select-column">
-
+                                        <th class="select-column">
                                             <input type="checkbox"
-                                                   class="candidate-checkbox"
-                                                   name="selectedIds"
-                                                   value="@application.Id"
-                                                   data-vacancy-id="@application.JobVacancyId" />
+                                                   id="selectAllCheckbox" />
+                                        </th>
 
-                                        </td>
+                                        <th>
+                                            Candidate
+                                        </th>
 
+                                        <th>
+                                            Job
+                                        </th>
+
+                                        <th>
+                                            AI Score
+                                        </th>
+
+                                        <th>
+                                            Status
+                                        </th>
+
+                                        <th>
+                                            Applied
+                                        </th>
+
+                                        <th>
+                                            Actions
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    @foreach (var application in applications)
+                                    {
+                                        var candidateName =
+                                        application.Candidate?.FullName
+                                        ?? "Unknown Candidate";
+
+                                        var initials = "??";
+
+                                        if (!string.IsNullOrWhiteSpace(candidateName))
+                                        {
+                                            var nameParts =
+                                            candidateName
+                                            .Trim()
+                                            .Split(
+                                            ' ',
+                                            StringSplitOptions.RemoveEmptyEntries
+                                            );
+
+                                            if (nameParts.Length >= 2)
+                                            {
+                                                initials =
+                                                $"{nameParts[0][0]}{nameParts[^1][0]}"
+                                                .ToUpper();
+                                            }
+                                            else if (nameParts.Length == 1)
+                                            {
+                                                initials =
+                                                nameParts[0]
+                                                .Substring(
+                                                0,
+                                                Math.Min(
+                                                2,
+                                                nameParts[0].Length
+                                                )
+                                                )
+                                                .ToUpper();
+                                            }
+                                        }
+
+                                        var score =
+                                        Math.Min(
+                                        100,
+                                        Math.Max(
+                                        0,
+                                        application.AIScore
+                                        )
+                                        );
+
+                                        <tr>
+
+                                            <!-- SELECT -->
+
+                                            <td class="select-column">
+
+                                                <input type="checkbox"
+                                                       class="candidate-checkbox"
+                                                       name="selectedIds"
+                                                       value="@application.Id"
+                                                       data-vacancy-id="@application.JobVacancyId" />
+
+                                            </td>
+
+
+                                            <!-- CANDIDATE -->
+
+                                            <td>
+
+                                                <div class="candidate-info">
+
+                                                    <div class="candidate-avatar">
+                                                        @initials
+                                                    </div>
+
+                                                    <div>
+
+                                                        <div class="candidate-name">
+                                                            @candidateName
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <!-- JOB -->
+
+                                            <td>
+
+                                                <div class="job-title">
+                                                    @(application.JobVacancy?.JobTitle
+                                                                                            ?? "Unknown Job")
+                                    </div>
+
+                                    @if (application.JobVacancy != null)
+                                                {
+                                                    <div class="job-code">
+                                                        @application.JobVacancy.JobCode
+                                                    </div>
+                                                }
+
+                                            </td>
+
+
+                                            <!-- SCORE -->
+
+                                            <td>
+
+                                                <div class="score-wrapper">
+
+                                                    <div class="score-number">
+                                                        @application.AIScore.ToString("0.0")%
+                                                    </div>
+
+                                                    <div class="score-progress">
+
+                                                        <div class="score-progress-bar"
+                                                             style="width:@score%">
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            <!-- STATUS -->
+
+                                            <td>
+
+                                                <span class="status-badge status-review">
+                                                    Review
+                                                </span>
+
+                                            </td>
+
+
+                                            <!-- APPLIED -->
+
+                                            <td>
+                                                @application.AppliedDate.ToString("dd MMM yyyy")
+                                            </td>
+
+
+                                            <!-- ACTIONS -->
+
+                                            <td>
+
+                                                <div class="action-buttons">
+
+                                                    <a asp-action="AIAnalysis"
+                                                       asp-route-id="@application.Id"
+                                                       asp-route-vacancyId="@application.JobVacancyId"
+                                                       class="btn btn-outline-primary btn-sm">
+                                                        Review
+                                                    </a>
+
+
+                                                    @if (!string.IsNullOrWhiteSpace(application.CVFilePath))
+                                                    {
+                                                        <a asp-action="ViewCV"
+                                                           asp-route-id="@application.Id"
+                                                           asp-route-vacancyId="@application.JobVacancyId"
+                                                           target="_blank"
+                                                           class="btn btn-outline-secondary btn-sm">
+                                                            CV
+                                                        </a>
+                                                    }
+
+
+                                                    @if (!string.IsNullOrWhiteSpace(application.CoverLetterFilePath))
+                                                    {
+                                                        <a asp-action="ViewCoverLetter"
+                                                           asp-route-id="@application.Id"
+                                                           asp-route-vacancyId="@application.JobVacancyId"
+                                                           target="_blank"
+                                                           class="btn btn-outline-success btn-sm">
+                                                            Cover Letter
+                                                        </a>
+                                                    }
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </form>
+                }
+                else
+                {
+
+                    <!-- =================================================
+                         NORMAL TABLE
+                         ================================================= -->
+
+                    <form id="sendToHiringManagerForm"
+                          asp-controller="HRApplication"
+                          asp-action="SendToHiringManager"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        @if (selectedStatus == "passed")
+                        {
+                            <div class="candidate-selection-toolbar">
+
+                                <div>
+                                    <strong>Passed Candidates</strong>
+
+                                    <span id="hmSelectionText">
+                                        Select passed candidates to send to the Hiring Manager.
+                                    </span>
+                                </div>
+
+                                <div class="selection-actions">
+
+                                    <button type="button"
+                                            id="hmSelectAllBtn"
+                                            class="selection-btn">
+                                        Select All
+                                    </button>
+
+                                    <button type="submit"
+                                            class="selection-btn send-hm-btn">
+                                        Send to Hiring Manager →
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        }
+
+                        <div class="table-responsive">
+
+                            <table class="table candidate-table align-middle">
+
+                                <thead>
+
+                                    <tr>
+
+                                        @if (selectedStatus == "passed")
+                                        {
+                                            <th class="select-column">Select</th>
+                                        }
+
+                                        <th>
+                                            Candidate
+                                        </th>
+
+                                        <th>
+                                            Job
+                                        </th>
+
+                                        <th>
+                                            AI Score
+                                        </th>
+
+                                        <th>
+                                            Status
+                                        </th>
+
+                                        <th>
+                                            Applied
+                                        </th>
+
+                                        <th>
+                                            Actions
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    @foreach (var application in applications)
+                                    {
+                                        var candidateName =
+                                        application.Candidate?.FullName
+                                        ?? "Unknown Candidate";
+
+                                        var initials = "??";
+
+                                        if (!string.IsNullOrWhiteSpace(candidateName))
+                                        {
+                                            var nameParts =
+                                            candidateName
+                                            .Trim()
+                                            .Split(
+                                            ' ',
+                                            StringSplitOptions.RemoveEmptyEntries
+                                            );
+
+                                            if (nameParts.Length >= 2)
+                                            {
+                                                initials =
+                                                $"{nameParts[0][0]}{nameParts[^1][0]}"
+                                                .ToUpper();
+                                            }
+                                            else if (nameParts.Length == 1)
+                                            {
+                                                initials =
+                                                nameParts[0]
+                                                .Substring(
+                                                0,
+                                                Math.Min(
+                                                2,
+                                                nameParts[0].Length
+                                                )
+                                                )
+                                                .ToUpper();
+                                            }
+                                        }
+
+
+                                        var score =
+                                        Math.Min(
+                                        100,
+                                        Math.Max(
+                                        0,
+                                        application.AIScore
+                                        )
+                                        );
+
+
+                                        string displayStatus;
+                                        string statusClass;
+
+
+                                        if (application.HRShortlisted)
+                                        {
+                                            displayStatus = "Sent to HM";
+                                            statusClass = "status-passed";
+                                        }
+                                        else if (application.Status == "Passed")
+                                        {
+                                            displayStatus = "Passed";
+                                            statusClass = "status-passed";
+                                        }
+                                        else if (application.Status == "Not Shortlisted")
+                                        {
+                                            displayStatus = "Failed";
+                                            statusClass = "status-failed";
+                                        }
+                                        else if (application.Status == "Under Review")
+                                        {
+                                            displayStatus = "Review";
+                                            statusClass = "status-review";
+                                        }
+                                        else if (application.AIScore >= 70)
+                                        {
+                                            displayStatus = "Passed";
+                                            statusClass = "status-passed";
+                                        }
+                                        else if (application.AIScore >= 50)
+                                        {
+                                            displayStatus = "Review";
+                                            statusClass = "status-review";
+                                        }
+                                        else
+                                        {
+                                            displayStatus = "Failed";
+                                            statusClass = "status-failed";
+                                        }
+
+
+                                        <tr>
+
+                                            @if (selectedStatus == "passed")
+                                            {
+                                                <td class="select-column">
+                                                    @if (!application.HRShortlisted)
+                                                    {
+                                                        <input type="checkbox"
+                                                               class="hm-candidate-checkbox"
+                                                               name="selectedIds"
+                                                               value="@application.Id" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="sent-hm-mark"
+                                                              title="Already sent to Hiring Manager">
+                                                            ✓ Sent
+                                                        </span>
+                                                    }
+                                                </td>
+                                            }
 
                                         <!-- CANDIDATE -->
 
@@ -1052,10 +1448,6 @@ if (string.IsNullOrWhiteSpace(candidateName))
                                                         @candidateName
                                                     </div>
 
-                                                    <div class="candidate-email">
-                                                        @email
-                                                    </div>
-
                                                 </div>
 
                                             </div>
@@ -1068,312 +1460,115 @@ if (string.IsNullOrWhiteSpace(candidateName))
                                         <td>
 
                                             <div class="job-title">
-                                                @(application.JobVacancy?.JobTitle ?? "Unknown Job")
-                                            </div>
+                                                @(application.JobVacancy?.JobTitle
+                                                                                        ?? "Unknown Job")
+                                    </div>
 
-                                            @if (application.JobVacancy != null)
-                                            {
-                                                <div class="job-code">
-                                                    @application.JobVacancy.JobCode
-                                                </div>
-                                            }
+                                    @if (application.JobVacancy != null)
+                                                {
+                                                    <div class="job-code">
+                                                        @application.JobVacancy.JobCode
+                                                    </div>
+                                                }
 
-                                        </td>
+                                            </td>
 
 
-                                        <!-- AI SCORE -->
+                                            <!-- SCORE -->
 
-                                        <td>
+                                            <td>
 
-                                            <div class="score-wrapper">
+                                                <div class="score-wrapper">
 
-                                                <div class="score-number">
-                                                    @application.AIScore.ToString("0.0")%
-                                                </div>
+                                                    <div class="score-number">
+                                                        @application.AIScore.ToString("0.0")%
+                                                    </div>
 
-                                                <div class="score-progress">
+                                                    <div class="score-progress">
 
-                                                    <div class="score-progress-bar"
-                                                         style="width:@score%">
+                                                        <div class="score-progress-bar"
+                                                             style="width:@score%">
+                                                        </div>
+
                                                     </div>
 
                                                 </div>
 
-                                            </div>
-
-                                        </td>
+                                            </td>
 
 
-                                        <!-- APPLIED -->
+                                            <!-- STATUS -->
 
-                                        <td>
-                                            @application.AppliedDate.ToString("dd MMM yyyy")
-                                        </td>
+                                            <td>
 
+                                                <span class="status-badge @statusClass">
+                                                    @displayStatus
+                                                </span>
 
-                                        <!-- ACTIONS -->
-
-                                        <td>
-
-                                            <div class="action-buttons">
-
-                                                <a asp-action="AIAnalysis"
-                                                   asp-route-id="@application.Id"
-                                                   asp-route-vacancyId="@application.JobVacancyId"
-                                                   class="btn btn-outline-primary btn-sm">
-                                                    Review
-                                                </a>
+                                            </td>
 
 
-                                                @if (!string.IsNullOrWhiteSpace(application.CVFilePath))
-                                                {
-                                                    <a asp-action="ViewCV"
+                                            <!-- APPLIED -->
+
+                                            <td>
+
+                                                @application.AppliedDate.ToString("dd MMM yyyy")
+
+                                            </td>
+
+
+                                            <!-- ACTIONS -->
+
+                                            <td>
+
+                                                <div class="action-buttons">
+
+                                                    <a asp-action="AIAnalysis"
                                                        asp-route-id="@application.Id"
                                                        asp-route-vacancyId="@application.JobVacancyId"
-                                                       target="_blank"
-                                                       class="btn btn-outline-secondary btn-sm">
-                                                        CV
+                                                       class="btn btn-outline-primary btn-sm">
+                                                        Review
                                                     </a>
-                                                }
 
 
-                                                @if (!string.IsNullOrWhiteSpace(application.CoverLetterFilePath))
-                                                {
-                                                    <a asp-action="ViewCoverLetter"
-                                                       asp-route-id="@application.Id"
-                                                       asp-route-vacancyId="@application.JobVacancyId"
-                                                       target="_blank"
-                                                       class="btn btn-outline-success btn-sm">
-                                                        Cover Letter
-                                                    </a>
-                                                }
-
-                                            </div>
-
-                                        </td>
-
-                                    </tr>
-                                }
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </form>
-
-            }
-            else
-            {
-
-                <!-- =================================================
-                     NORMAL TABLE
-                     ALL / PASSED / FAILED
-                     ================================================= -->
-
-                <div class="table-responsive">
-
-                    <table class="candidate-table">
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Candidate
-                                </th>
-
-                                <th>
-                                    Job
-                                </th>
-
-                                <th>
-                                    AI Score
-                                </th>
-
-                                <th>
-                                    Applied
-                                </th>
-
-                                <th>
-                                    Actions
-                                </th>
-
-                            </tr>
-
-                        </thead>
+                                                    @if (!string.IsNullOrWhiteSpace(application.CVFilePath))
+                                                    {
+                                                        <a asp-action="ViewCV"
+                                                           asp-route-id="@application.Id"
+                                                           asp-route-vacancyId="@application.JobVacancyId"
+                                                           target="_blank"
+                                                           class="btn btn-outline-secondary btn-sm">
+                                                            CV
+                                                        </a>
+                                                    }
 
 
-                        <tbody>
+                                                    @if (!string.IsNullOrWhiteSpace(application.CoverLetterFilePath))
+                                                    {
+                                                        <a asp-action="ViewCoverLetter"
+                                                           asp-route-id="@application.Id"
+                                                           asp-route-vacancyId="@application.JobVacancyId"
+                                                           target="_blank"
+                                                           class="btn btn-outline-success btn-sm">
+                                                            Cover Letter
+                                                        </a>
+                                                    }
 
-                            @foreach (var application in applications)
-                            {
-                                /*
-                                * IMPORTANT:
-                                * Candidate name comes from the applied
-                                * candidate's Candidate.FullName.
-                                */
-
-                                var candidateName =
-                                $"{application.FirstName} {application.LastName}".Trim();
-
-                                if (string.IsNullOrWhiteSpace(candidateName))
-                                {
-                                    candidateName = "Unknown Candidate";
-                                }
-
-                                var email =
-                                application.Candidate?.Email ?? "";
-
-                                var initials = "??";
-
-                                var nameParts = candidateName
-                                .Trim()
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                                if (nameParts.Length >= 2)
-                                {
-                                    initials =
-                                    $"{nameParts[0][0]}{nameParts[^1][0]}"
-                                    .ToUpper();
-                                }
-                                else if (nameParts.Length == 1)
-                                {
-                                    initials =
-                                    nameParts[0]
-                                    .Substring(0, Math.Min(2, nameParts[0].Length))
-                                    .ToUpper();
-                                }
-
-                                var score =
-                                Math.Min(100, Math.Max(0, application.AIScore));
-
-                                <tr>
-
-                                    <!-- CANDIDATE -->
-
-                                    <td>
-
-                                        <div class="candidate-info">
-
-                                            <div class="candidate-avatar">
-                                                @initials
-                                            </div>
-
-                                            <div>
-
-                                                <div class="candidate-name">
-                                                    @candidateName
                                                 </div>
 
-                                                <div class="candidate-email">
-                                                    @email
-                                                </div>
+                                            </td>
 
-                                            </div>
+                                        </tr>
+                                    }
 
-                                        </div>
+                                </tbody>
 
-                                    </td>
+                            </table>
 
+                        </div>
 
-                                    <!-- JOB -->
-
-                                    <td>
-
-                                        <div class="job-title">
-                                            @(application.JobVacancy?.JobTitle ?? "Unknown Job")
-                                        </div>
-
-                                        @if (application.JobVacancy != null)
-                                        {
-                                            <div class="job-code">
-                                                @application.JobVacancy.JobCode
-                                            </div>
-                                        }
-
-                                    </td>
-
-
-                                    <!-- AI SCORE -->
-
-                                    <td>
-
-                                        <div class="score-wrapper">
-
-                                            <div class="score-number">
-                                                @application.AIScore.ToString("0.0")%
-                                            </div>
-
-                                            <div class="score-progress">
-
-                                                <div class="score-progress-bar"
-                                                     style="width:@score%">
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    </td>
-
-
-                                    <!-- APPLIED -->
-
-                                    <td>
-                                        @application.AppliedDate.ToString("dd MMM yyyy")
-                                    </td>
-
-
-                                    <!-- ACTIONS -->
-
-                                    <td>
-
-                                        <div class="action-buttons">
-
-                                            <a asp-action="AIAnalysis"
-                                               asp-route-id="@application.Id"
-                                               asp-route-vacancyId="@application.JobVacancyId"
-                                               class="btn btn-outline-primary btn-sm">
-                                                Review
-                                            </a>
-
-
-                                            @if (!string.IsNullOrWhiteSpace(application.CVFilePath))
-                                            {
-                                                <a asp-action="ViewCV"
-                                                   asp-route-id="@application.Id"
-                                                   asp-route-vacancyId="@application.JobVacancyId"
-                                                   target="_blank"
-                                                   class="btn btn-outline-secondary btn-sm">
-                                                    CV
-                                                </a>
-                                            }
-
-
-                                            @if (!string.IsNullOrWhiteSpace(application.CoverLetterFilePath))
-                                            {
-                                                <a asp-action="ViewCoverLetter"
-                                                   asp-route-id="@application.Id"
-                                                   asp-route-vacancyId="@application.JobVacancyId"
-                                                   target="_blank"
-                                                   class="btn btn-outline-success btn-sm">
-                                                    Cover Letter
-                                                </a>
-                                            }
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                    </form>
+                }
 
             }
 
@@ -1385,7 +1580,7 @@ if (string.IsNullOrWhiteSpace(candidateName))
 
 
 <!-- =============================================================
-     REVIEW SELECTION JAVASCRIPT
+     JAVASCRIPT
      ============================================================= -->
 @if (selectedStatus == "review")
 {
@@ -1393,11 +1588,13 @@ if (string.IsNullOrWhiteSpace(candidateName))
 
         document.addEventListener("DOMContentLoaded", function () {
 
-            const form = document.getElementById("candidateForm");
+            const form =
+                document.getElementById("candidateForm");
 
             if (!form) {
                 return;
             }
+
 
             const selectAllCheckbox =
                 document.getElementById("selectAllCheckbox");
@@ -1421,7 +1618,9 @@ if (string.IsNullOrWhiteSpace(candidateName))
                         checkbox => checkbox.checked
                     );
 
-                const count = selected.length;
+                const count =
+                    selected.length;
+
 
                 if (count === 0) {
 
@@ -1429,10 +1628,12 @@ if (string.IsNullOrWhiteSpace(candidateName))
                         "Select candidates to pass.";
 
                 }
-                else {
+                else
+                {
 
                     selectionText.textContent =
-                        count + " candidate(s) selected.";
+                        count +
+                        " candidate(s) selected.";
 
                 }
 
@@ -1462,7 +1663,9 @@ if (string.IsNullOrWhiteSpace(candidateName))
             }
 
 
-            /* SELECT ALL CHECKBOX */
+            /* =====================================================
+               SELECT ALL CHECKBOX
+               ===================================================== */
 
             if (selectAllCheckbox) {
 
@@ -1487,7 +1690,9 @@ if (string.IsNullOrWhiteSpace(candidateName))
             }
 
 
-            /* SELECT ALL BUTTON */
+            /* =====================================================
+               SELECT ALL BUTTON
+               ===================================================== */
 
             if (selectAllBtn) {
 
@@ -1519,7 +1724,9 @@ if (string.IsNullOrWhiteSpace(candidateName))
             }
 
 
-            /* INDIVIDUAL CHECKBOXES */
+            /* =====================================================
+               INDIVIDUAL CHECKBOXES
+               ===================================================== */
 
             checkboxes.forEach(
                 checkbox => {
@@ -1533,7 +1740,9 @@ if (string.IsNullOrWhiteSpace(candidateName))
             );
 
 
-            /* FORM SUBMIT */
+            /* =====================================================
+               FORM SUBMIT
+               ===================================================== */
 
             form.addEventListener(
                 "submit",
@@ -1604,19 +1813,61 @@ if (string.IsNullOrWhiteSpace(candidateName))
 }
 
 
+@if (selectedStatus == "passed")
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("sendToHiringManagerForm");
+            const selectAllBtn = document.getElementById("hmSelectAllBtn");
+            const selectionText = document.getElementById("hmSelectionText");
+            const checkboxes = Array.from(document.querySelectorAll(".hm-candidate-checkbox"));
+
+            if (!form) return;
+
+            function updateHmSelection() {
+                const count = checkboxes.filter(x => x.checked).length;
+                selectionText.textContent = count === 0
+                    ? "Select passed candidates to send to the Hiring Manager."
+                    : count + " candidate(s) selected.";
+            }
+
+            checkboxes.forEach(x => x.addEventListener("change", updateHmSelection));
+
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener("click", function () {
+                    const shouldSelect = checkboxes.some(x => !x.checked);
+                    checkboxes.forEach(x => x.checked = shouldSelect);
+                    updateHmSelection();
+                    selectAllBtn.textContent = shouldSelect ? "Clear All" : "Select All";
+                });
+            }
+
+            form.addEventListener("submit", function (event) {
+                const selected = checkboxes.filter(x => x.checked);
+                if (selected.length === 0) {
+                    event.preventDefault();
+                    alert("Please select at least one candidate.");
+                    return;
+                }
+
+                if (!confirm(`Send ${selected.length} selected candidate(s) to the Hiring Manager for interview approval?`)) {
+                    event.preventDefault();
+                }
+            });
+
+            updateHmSelection();
+        });
+    </script>
+
+
+}
+
 <script>
-
     function toggleFilters() {
-
-        const panel =
-            document.getElementById("filterPanel");
+        const panel = document.getElementById("filterPanel");
 
         if (panel) {
-
             panel.classList.toggle("show");
-
         }
-
     }
-
 </script>

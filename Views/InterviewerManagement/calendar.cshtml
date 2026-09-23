@@ -1,0 +1,2078 @@
+﻿@{
+    ViewData["Title"] = "Interviewer Calendar";
+
+    string interviewerId =
+        ViewBag.InterviewerId ?? "";
+
+    string interviewerName =
+        ViewBag.InterviewerName ?? "Interviewer";
+
+    string email =
+        ViewBag.Email ?? "";
+
+    string jobTitle =
+        ViewBag.JobTitle ?? "";
+
+    string department =
+        ViewBag.Department ?? "";
+
+    string seniority =
+        ViewBag.Seniority ?? "";
+
+    int experience =
+        ViewBag.Experience ?? 0;
+
+    var firstLetter =
+        !string.IsNullOrWhiteSpace(interviewerName)
+            ? interviewerName.Substring(0, 1).ToUpper()
+            : "?";
+}
+
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+
+<style>
+
+    .hr-calendar-page {
+        background: #f4f7f8;
+        min-height: calc(100vh - 70px);
+        padding: 22px;
+    }
+
+    .hr-calendar-shell {
+        max-width: 1500px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 285px minmax(0, 1fr);
+        gap: 18px;
+    }
+
+
+    /* =========================================================
+           SIDEBAR
+           ========================================================= */
+
+    .hr-calendar-sidebar {
+        background: #17191c;
+        border-radius: 22px;
+        padding: 18px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .employee-profile-card,
+    .mini-card,
+    .filter-card {
+        background: #23262b;
+        border: 1px solid #30343a;
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .employee-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #9d8df1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #191b1f;
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 13px;
+    }
+
+    .employee-name {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .employee-job {
+        color: #aeb5bf;
+        font-size: 10px;
+        margin-bottom: 12px;
+    }
+
+    .employee-info-row {
+        padding: 8px 0;
+        border-top: 1px solid #32363c;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 9px;
+    }
+
+    .employee-info-label {
+        color: #858e99;
+    }
+
+    .employee-info-value {
+        color: #dce1e6;
+        text-align: right;
+    }
+
+
+    /* MINI CALENDAR */
+
+    .mini-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+        .mini-header h4 {
+            margin: 0;
+            font-size: 13px;
+        }
+
+    .mini-buttons {
+        display: flex;
+        gap: 4px;
+    }
+
+        .mini-buttons button {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 7px;
+            background: #30343a;
+            color: white;
+            cursor: pointer;
+        }
+
+    #hrMiniCalendar {
+        font-size: 9px;
+    }
+
+
+    /* FILTER */
+
+    .filter-card h4 {
+        margin: 0 0 13px;
+        font-size: 13px;
+    }
+
+    .calendar-filter {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 10px;
+        color: #c5cbd3;
+        font-size: 10px;
+    }
+
+        .calendar-filter input {
+            accent-color: #b5a5ff;
+        }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        height: 40px;
+        border-radius: 10px;
+        background: #292d32;
+        color: #dbe0e5;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+        .back-btn:hover {
+            background: #343940;
+            color: white;
+        }
+
+
+    /* =========================================================
+           MAIN
+           ========================================================= */
+
+    .calendar-main {
+        min-width: 0;
+    }
+
+    .calendar-main-top {
+        background: white;
+        border: 1px solid #e3e9eb;
+        border-radius: 21px;
+        padding: 18px 20px;
+        margin-bottom: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .calendar-title-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .calendar-nav-btn {
+        width: 33px;
+        height: 33px;
+        border: none;
+        border-radius: 9px;
+        background: #f3f6f6;
+        color: #69778a;
+        cursor: pointer;
+    }
+
+    .calendar-main-title {
+        color: #172335;
+        font-size: 20px;
+        font-weight: 700;
+        min-width: 190px;
+    }
+
+    .calendar-view-toggle {
+        background: #f1f5f5;
+        border-radius: 11px;
+        padding: 4px;
+        display: flex;
+        gap: 3px;
+    }
+
+    .calendar-view-btn {
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: #84909d;
+        padding: 8px 15px;
+        font-size: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .calendar-view-btn.active {
+            background: white;
+            color: #29384b;
+            box-shadow: 0 2px 8px rgba(30,50,62,.07);
+        }
+
+    .week-date-strip {
+        display: grid;
+        grid-template-columns: repeat(7,minmax(90px,1fr));
+        gap: 8px;
+        margin-bottom: 12px;
+        overflow-x: auto;
+    }
+
+    .week-date-card {
+        min-width: 90px;
+        background: #eef1f0;
+        border-radius: 16px;
+        padding: 14px 9px;
+        text-align: center;
+    }
+
+        .week-date-card.today {
+            background: #dff1ef;
+        }
+
+    .week-day-name {
+        color: #7c8996;
+        font-size: 9px;
+        margin-bottom: 4px;
+    }
+
+    .week-day-number {
+        color: #152437;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .calendar-card {
+        background: white;
+        border: 1px solid #e4eaec;
+        border-radius: 21px;
+        padding: 17px;
+        overflow-x: auto;
+    }
+
+    #hrSharedCalendar {
+        min-width: 820px;
+    }
+
+
+    /* =========================================================
+           FULLCALENDAR
+           ========================================================= */
+
+    .fc .fc-toolbar {
+        display: none;
+    }
+
+    .fc {
+        font-size: 11px;
+        color: #46556a;
+    }
+
+        .fc .fc-col-header {
+            display: none;
+        }
+
+    .fc-theme-standard td,
+    .fc-theme-standard th {
+        border-color: #eef1f2 !important;
+    }
+
+    .fc .fc-timegrid-slot {
+        height: 56px;
+    }
+
+    .fc-event {
+        border: none !important;
+        border-radius: 13px !important;
+        padding: 8px 9px !important;
+        font-size: 10px !important;
+    }
+
+    .fc-dayGridMonth-view .fc-col-header {
+        display: table-header-group;
+    }
+
+
+    /* =========================================================
+           MODAL
+           ========================================================= */
+
+    .hr-schedule-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15,22,31,.52);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hr-schedule-modal {
+        width: 470px;
+        max-width: calc(100% - 30px);
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        background: white;
+        border-radius: 18px;
+        padding: 24px;
+    }
+
+        .hr-schedule-modal h3 {
+            color: #172335;
+            margin: 0 0 18px;
+            font-size: 19px;
+        }
+
+    .schedule-field {
+        margin-bottom: 13px;
+    }
+
+        .schedule-field label {
+            display: block;
+            margin-bottom: 5px;
+            color: #687689;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .schedule-field input,
+        .schedule-field select,
+        .schedule-field textarea {
+            width: 100%;
+            border: 1px solid #dce3e7;
+            border-radius: 9px;
+            padding: 10px 11px;
+            color: #304054;
+            font-size: 12px;
+        }
+
+    .schedule-time-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .schedule-field textarea {
+        min-height: 75px;
+        resize: vertical;
+    }
+
+
+    /* AUDIT */
+
+    .schedule-audit-box {
+        background: #f7f8fb;
+        border: 1px solid #e5e9ef;
+        border-radius: 12px;
+        padding: 13px 14px;
+        margin-bottom: 15px;
+    }
+
+    .audit-title {
+        color: #1f2f44;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        margin-bottom: 8px;
+    }
+
+    .audit-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 8px 0;
+    }
+
+        .audit-row + .audit-row {
+            border-top: 1px solid #e8ecf1;
+        }
+
+    .audit-icon {
+        width: 27px;
+        height: 27px;
+        min-width: 27px;
+        border-radius: 50%;
+        background: #e9e5ff;
+        color: #6554b3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .audit-label {
+        color: #8a96a5;
+        font-size: 9px;
+        font-weight: 600;
+    }
+
+    .audit-person {
+        color: #28384c;
+        font-size: 11px;
+        font-weight: 700;
+        margin-top: 2px;
+    }
+
+    .audit-date {
+        color: #8b96a3;
+        font-size: 9px;
+        margin-top: 2px;
+    }
+
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 17px;
+    }
+
+    .modal-btn {
+        border-radius: 9px;
+        padding: 9px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .modal-cancel {
+        background: white;
+        border: 1px solid #d9e0e5;
+        color: #657385;
+    }
+
+    .modal-delete {
+        background: #fbeaea;
+        border: 1px solid #ecc5c8;
+        color: #a54d55;
+    }
+
+    .modal-save {
+        background: #182f4c;
+        border: 1px solid #182f4c;
+        color: white;
+    }
+
+
+    @@media(max-width:1050px) {
+
+        .hr-calendar-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .hr-calendar-sidebar {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+        }
+    }
+
+    @@media(max-width:700px) {
+
+        .hr-calendar-page {
+            padding: 14px;
+        }
+
+        .hr-calendar-sidebar {
+            grid-template-columns: 1fr;
+        }
+
+        .schedule-time-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+</style>
+
+
+<div class="hr-calendar-page">
+
+    <div class="hr-calendar-shell">
+
+
+        <aside class="hr-calendar-sidebar">
+
+            <div class="employee-profile-card">
+
+                <div class="employee-avatar">
+                    @firstLetter
+                </div>
+
+                <div class="employee-name">
+                    @interviewerName
+                </div>
+
+                <div class="employee-job">
+
+                    @jobTitle
+
+                    @if (!string.IsNullOrWhiteSpace(department))
+                    {
+                        <text> · @department</text>
+                    }
+
+                </div>
+
+
+                <div class="employee-info-row">
+
+                    <span class="employee-info-label">
+                        Seniority
+                    </span>
+
+                    <span class="employee-info-value">
+                        @(string.IsNullOrWhiteSpace(seniority)
+                                                ? "-"
+                                                : seniority)
+                    </span>
+
+                </div>
+
+
+                <div class="employee-info-row">
+
+                    <span class="employee-info-label">
+                        Experience
+                    </span>
+
+                    <span class="employee-info-value">
+                        @experience year(s)
+                    </span>
+
+                </div>
+
+
+                <div class="employee-info-row">
+
+                    <span class="employee-info-label">
+                        Email
+                    </span>
+
+                    <span class="employee-info-value">
+                        @email
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="mini-card">
+
+                <div class="mini-header">
+
+                    <h4 id="miniCalendarTitle">
+                        Calendar
+                    </h4>
+
+                    <div class="mini-buttons">
+
+                        <button type="button"
+                                onclick="miniPrevious()">
+                            ‹
+                        </button>
+
+                        <button type="button"
+                                onclick="miniNext()">
+                            ›
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div id="hrMiniCalendar"></div>
+
+            </div>
+
+
+            <div class="filter-card">
+
+                <h4>Categories</h4>
+
+                @foreach (var type in new[]
+                                {
+                                "Meeting",
+                                "Interview",
+                                "Training",
+                                "CompanyEvent",
+                                "Leave",
+                                "Personal",
+                                "Other"
+                                })
+                {
+                    <label class="calendar-filter">
+
+                        <input type="checkbox"
+                               value="@type"
+                               checked
+                               onchange="applyCalendarFilters()" />
+
+                        @type
+
+                    </label>
+                }
+
+            </div>
+
+
+            <a asp-controller="InterviewerManagement"
+               asp-action="Index"
+               class="back-btn">
+
+                ← Back to Interviewers
+
+            </a>
+
+        </aside>
+
+
+
+        <main class="calendar-main">
+
+
+            <div class="calendar-main-top">
+
+                <div class="calendar-title-controls">
+
+                    <button type="button"
+                            class="calendar-nav-btn"
+                            onclick="calendarPrevious()">
+                        ‹
+                    </button>
+
+                    <div id="calendarMainTitle"
+                         class="calendar-main-title">
+                        Calendar
+                    </div>
+
+                    <button type="button"
+                            class="calendar-nav-btn"
+                            onclick="calendarNext()">
+                        ›
+                    </button>
+
+                </div>
+
+
+                <div class="calendar-view-toggle">
+
+                    <button type="button"
+                            id="dailyButton"
+                            class="calendar-view-btn"
+                            onclick="changeHRView('timeGridDay')">
+                        Daily
+                    </button>
+
+                    <button type="button"
+                            id="weeklyButton"
+                            class="calendar-view-btn active"
+                            onclick="changeHRView('timeGridWeek')">
+                        Weekly
+                    </button>
+
+                    <button type="button"
+                            id="monthlyButton"
+                            class="calendar-view-btn"
+                            onclick="changeHRView('dayGridMonth')">
+                        Monthly
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="weekDateStrip"
+                 class="week-date-strip">
+            </div>
+
+
+            <div class="calendar-card">
+
+                <div id="hrSharedCalendar">
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     EVENT MODAL
+     ========================================================= -->
+
+<div id="hrScheduleOverlay"
+     class="hr-schedule-overlay">
+
+    <div class="hr-schedule-modal">
+
+        <h3 id="hrModalTitle">
+            Add Schedule
+        </h3>
+
+        <input type="hidden"
+               id="hrEventId" />
+
+
+        <div id="eventAuditInformation"
+             class="schedule-audit-box"
+             style="display:none;">
+
+            <div class="audit-title">
+                Activity
+            </div>
+
+            <div id="eventAuditContent">
+            </div>
+
+        </div>
+
+
+        <div class="schedule-field">
+
+            <label>EVENT TYPE</label>
+
+            <select id="hrScheduleType">
+
+                <option value="Meeting">Meeting</option>
+                <option value="Training">Training</option>
+                <option value="Leave">Leave / Time Off</option>
+                <option value="Personal">Personal Block</option>
+                <option value="CompanyEvent">Company Event</option>
+                <option value="Other">Other</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="schedule-field">
+
+            <label>TITLE</label>
+
+            <input type="text"
+                   id="hrScheduleTitle"
+                   placeholder="e.g. Department Meeting" />
+
+        </div>
+
+
+        <div class="schedule-time-row">
+
+            <div class="schedule-field">
+
+                <label>START</label>
+
+                <input type="datetime-local"
+                       id="hrScheduleStart" />
+
+            </div>
+
+
+            <div class="schedule-field">
+
+                <label>END</label>
+
+                <input type="datetime-local"
+                       id="hrScheduleEnd" />
+
+            </div>
+
+        </div>
+
+
+        <div class="schedule-field">
+
+            <label>NOTES</label>
+
+            <textarea id="hrScheduleNotes"
+                      placeholder="Optional notes"></textarea>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button type="button"
+                    class="modal-btn modal-cancel"
+                    onclick="closeHRScheduleModal()">
+
+                Cancel
+
+            </button>
+
+
+            <button type="button"
+                    id="hrDeleteButton"
+                    class="modal-btn modal-delete"
+                    onclick="deleteHREvent()">
+
+                Delete
+
+            </button>
+
+
+            <button type="button"
+                    id="hrSaveButton"
+                    class="modal-btn modal-save"
+                    onclick="saveHREvent()">
+
+                Save
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<form id="hrCalendarAntiForgery">
+    @Html.AntiForgeryToken()
+</form>
+
+
+
+<script>
+
+    const interviewerId =
+        "@interviewerId";
+
+    let hrCalendar;
+    let hrMiniCalendar;
+
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            initialiseHRCalendar();
+            initialiseHRMiniCalendar();
+        }
+    );
+
+
+    // =============================================================
+    // MAIN CALENDAR
+    // =============================================================
+
+    function initialiseHRCalendar() {
+
+        const element =
+            document.getElementById(
+                "hrSharedCalendar"
+            );
+
+        hrCalendar =
+            new FullCalendar.Calendar(
+                element,
+                {
+                    initialView:
+                        "timeGridWeek",
+
+                    firstDay:
+                        1,
+
+                    headerToolbar:
+                        false,
+
+                    nowIndicator:
+                        true,
+
+                    selectable:
+                        true,
+
+                    selectMirror:
+                        true,
+
+                    allDaySlot:
+                        false,
+
+                    slotMinTime:
+                        "07:00:00",
+
+                    slotMaxTime:
+                        "20:00:00",
+
+                    slotDuration:
+                        "00:30:00",
+
+                    height:
+                        "auto",
+
+                    fixedWeekCount:
+                        false,
+
+
+                    events:
+                        function (
+                            info,
+                            successCallback,
+                            failureCallback) {
+
+                            const url =
+                                `/InterviewerManagement/GetEvents` +
+                                `?interviewerId=${encodeURIComponent(interviewerId)}` +
+                                `&start=${encodeURIComponent(info.startStr)}` +
+                                `&end=${encodeURIComponent(info.endStr)}`;
+
+                            fetch(url)
+
+                                .then(response => {
+
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            "Unable to load schedule.");
+                                    }
+
+                                    return response.json();
+                                })
+
+                                .then(events => {
+
+                                    const formatted =
+                                        events.map(event => ({
+                                            ...event,
+
+                                            backgroundColor:
+                                                getHRBackground(
+                                                    event.scheduleType),
+
+                                            borderColor:
+                                                getHRBackground(
+                                                    event.scheduleType),
+
+                                            textColor:
+                                                getHRText(
+                                                    event.scheduleType)
+                                        }));
+
+                                    successCallback(
+                                        formatted);
+                                })
+
+                                .catch(
+                                    failureCallback);
+                        },
+
+
+                    eventDidMount:
+                        function (info) {
+
+                            const filters =
+                                getHRFilters();
+
+                            const type =
+                                info.event
+                                    .extendedProps
+                                    .scheduleType;
+
+                            if (
+                                filters.length > 0 &&
+                                !filters.includes(type)
+                            ) {
+                                info.el.style.display =
+                                    "none";
+                            }
+                        },
+
+
+                    select:
+                        function (info) {
+
+                            openNewHREvent(
+                                info.start,
+                                info.end);
+                        },
+
+
+                    eventClick:
+                        function (info) {
+
+                            openExistingHREvent(
+                                info.event);
+                        },
+
+
+                    datesSet:
+                        function () {
+
+                            updateHRTitle();
+                            updateHRDateStrip();
+
+                            if (hrMiniCalendar) {
+
+                                hrMiniCalendar.gotoDate(
+                                    hrCalendar.getDate());
+                            }
+                        }
+                });
+
+        hrCalendar.render();
+    }
+
+
+
+    // =============================================================
+    // MINI CALENDAR
+    // =============================================================
+
+    function initialiseHRMiniCalendar() {
+
+        const element =
+            document.getElementById(
+                "hrMiniCalendar"
+            );
+
+        hrMiniCalendar =
+            new FullCalendar.Calendar(
+                element,
+                {
+                    initialView:
+                        "dayGridMonth",
+
+                    headerToolbar:
+                        false,
+
+                    height:
+                        "auto",
+
+                    firstDay:
+                        1,
+
+                    fixedWeekCount:
+                        false,
+
+                    dateClick:
+                        function (info) {
+
+                            hrCalendar.gotoDate(
+                                info.date);
+
+                            hrCalendar.changeView(
+                                "timeGridDay");
+
+                            updateViewButtons(
+                                "timeGridDay");
+                        },
+
+                    datesSet:
+                        function () {
+
+                            document.getElementById(
+                                "miniCalendarTitle"
+                            ).textContent =
+                                hrMiniCalendar
+                                    .view
+                                    .title;
+                        }
+                });
+
+        hrMiniCalendar.render();
+    }
+
+
+
+    // =============================================================
+    // NAVIGATION
+    // =============================================================
+
+    function calendarPrevious() {
+        hrCalendar.prev();
+    }
+
+    function calendarNext() {
+        hrCalendar.next();
+    }
+
+    function miniPrevious() {
+        hrMiniCalendar.prev();
+    }
+
+    function miniNext() {
+        hrMiniCalendar.next();
+    }
+
+
+
+    // =============================================================
+    // VIEW
+    // =============================================================
+
+    function changeHRView(viewName) {
+
+        hrCalendar.changeView(
+            viewName);
+
+        updateViewButtons(
+            viewName);
+    }
+
+
+    function updateViewButtons(viewName) {
+
+        document.querySelectorAll(
+            ".calendar-view-btn"
+        ).forEach(button => {
+
+            button.classList.remove(
+                "active");
+        });
+
+
+        if (viewName === "timeGridDay") {
+
+            document.getElementById(
+                "dailyButton"
+            ).classList.add(
+                "active");
+        }
+
+        else if (
+            viewName === "dayGridMonth"
+        ) {
+
+            document.getElementById(
+                "monthlyButton"
+            ).classList.add(
+                "active");
+        }
+
+        else {
+
+            document.getElementById(
+                "weeklyButton"
+            ).classList.add(
+                "active");
+        }
+    }
+
+
+
+    // =============================================================
+    // TITLE / DATE CARDS
+    // =============================================================
+
+    function updateHRTitle() {
+
+        if (!hrCalendar) {
+            return;
+        }
+
+        document.getElementById(
+            "calendarMainTitle"
+        ).textContent =
+            hrCalendar.view.title;
+    }
+
+
+    function updateHRDateStrip() {
+
+        const container =
+            document.getElementById(
+                "weekDateStrip"
+            );
+
+        if (!hrCalendar) {
+            return;
+        }
+
+        const viewType =
+            hrCalendar.view.type;
+
+        if (
+            viewType ===
+            "dayGridMonth"
+        ) {
+
+            container.style.display =
+                "none";
+
+            return;
+        }
+
+        container.style.display =
+            "grid";
+
+        container.innerHTML =
+            "";
+
+        const start =
+            new Date(
+                hrCalendar.view.activeStart);
+
+        const days =
+            viewType ===
+            "timeGridDay"
+                ? 1
+                : 7;
+
+        const today =
+            new Date();
+
+        for (
+            let i = 0;
+            i < days;
+            i++
+        ) {
+
+            const date =
+                new Date(start);
+
+            date.setDate(
+                start.getDate() + i);
+
+            const card =
+                document.createElement(
+                    "div");
+
+            card.className =
+                "week-date-card";
+
+            if (
+                date.toDateString() ===
+                today.toDateString()
+            ) {
+                card.classList.add(
+                    "today");
+            }
+
+            card.innerHTML = `
+
+                <div class="week-day-name">
+                    ${date.toLocaleDateString(
+                        undefined,
+                        {
+                            weekday: "long"
+                        }
+                    )}
+                </div>
+
+                <div class="week-day-number">
+                    ${date.getDate()}
+                </div>
+            `;
+
+            container.appendChild(
+                card);
+        }
+
+        container.style.gridTemplateColumns =
+            days === 1
+                ? "minmax(150px,260px)"
+                : "repeat(7,minmax(90px,1fr))";
+    }
+
+
+
+    // =============================================================
+    // FILTERS
+    // =============================================================
+
+    function getHRFilters() {
+
+        return Array.from(
+            document.querySelectorAll(
+                ".calendar-filter input:checked"
+            )
+        ).map(
+            input =>
+                input.value);
+    }
+
+
+    function applyCalendarFilters() {
+
+        hrCalendar
+            .rerenderEvents();
+    }
+
+
+
+    // =============================================================
+    // COLORS
+    // =============================================================
+
+    function getHRBackground(type) {
+
+        switch (type) {
+
+            case "Interview":
+                return "#c9bef2";
+
+            case "Meeting":
+                return "#bfe5ef";
+
+            case "Training":
+                return "#f5d8b6";
+
+            case "Leave":
+                return "#f4c9cf";
+
+            case "Personal":
+                return "#e1d4ee";
+
+            case "CompanyEvent":
+                return "#bce2dc";
+
+            default:
+                return "#e4e8eb";
+        }
+    }
+
+
+    function getHRText(type) {
+
+        switch (type) {
+
+            case "Interview":
+                return "#55488f";
+
+            case "Meeting":
+                return "#326579";
+
+            case "Training":
+                return "#895928";
+
+            case "Leave":
+                return "#924950";
+
+            case "Personal":
+                return "#684e7e";
+
+            case "CompanyEvent":
+                return "#326a63";
+
+            default:
+                return "#566372";
+        }
+    }
+
+
+
+    // =============================================================
+    // DATETIME
+    // =============================================================
+
+    function toLocalInput(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        const date =
+            new Date(value);
+
+        const offset =
+            date.getTimezoneOffset();
+
+        const local =
+            new Date(
+                date.getTime() -
+                offset * 60000);
+
+        return local
+            .toISOString()
+            .slice(0, 16);
+    }
+
+
+
+    // =============================================================
+    // AUDIT HELPERS
+    // =============================================================
+
+    function formatAuditDate(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        const date =
+            new Date(value);
+
+        if (isNaN(date.getTime())) {
+            return "";
+        }
+
+        return date.toLocaleString(
+            undefined,
+            {
+                day:
+                    "2-digit",
+
+                month:
+                    "short",
+
+                year:
+                    "numeric",
+
+                hour:
+                    "2-digit",
+
+                minute:
+                    "2-digit"
+            });
+    }
+
+
+    function escapeAuditHtml(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        return String(value)
+
+            .replaceAll(
+                "&",
+                "&amp;")
+
+            .replaceAll(
+                "<",
+                "&lt;")
+
+            .replaceAll(
+                ">",
+                "&gt;")
+
+            .replaceAll(
+                '"',
+                "&quot;")
+
+            .replaceAll(
+                "'",
+                "&#039;");
+    }
+
+
+
+    // =============================================================
+    // NEW EVENT
+    // =============================================================
+
+    function openNewHREvent(
+        start,
+        end) {
+
+        document.getElementById(
+            "hrModalTitle"
+        ).textContent =
+            "Add Schedule";
+
+        document.getElementById(
+            "hrEventId"
+        ).value =
+            "";
+
+        document.getElementById(
+            "hrScheduleType"
+        ).value =
+            "Meeting";
+
+        document.getElementById(
+            "hrScheduleTitle"
+        ).value =
+            "";
+
+        document.getElementById(
+            "hrScheduleStart"
+        ).value =
+            toLocalInput(start);
+
+        document.getElementById(
+            "hrScheduleEnd"
+        ).value =
+            toLocalInput(end);
+
+        document.getElementById(
+            "hrScheduleNotes"
+        ).value =
+            "";
+
+
+        const auditBox =
+            document.getElementById(
+                "eventAuditInformation"
+            );
+
+        const auditContent =
+            document.getElementById(
+                "eventAuditContent"
+            );
+
+        auditContent.innerHTML =
+            "";
+
+        auditBox.style.display =
+            "none";
+
+
+        document.getElementById(
+            "hrDeleteButton"
+        ).style.display =
+            "none";
+
+        document.getElementById(
+            "hrSaveButton"
+        ).style.display =
+            "inline-block";
+
+        lockHRFields(
+            false);
+
+        document.getElementById(
+            "hrScheduleOverlay"
+        ).style.display =
+            "flex";
+    }
+
+
+
+    // =============================================================
+    // EXISTING EVENT
+    // =============================================================
+
+    function openExistingHREvent(event) {
+
+        const locked =
+            event.extendedProps
+                .isSystemGenerated === true;
+
+
+        document.getElementById(
+            "hrModalTitle"
+        ).textContent =
+            locked
+                ? "Scheduled Interview"
+                : "Edit Schedule";
+
+
+        document.getElementById(
+            "hrEventId"
+        ).value =
+            event.id;
+
+
+        document.getElementById(
+            "hrScheduleType"
+        ).value =
+            event.extendedProps
+                .scheduleType
+            ?? "Other";
+
+
+        document.getElementById(
+            "hrScheduleTitle"
+        ).value =
+            event.title
+            ?? "";
+
+
+        document.getElementById(
+            "hrScheduleStart"
+        ).value =
+            toLocalInput(
+                event.start);
+
+
+        document.getElementById(
+            "hrScheduleEnd"
+        ).value =
+            event.end
+                ? toLocalInput(
+                    event.end)
+                : "";
+
+
+        document.getElementById(
+            "hrScheduleNotes"
+        ).value =
+            event.extendedProps
+                .notes
+            ?? "";
+
+
+        // =============================================
+        // AUDIT
+        // =============================================
+
+        const auditBox =
+            document.getElementById(
+                "eventAuditInformation"
+            );
+
+        const auditContent =
+            document.getElementById(
+                "eventAuditContent"
+            );
+
+
+        const createdBy =
+            event.extendedProps
+                .createdBy;
+
+        const createdAt =
+            event.extendedProps
+                .createdAt;
+
+        const updatedBy =
+            event.extendedProps
+                .updatedBy;
+
+        const updatedAt =
+            event.extendedProps
+                .updatedAt;
+
+
+        let auditHtml =
+            "";
+
+
+        if (createdBy) {
+
+            auditHtml += `
+
+                <div class="audit-row">
+
+                    <div class="audit-icon">
+                        +
+                    </div>
+
+                    <div>
+
+                        <div class="audit-label">
+                            Created by
+                        </div>
+
+                        <div class="audit-person">
+                            ${escapeAuditHtml(createdBy)}
+                        </div>
+
+                        <div class="audit-date">
+                            ${formatAuditDate(createdAt)}
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+
+        if (updatedBy) {
+
+            auditHtml += `
+
+                <div class="audit-row">
+
+                    <div class="audit-icon">
+                        ✎
+                    </div>
+
+                    <div>
+
+                        <div class="audit-label">
+                            Last updated by
+                        </div>
+
+                        <div class="audit-person">
+                            ${escapeAuditHtml(updatedBy)}
+                        </div>
+
+                        <div class="audit-date">
+                            ${formatAuditDate(updatedAt)}
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+
+        if (auditHtml) {
+
+            auditContent.innerHTML =
+                auditHtml;
+
+            auditBox.style.display =
+                "block";
+        }
+
+        else {
+
+            auditContent.innerHTML =
+                "";
+
+            auditBox.style.display =
+                "none";
+        }
+
+
+        document.getElementById(
+            "hrDeleteButton"
+        ).style.display =
+            locked
+                ? "none"
+                : "inline-block";
+
+
+        document.getElementById(
+            "hrSaveButton"
+        ).style.display =
+            locked
+                ? "none"
+                : "inline-block";
+
+
+        lockHRFields(
+            locked);
+
+
+        document.getElementById(
+            "hrScheduleOverlay"
+        ).style.display =
+            "flex";
+    }
+
+
+
+    // =============================================================
+    // LOCK
+    // =============================================================
+
+    function lockHRFields(locked) {
+
+        document.getElementById(
+            "hrScheduleType"
+        ).disabled =
+            locked;
+
+        document.getElementById(
+            "hrScheduleTitle"
+        ).disabled =
+            locked;
+
+        document.getElementById(
+            "hrScheduleStart"
+        ).disabled =
+            locked;
+
+        document.getElementById(
+            "hrScheduleEnd"
+        ).disabled =
+            locked;
+
+        document.getElementById(
+            "hrScheduleNotes"
+        ).disabled =
+            locked;
+    }
+
+
+
+    // =============================================================
+    // CLOSE
+    // =============================================================
+
+    function closeHRScheduleModal() {
+
+        document.getElementById(
+            "hrScheduleOverlay"
+        ).style.display =
+            "none";
+
+        lockHRFields(
+            false);
+    }
+
+
+
+    // =============================================================
+    // SAVE
+    // =============================================================
+
+    async function saveHREvent() {
+
+        const id =
+            document.getElementById(
+                "hrEventId"
+            ).value;
+
+        const start =
+            document.getElementById(
+                "hrScheduleStart"
+            ).value;
+
+        const end =
+            document.getElementById(
+                "hrScheduleEnd"
+            ).value;
+
+
+        if (!start || !end) {
+
+            alert(
+                "Please select start and end time.");
+
+            return;
+        }
+
+
+        if (
+            new Date(end) <=
+            new Date(start)
+        ) {
+
+            alert(
+                "End time must be after start time.");
+
+            return;
+        }
+
+
+        const token =
+            document.querySelector(
+                '#hrCalendarAntiForgery input[name="__RequestVerificationToken"]'
+            ).value;
+
+
+        const body =
+            new URLSearchParams();
+
+
+        if (id) {
+
+            body.append(
+                "id",
+                id);
+        }
+
+        else {
+
+            body.append(
+                "interviewerId",
+                interviewerId);
+        }
+
+
+        body.append(
+            "scheduleType",
+            document.getElementById(
+                "hrScheduleType"
+            ).value);
+
+
+        body.append(
+            "title",
+            document.getElementById(
+                "hrScheduleTitle"
+            ).value);
+
+
+        body.append(
+            "start",
+            start);
+
+
+        body.append(
+            "end",
+            end);
+
+
+        body.append(
+            "notes",
+            document.getElementById(
+                "hrScheduleNotes"
+            ).value);
+
+
+        body.append(
+            "isAllDay",
+            "false");
+
+
+        body.append(
+            "__RequestVerificationToken",
+            token);
+
+
+        const url =
+            id
+                ? "/InterviewerManagement/UpdateEvent"
+                : "/InterviewerManagement/AddEvent";
+
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                    {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+
+                    body:
+                        body.toString()
+                });
+
+
+        if (!response.ok) {
+
+            alert(
+                await response.text());
+
+            return;
+        }
+
+
+        closeHRScheduleModal();
+
+        hrCalendar
+            .refetchEvents();
+    }
+
+
+
+    // =============================================================
+    // DELETE
+    // =============================================================
+
+    async function deleteHREvent() {
+
+        const id =
+            document.getElementById(
+                "hrEventId"
+            ).value;
+
+
+        if (!id) {
+            return;
+        }
+
+
+        if (!confirm(
+            "Delete this schedule entry?"
+        )) {
+            return;
+        }
+
+
+        const token =
+            document.querySelector(
+                '#hrCalendarAntiForgery input[name="__RequestVerificationToken"]'
+            ).value;
+
+
+        const body =
+            new URLSearchParams();
+
+
+        body.append(
+            "id",
+            id);
+
+
+        body.append(
+            "__RequestVerificationToken",
+            token);
+
+
+        const response =
+            await fetch(
+                "/InterviewerManagement/DeleteEvent",
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                    {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+
+                    body:
+                        body.toString()
+                });
+
+
+        if (!response.ok) {
+
+            alert(
+                await response.text());
+
+            return;
+        }
+
+
+        closeHRScheduleModal();
+
+        hrCalendar
+            .refetchEvents();
+    }
+
+</script>

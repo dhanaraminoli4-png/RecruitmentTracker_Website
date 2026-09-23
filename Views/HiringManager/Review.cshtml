@@ -1,52 +1,927 @@
 ﻿@model RecruitmentTracker.Models.JobApplication
-@{ ViewData["Title"] = "Review Candidate"; }
 
-<div class="page-heading">
-    <div><div class="section-label">CANDIDATE REVIEW</div><h1>@Model.Candidate?.FullName</h1><p>@Model.JobVacancy?.JobTitle · @Model.Candidate?.Email</p></div>
-    <a asp-action="Applications" class="btn btn-outline-primary">← Candidates</a>
-</div>
+@{
+    ViewData["Title"] = "Review Candidate";
 
-@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    var candidateName =
+        Model.Candidate?.FullName
+        ?? "Unknown Candidate";
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4"><div class="stat-card"><div class="stat-label">AI MATCH</div><div class="stat-value">@Model.AIScore.ToString("0.0")%</div><span class="badge status-review">@Model.AIRecommendation</span></div></div>
-    <div class="col-md-4"><div class="stat-card"><div class="stat-label">HR STATUS</div><div class="stat-value" style="font-size:20px">Shortlisted</div><span class="badge status-shortlisted">Forwarded by HR</span></div></div>
-    <div class="col-md-4"><div class="stat-card"><div class="stat-label">APPLICATION</div><div class="stat-value" style="font-size:20px">@Model.AppliedDate.ToString("dd MMM yyyy")</div><span class="text-muted small">Submitted date</span></div></div>
-</div>
+    var candidateEmail =
+        Model.Candidate?.Email
+        ?? "-";
 
-<div class="row g-3">
-    <div class="col-lg-7">
-        <div class="card mb-3"><div class="card-header"><strong>Candidate & AI Summary</strong></div><div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6"><div class="section-label">CANDIDATE</div><p class="mb-1 fw-bold">@Model.Candidate?.FullName</p><p class="text-muted small">@Model.Candidate?.Email</p></div>
-                <div class="col-md-6"><div class="section-label">AI SCREENING</div><p class="mb-1">Overall: <strong>@Model.AIOverallScore.ToString("0.0")%</strong></p><p class="mb-1">Required: <strong>@Model.AIRequiredScore.ToString("0.0")%</strong></p><p class="mb-0">Preferred: <strong>@Model.AIPreferredScore.ToString("0.0")%</strong></p></div>
-            </div>
-        </div></div>
-        <div class="card"><div class="card-header"><strong>Documents</strong></div><div class="card-body d-flex flex-wrap gap-2">
-            @if (!string.IsNullOrWhiteSpace(Model.CVFilePath)) { <a asp-controller="HRApplication" asp-action="ViewCV" asp-route-id="@Model.Id" asp-route-vacancyId="@Model.JobVacancyId" target="_blank" class="btn btn-outline-primary">View CV</a> }
-            <a asp-controller="HRApplication" asp-action="AIAnalysis" asp-route-id="@Model.Id" asp-route-vacancyId="@Model.JobVacancyId" class="btn btn-outline-primary">View AI Analysis</a>
-        </div></div>
-    </div>
+    var jobTitle =
+        Model.JobVacancy?.JobTitle
+        ?? "Unknown Position";
+}
 
-    <div class="col-lg-5">
-        @if (Model.HiringManagerReviewed)
-        {
-            <div class="card"><div class="card-header"><strong>Decision Recorded</strong></div><div class="card-body">
-                <span class="badge @(Model.HiringManagerShortlisted ? "status-shortlisted" : "status-not")">@Model.HiringManagerDecision</span>
-                @if (!string.IsNullOrWhiteSpace(Model.HiringManagerComments)) { <p class="text-muted mt-3 mb-0">@Model.HiringManagerComments</p> }
-                <div class="alert alert-info mt-3 mb-0">The application remains in the candidate pipeline. This decision is stored separately from the candidate-facing Sprint 1 status.</div>
-            </div></div>
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .review-page {
+        background: #f5f7fb;
+        min-height: calc(100vh - 80px);
+        padding: 30px 45px 60px;
+    }
+
+    .review-wrapper {
+        max-width: 1250px;
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+           HEADER
+           ========================================================= */
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .review-label {
+        color: #718096;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .review-header h1 {
+        margin: 0 0 4px;
+        color: #0b1f3a;
+        font-size: 27px;
+        font-weight: 700;
+    }
+
+    .review-header p {
+        margin: 0;
+        color: #718096;
+        font-size: 12px;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 13px;
+        background: white;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        color: #526174;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .back-btn:hover {
+            border-color: #0b1f3a;
+            color: #0b1f3a;
         }
-        else
-        {
-            <div class="card"><div class="card-header"><strong>Hiring Manager Decision</strong></div><div class="card-body">
-                <p class="text-muted small">Make your internal decision. The candidate will continue to see <strong>Shortlisted</strong> during Sprint 1.</p>
-                <textarea id="comments" class="form-control mb-3" rows="5" placeholder="Optional comments or reason..."></textarea>
-                <div class="d-grid gap-2">
-                    <form asp-action="Shortlist" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="comments" id="shortlistComments" />@Html.AntiForgeryToken()<button class="btn btn-success" type="submit" onclick="document.getElementById('shortlistComments').value=document.getElementById('comments').value">✓ Shortlist Candidate</button></form>
-                    <form asp-action="Reject" method="post"><input type="hidden" name="id" value="@Model.Id" /><input type="hidden" name="comments" id="rejectComments" />@Html.AntiForgeryToken()<button class="btn btn-outline-danger" type="submit" onclick="document.getElementById('rejectComments').value=document.getElementById('comments').value">Not Selected</button></form>
+
+
+    /* =========================================================
+           STATS
+           ========================================================= */
+
+    .review-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .review-stat {
+        background: white;
+        border: 1px solid #e4e9f0;
+        border-radius: 12px;
+        padding: 18px 20px;
+    }
+
+    .stat-label {
+        color: #8a96a6;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        color: #0b1f3a;
+        font-size: 23px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .stat-text {
+        color: #718096;
+        font-size: 11px;
+    }
+
+
+    /* =========================================================
+           LAYOUT
+           ========================================================= */
+
+    .review-grid {
+        display: grid;
+        grid-template-columns: 1.35fr .85fr;
+        gap: 18px;
+        align-items: start;
+    }
+
+
+    /* =========================================================
+           CARD
+           ========================================================= */
+
+    .review-card {
+        background: white;
+        border: 1px solid #e4e9f0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+
+    .review-card-header {
+        padding: 16px 19px;
+        border-bottom: 1px solid #edf0f4;
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .review-card-body {
+        padding: 20px;
+    }
+
+
+    /* =========================================================
+           INFORMATION
+           ========================================================= */
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .info-label {
+        color: #8a96a6;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        color: #0b1f3a;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .info-secondary {
+        margin-top: 3px;
+        color: #8a96a6;
+        font-size: 11px;
+    }
+
+
+    /* =========================================================
+           AI SCORES
+           ========================================================= */
+
+    .ai-scores {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .ai-score {
+        padding: 13px;
+        border-radius: 9px;
+        background: #f7f9fc;
+        border: 1px solid #edf0f4;
+    }
+
+        .ai-score span {
+            display: block;
+            color: #8a96a6;
+            font-size: 9px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .ai-score strong {
+            color: #0b1f3a;
+            font-size: 17px;
+        }
+
+
+    /* =========================================================
+           DOCUMENT BUTTONS
+           ========================================================= */
+
+    .document-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .document-btn {
+        padding: 8px 12px;
+        border: 1px solid #d8e0ea;
+        border-radius: 7px;
+        background: white;
+        color: #0b1f3a;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .document-btn:hover {
+            background: #0b1f3a;
+            color: white;
+            border-color: #0b1f3a;
+        }
+
+
+    /* =========================================================
+           DECISION
+           ========================================================= */
+
+    .decision-description {
+        color: #718096;
+        font-size: 11px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .decision-textarea {
+        width: 100%;
+        min-height: 120px;
+        resize: vertical;
+        padding: 11px 12px;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        color: #26374d;
+        font-size: 12px;
+        outline: none;
+        margin-bottom: 12px;
+    }
+
+        .decision-textarea:focus {
+            border-color: #0b1f3a;
+            box-shadow: 0 0 0 3px rgba(11,31,58,.06);
+        }
+
+    .decision-actions {
+        display: grid;
+        gap: 8px;
+    }
+
+    .approve-btn {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #287a5b;
+        border-radius: 8px;
+        background: #287a5b;
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .approve-btn:hover {
+            background: #21684e;
+        }
+
+    .reject-btn {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e2b4b8;
+        border-radius: 8px;
+        background: white;
+        color: #b64e55;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .reject-btn:hover {
+            background: #fbeeee;
+            border-color: #b64e55;
+        }
+
+
+    /* =========================================================
+           DECISION RECORDED
+           ========================================================= */
+
+    .decision-badge {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+
+    .decision-approved {
+        background: #e9f7f1;
+        color: #287a5b;
+    }
+
+    .decision-rejected {
+        background: #fbeeee;
+        color: #b64e55;
+    }
+
+    .decision-comments {
+        padding: 13px;
+        border-radius: 8px;
+        background: #f7f9fc;
+        border: 1px solid #edf0f4;
+        color: #526174;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .decision-notice {
+        margin-top: 14px;
+        padding: 12px 13px;
+        background: #eef3f8;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        color: #526174;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 900px) {
+
+        .review-page {
+            padding: 25px 20px 50px;
+        }
+
+        .review-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .review-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .review-header {
+            flex-direction: column;
+        }
+    }
+</style>
+
+
+<div class="review-page">
+
+    <div class="review-wrapper">
+
+
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
+        <div class="review-header">
+
+            <div>
+
+                <div class="review-label">
+                    HIRING MANAGER · CANDIDATE REVIEW
                 </div>
-            </div></div>
+
+                <h1>
+                    @candidateName
+                </h1>
+
+                <p>
+                    @jobTitle · @candidateEmail
+                </p>
+
+            </div>
+
+
+            <a asp-controller="HiringManager"
+               asp-action="Applications"
+               class="back-btn">
+
+                ← Back to Candidates
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             SUCCESS MESSAGE
+             ===================================================== -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Success"]
+            </div>
         }
+
+
+        <!-- =====================================================
+             STATS
+             ===================================================== -->
+
+        <div class="review-stats">
+
+
+            <!-- AI MATCH -->
+
+            <div class="review-stat">
+
+                <div class="stat-label">
+                    AI MATCH
+                </div>
+
+                <div class="stat-value">
+                    @Model.AIScore.ToString("0.0")%
+                </div>
+
+                <div class="stat-text">
+                    @Model.AIRecommendation
+                </div>
+
+            </div>
+
+
+            <!-- HR STATUS -->
+
+            <div class="review-stat">
+
+                <div class="stat-label">
+                    HR STATUS
+                </div>
+
+                <div class="stat-value"
+                     style="font-size:18px;">
+
+                    Forwarded
+
+                </div>
+
+                <div class="stat-text">
+                    Candidate sent by HR
+                </div>
+
+            </div>
+
+
+            <!-- DATE -->
+
+            <div class="review-stat">
+
+                <div class="stat-label">
+                    APPLICATION DATE
+                </div>
+
+                <div class="stat-value"
+                     style="font-size:18px;">
+
+                    @Model.AppliedDate.ToString("dd MMM yyyy")
+
+                </div>
+
+                <div class="stat-text">
+                    Original application date
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             MAIN GRID
+             ===================================================== -->
+
+        <div class="review-grid">
+
+
+            <!-- =================================================
+                 LEFT SIDE
+                 ================================================= -->
+
+            <div>
+
+
+                <!-- CANDIDATE + AI -->
+
+                <div class="review-card">
+
+                    <div class="review-card-header">
+                        Candidate & AI Summary
+                    </div>
+
+
+                    <div class="review-card-body">
+
+                        <div class="info-grid">
+
+                            <div>
+
+                                <div class="info-label">
+                                    CANDIDATE
+                                </div>
+
+                                <div class="info-value">
+                                    @candidateName
+                                </div>
+
+                                <div class="info-secondary">
+                                    @candidateEmail
+                                </div>
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="info-label">
+                                    POSITION
+                                </div>
+
+                                <div class="info-value">
+                                    @jobTitle
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                                                Model.JobVacancy?.JobCode))
+                                {
+                                    <div class="info-secondary">
+                                        @Model.JobVacancy.JobCode
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- AI SCORE BREAKDOWN -->
+
+                        <div class="ai-scores">
+
+                            <div class="ai-score">
+
+                                <span>OVERALL</span>
+
+                                <strong>
+                                    @Model.AIOverallScore.ToString("0.0")%
+                                </strong>
+
+                            </div>
+
+
+                            <div class="ai-score">
+
+                                <span>REQUIRED</span>
+
+                                <strong>
+                                    @Model.AIRequiredScore.ToString("0.0")%
+                                </strong>
+
+                            </div>
+
+
+                            <div class="ai-score">
+
+                                <span>PREFERRED</span>
+
+                                <strong>
+                                    @Model.AIPreferredScore.ToString("0.0")%
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DOCUMENTS -->
+
+                <div class="review-card">
+
+                    <div class="review-card-header">
+                        Candidate Documents
+                    </div>
+
+
+                    <div class="review-card-body">
+
+                        <div class="document-actions">
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                                        Model.CVFilePath))
+                            {
+                                <a asp-controller="HRApplication"
+                                   asp-action="ViewCV"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-vacancyId="@Model.JobVacancyId"
+                                   target="_blank"
+                                   class="document-btn">
+
+                                    View CV
+
+                                </a>
+                            }
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                                        Model.CoverLetterFilePath))
+                            {
+                                <a asp-controller="HRApplication"
+                                   asp-action="ViewCoverLetter"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-vacancyId="@Model.JobVacancyId"
+                                   target="_blank"
+                                   class="document-btn">
+
+                                    View Cover Letter
+
+                                </a>
+                            }
+
+
+                            <a asp-controller="HRApplication"
+                               asp-action="AIAnalysis"
+                               asp-route-id="@Model.Id"
+                               asp-route-vacancyId="@Model.JobVacancyId"
+                               class="document-btn">
+
+                                View AI Analysis
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RIGHT SIDE
+                 ================================================= -->
+
+            <div>
+
+
+                @if (Model.HiringManagerReviewed)
+                {
+                    <!-- =========================================
+                         EXISTING DECISION
+                         ========================================= -->
+
+                    <div class="review-card">
+
+                        <div class="review-card-header">
+                            Decision Recorded
+                        </div>
+
+
+                        <div class="review-card-body">
+
+
+                            @if (
+                                                    Model.HiringManagerDecision ==
+                                                    "ApprovedForInterview")
+                            {
+                                <span class="
+                                            decision-badge
+                                            decision-approved">
+
+                                    ✓ Approved for Interview
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="
+                                            decision-badge
+                                            decision-rejected">
+
+                                    Rejected
+
+                                </span>
+                            }
+
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                                    Model.HiringManagerComments))
+                            {
+                                <div class="info-label">
+                                    HIRING MANAGER COMMENTS
+                                </div>
+
+                                <div class="decision-comments">
+                                    @Model.HiringManagerComments
+                                </div>
+                            }
+
+
+                            <div class="decision-notice">
+
+                                This Hiring Manager decision is
+                                stored internally. The candidate's
+                                simplified recruitment status is
+                                managed separately.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <!-- =========================================
+                         NEW DECISION
+                         ========================================= -->
+
+                    <div class="review-card">
+
+                        <div class="review-card-header">
+                            Hiring Manager Decision
+                        </div>
+
+
+                        <div class="review-card-body">
+
+                            <p class="decision-description">
+
+                                Review the candidate's CV and AI
+                                analysis, then decide whether they
+                                should proceed to the interview
+                                process.
+
+                            </p>
+
+
+                            <label class="info-label"
+                                   for="comments">
+
+                                COMMENTS / REASON
+
+                            </label>
+
+
+                            <textarea id="comments"
+                                  class="decision-textarea"
+                                  placeholder="Optional comments or reason..."></textarea>
+
+
+                            <div class="decision-actions">
+
+
+                                <!-- =============================
+                                     APPROVE
+                                     ============================= -->
+
+                                <form asp-controller="HiringManager"
+                                      asp-action="ApproveForInterview"
+                                      method="post"
+                                      onsubmit="copyApproveComments()">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@Model.Id" />
+
+                                    <input type="hidden"
+                                           name="comments"
+                                           id="approveComments" />
+
+
+                                    <button type="submit"
+                                            class="approve-btn">
+
+                                        ✓ Approve for Interview
+
+                                    </button>
+
+                                </form>
+
+
+                                <!-- =============================
+                                     REJECT
+                                     ============================= -->
+
+                                <form asp-controller="HiringManager"
+                                      asp-action="Reject"
+                                      method="post"
+                                      onsubmit="return prepareReject()">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@Model.Id" />
+
+                                    <input type="hidden"
+                                           name="comments"
+                                           id="rejectComments" />
+
+
+                                    <button type="submit"
+                                            class="reject-btn">
+
+                                        Reject Candidate
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
+
+
+@section Scripts {
+
+    <script>
+
+        // ============================================================
+        // APPROVE COMMENTS
+        // ============================================================
+
+        function copyApproveComments() {
+
+            const comments =
+                document.getElementById("comments");
+
+            const hidden =
+                document.getElementById(
+                    "approveComments"
+                );
+
+            if (comments && hidden) {
+                hidden.value = comments.value;
+            }
+        }
+
+
+        // ============================================================
+        // REJECT
+        // ============================================================
+
+        function prepareReject() {
+
+            const comments =
+                document.getElementById("comments");
+
+            const hidden =
+                document.getElementById(
+                    "rejectComments"
+                );
+
+            if (comments && hidden) {
+                hidden.value = comments.value;
+            }
+
+
+            return confirm(
+                "Are you sure you want to reject this candidate?"
+            );
+        }
+
+    </script>
+}

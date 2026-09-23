@@ -1,0 +1,1869 @@
+﻿@model RecruitmentTracker.Models.AssessmentBuilderViewModel
+
+@{
+    ViewData["Title"] =
+        Model.Assessment.Id > 0
+            ? "Edit Assessment"
+            : "Create Assessment";
+
+    var isEdit = Model.Assessment.Id > 0;
+}
+
+<div class="assessment-builder-page">
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="builder-header">
+
+        <div>
+            <h1>
+                @(isEdit
+                                ? "Edit Assessment"
+                                : "Create Assessment")
+            </h1>
+
+            <p>
+                Build a custom interview assessment for a specific
+                vacancy and interview round.
+            </p>
+        </div>
+
+        <a asp-controller="Assessment"
+           asp-action="Index"
+           class="builder-back-btn">
+
+            ← Back to Assessments
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================================
+         FORM
+         ========================================================= -->
+
+    <form asp-controller="Assessment"
+          asp-action="@(isEdit ? "Edit" : "Create")"
+          method="post"
+          id="assessmentBuilderForm">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Assessment.Id"
+               type="hidden" />
+
+
+        <!-- =====================================================
+             VALIDATION SUMMARY
+             ===================================================== -->
+
+        <div asp-validation-summary="ModelOnly"
+             class="builder-validation">
+        </div>
+
+
+        <!-- =====================================================
+             ASSESSMENT DETAILS
+             ===================================================== -->
+
+        <div class="builder-card">
+
+            <div class="builder-card-header">
+
+                <div class="builder-card-icon">
+                    ✦
+                </div>
+
+                <div>
+                    <h2>Assessment Details</h2>
+                    <p>
+                        Choose where this assessment will be used.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="builder-card-body">
+
+                <div class="builder-grid two">
+
+                    <!-- VACANCY -->
+
+                    <div class="builder-field">
+
+                        <label>
+                            Vacancy
+                            <span>*</span>
+                        </label>
+
+                        <select asp-for="Assessment.JobVacancyId"
+                                asp-items="Model.Jobs"
+                                id="assessmentJob"
+                                onchange="loadAssessmentRounds()"
+                                required>
+
+                            <option value="">
+                                Select Vacancy
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Assessment.JobVacancyId"
+                              class="field-error">
+                        </span>
+
+                    </div>
+
+
+                    <!-- ROUND -->
+
+                    <div class="builder-field">
+
+                        <label>
+                            Interview Round
+                            <span>*</span>
+                        </label>
+
+                        <select asp-for="Assessment.InterviewRoundId"
+                                asp-items="Model.Rounds"
+                                id="assessmentRound"
+                                required>
+
+                            <option value="">
+                                Select Interview Round
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Assessment.InterviewRoundId"
+                              class="field-error">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NAME -->
+
+                <div class="builder-field">
+
+                    <label>
+                        Assessment Name
+                        <span>*</span>
+                    </label>
+
+                    <input asp-for="Assessment.Name"
+                           placeholder="e.g. AI Engineer Technical Assessment"
+                           maxlength="150"
+                           required />
+
+                    <span asp-validation-for="Assessment.Name"
+                          class="field-error">
+                    </span>
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="builder-field">
+
+                    <label>
+                        Description
+                    </label>
+
+                    <textarea asp-for="Assessment.Description"
+                              rows="3"
+                              maxlength="1000"
+                              placeholder="Briefly describe what this assessment is designed to evaluate.">
+                    </textarea>
+
+                </div>
+
+
+                <!-- INSTRUCTIONS -->
+
+                <div class="builder-field">
+
+                    <label>
+                        Instructions for Interviewer
+                    </label>
+
+                    <textarea asp-for="Assessment.Instructions"
+                              rows="4"
+                              maxlength="3000"
+                              placeholder="Add instructions, rules, expected duration, preparation notes, coding requirements, etc.">
+                    </textarea>
+
+                </div>
+
+
+                <!-- ACTIVE -->
+
+                <div class="builder-toggle-row">
+
+                    <div>
+                        <strong>Active Assessment</strong>
+
+                        <span>
+                            Active assessments can be assigned
+                            when scheduling interviews.
+                        </span>
+                    </div>
+
+                    <label class="switch">
+
+                        <input asp-for="Assessment.IsActive"
+                               type="checkbox" />
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             QUESTIONS / TASKS
+             ===================================================== -->
+
+        <div class="builder-card">
+
+            <div class="builder-card-header question-header">
+
+                <div class="question-header-left">
+
+                    <div class="builder-card-icon">
+                        ?
+                    </div>
+
+                    <div>
+                        <h2>Questions & Tasks</h2>
+
+                        <p>
+                            Add interview questions, coding exercises,
+                            ratings, practical tasks and more.
+                        </p>
+                    </div>
+
+                </div>
+
+                <button type="button"
+                        class="add-question-btn"
+                        onclick="addQuestion()">
+
+                    + Add Question
+
+                </button>
+
+            </div>
+
+
+            <div class="builder-card-body">
+
+                <div id="questionList"
+                     class="question-list">
+
+                    @if (Model.Questions != null &&
+                                        Model.Questions.Any())
+                    {
+                        for (var i = 0;
+                        i < Model.Questions.Count;
+                        i++)
+                        {
+                            var question =
+                            Model.Questions[i];
+
+                            <div class="question-card"
+                                 data-question-index="@i">
+
+                                <div class="question-card-top">
+
+                                    <div class="question-number">
+                                        @(i + 1)
+                                    </div>
+
+                                    <div class="question-actions">
+
+                                        <button type="button"
+                                                class="question-icon-btn"
+                                                title="Move up"
+                                                onclick="moveQuestionUp(this)">
+                                            ↑
+                                        </button>
+
+                                        <button type="button"
+                                                class="question-icon-btn"
+                                                title="Move down"
+                                                onclick="moveQuestionDown(this)">
+                                            ↓
+                                        </button>
+
+                                        <button type="button"
+                                                class="question-icon-btn danger"
+                                                title="Remove"
+                                                onclick="removeQuestion(this)">
+                                            ×
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="question-content">
+
+                                    <div class="builder-field">
+
+                                        <label>
+                                            Question / Task
+                                            <span>*</span>
+                                        </label>
+
+                                        <textarea name="Questions[@i].QuestionText"
+                                          rows="3"
+                                          placeholder="Enter the question, task, coding problem or evaluation item..."
+                                          required>@question.QuestionText</textarea>
+
+                                    </div>
+
+
+                                    <div class="builder-grid three">
+
+                                        <!-- TYPE -->
+
+                                        <div class="builder-field">
+
+                                            <label>
+                                                Type
+                                            </label>
+
+                                            <select name="Questions[@i].QuestionType"
+                                                    class="question-type"
+                                                    onchange="questionTypeChanged(this)">
+
+                                                @{
+                                                    var types =
+                                                    new[]
+                                                    {
+                                                                                "ShortText",
+                                                                                "LongText",
+                                                                                "Rating",
+                                                                                "YesNo",
+                                                                                "MultipleChoice",
+                                                                                "CodingTask",
+                                                                                "PracticalTask",
+                                                                                "Notes"
+                                                    };
+                                                }
+
+                                                @foreach (var type in types)
+                                                {
+                                                    if (question.QuestionType == type)
+                                                    {
+                                                        <option value="@type"
+                                                                selected>
+                                                            @GetQuestionTypeLabel(type)
+                                                        </option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@type">
+                                                            @GetQuestionTypeLabel(type)
+                                                        </option>
+                                                    }
+                                                }
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <!-- MAX MARKS -->
+
+                                        <div class="builder-field marks-field">
+
+                                            <label>
+                                                Maximum Marks
+                                            </label>
+
+                                            <input type="number"
+                                                   name="Questions[@i].MaximumMarks"
+                                                   value="@(question.MaximumMarks?.ToString(System.Globalization.CultureInfo.InvariantCulture))"
+                                                   min="0"
+                                                   step="0.5"
+                                                   placeholder="Optional" />
+
+                                        </div>
+
+
+                                        <!-- REQUIRED -->
+
+                                        <div class="builder-field required-field">
+
+                                            <label>
+                                                Required
+                                            </label>
+
+                                            <label class="required-checkbox">
+
+                                                <input type="checkbox"
+                                                       name="Questions[@i].IsRequired"
+                                                       value="true"
+                                                       @(question.IsRequired ? "checked" : "") />
+
+                                                <input type="hidden"
+                                                       name="Questions[@i].IsRequired"
+                                                       value="false" />
+
+                                                <span>
+                                                    Interviewer must complete this
+                                                </span>
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- OPTIONS -->
+
+                                    <div class="builder-field question-options-field"
+                                         style="@(question.QuestionType == "MultipleChoice" ? "" : "display:none;")">
+
+                                        <label>
+                                            Multiple Choice Options
+                                        </label>
+
+                                        <textarea name="Questions[@i].OptionsJson"
+                                          rows="3"
+                                          placeholder='Enter JSON like ["Option A","Option B","Option C"]'>@question.OptionsJson</textarea>
+
+                                        <small>
+                                            For now enter options in JSON format.
+                                            Example:
+                                            ["Python","Java","C#"]
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div id="questionEmptyState"
+                             class="question-empty">
+
+                            <div class="question-empty-icon">
+                                +
+                            </div>
+
+                            <strong>
+                                No questions added yet
+                            </strong>
+
+                            <span>
+                                Start by adding a question,
+                                coding task or rating item.
+                            </span>
+
+                            <button type="button"
+                                    onclick="addQuestion()">
+                                + Add First Question
+                            </button>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             FOOTER
+             ===================================================== -->
+
+        <div class="builder-footer">
+
+            <a asp-controller="Assessment"
+               asp-action="Index"
+               class="builder-cancel-btn">
+
+                Cancel
+
+            </a>
+
+
+            <button type="submit"
+                    class="builder-save-btn">
+
+                @(isEdit
+                                ? "Save Changes"
+                                : "Create Assessment")
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+@functions {
+
+    string GetQuestionTypeLabel(
+        string type)
+    {
+        return type switch
+        {
+            "ShortText" =>
+                "Short Answer",
+
+            "LongText" =>
+                "Long Answer",
+
+            "Rating" =>
+                "Rating 1–5",
+
+            "YesNo" =>
+                "Yes / No",
+
+            "MultipleChoice" =>
+                "Multiple Choice",
+
+            "CodingTask" =>
+                "Coding Task",
+
+            "PracticalTask" =>
+                "Practical Task",
+
+            "Notes" =>
+                "Interviewer Notes",
+
+            _ =>
+                type
+        };
+    }
+
+}
+
+
+<style>
+
+    /* =========================================================
+       PAGE
+       ========================================================= */
+
+    .assessment-builder-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px;
+        color: #172033;
+    }
+
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .builder-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 25px;
+        margin-bottom: 24px;
+    }
+
+    .builder-header h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 750;
+        color: #111827;
+    }
+
+    .builder-header p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .builder-back-btn {
+        border: 1px solid #d7dde6;
+        background: white;
+        color: #344054;
+        padding: 10px 15px;
+        border-radius: 9px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+       CARD
+       ========================================================= */
+
+    .builder-card {
+        background: white;
+        border: 1px solid #e4e7ec;
+        border-radius: 16px;
+        margin-bottom: 22px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.045);
+        overflow: hidden;
+    }
+
+    .builder-card-header {
+        padding: 20px 22px;
+        border-bottom: 1px solid #edf0f3;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .builder-card-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .builder-card-header p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: #7b8495;
+    }
+
+    .builder-card-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ecfdf5;
+        color: #059669;
+        font-size: 18px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .builder-card-body {
+        padding: 22px;
+    }
+
+
+    /* =========================================================
+       FIELDS
+       ========================================================= */
+
+    .builder-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .builder-grid.two {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .builder-grid.three {
+        grid-template-columns:
+            1fr 180px 1.2fr;
+    }
+
+    .builder-field {
+        margin-bottom: 18px;
+    }
+
+    .builder-field label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 13px;
+        font-weight: 650;
+        color: #344054;
+    }
+
+    .builder-field label span {
+        color: #ef4444;
+    }
+
+    .builder-field input[type="text"],
+    .builder-field input[type="number"],
+    .builder-field select,
+    .builder-field textarea,
+    .builder-field > input:not([type="checkbox"]) {
+        width: 100%;
+        border: 1px solid #d8dee8;
+        border-radius: 10px;
+        padding: 11px 12px;
+        color: #1f2937;
+        background: white;
+        outline: none;
+        font-size: 14px;
+        box-sizing: border-box;
+        transition: border-color .15s ease,
+                    box-shadow .15s ease;
+    }
+
+    .builder-field textarea {
+        resize: vertical;
+        line-height: 1.5;
+    }
+
+    .builder-field input:focus,
+    .builder-field select:focus,
+    .builder-field textarea:focus {
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, .08);
+    }
+
+    .builder-field small {
+        display: block;
+        margin-top: 6px;
+        color: #8a94a6;
+        font-size: 12px;
+    }
+
+    .field-error,
+    .builder-validation {
+        color: #b42318;
+        font-size: 12px;
+    }
+
+    .builder-validation ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+
+    /* =========================================================
+       TOGGLE
+       ========================================================= */
+
+    .builder-toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafb;
+        border: 1px solid #edf0f3;
+        border-radius: 11px;
+        padding: 14px 15px;
+    }
+
+    .builder-toggle-row strong {
+        display: block;
+        font-size: 13px;
+        color: #273248;
+    }
+
+    .builder-toggle-row span {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        color: #8a94a6;
+    }
+
+    .switch {
+        position: relative;
+        width: 45px;
+        height: 25px;
+        flex-shrink: 0;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+        background: #cbd5e1;
+        border-radius: 999px;
+        transition: .2s;
+    }
+
+    .slider:before {
+        content: "";
+        position: absolute;
+        width: 19px;
+        height: 19px;
+        left: 3px;
+        top: 3px;
+        background: white;
+        border-radius: 50%;
+        transition: .2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    }
+
+    .switch input:checked + .slider {
+        background: #0f766e;
+    }
+
+    .switch input:checked + .slider:before {
+        transform: translateX(20px);
+    }
+
+
+    /* =========================================================
+       QUESTION HEADER
+       ========================================================= */
+
+    .question-header {
+        justify-content: space-between;
+    }
+
+    .question-header-left {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+    }
+
+    .add-question-btn {
+        border: 0;
+        background: #0f766e;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+
+    /* =========================================================
+       QUESTION LIST
+       ========================================================= */
+
+    .question-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .question-card {
+        border: 1px solid #e1e6ed;
+        border-radius: 14px;
+        background: #fbfcfd;
+        overflow: hidden;
+    }
+
+    .question-card-top {
+        min-height: 52px;
+        border-bottom: 1px solid #e7ebf0;
+        background: white;
+        padding: 9px 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .question-number {
+        width: 31px;
+        height: 31px;
+        border-radius: 8px;
+        background: #ecfdf5;
+        color: #047857;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .question-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .question-icon-btn {
+        width: 31px;
+        height: 31px;
+        border-radius: 8px;
+        border: 1px solid #d8dee8;
+        background: white;
+        color: #667085;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .question-icon-btn:hover {
+        background: #f1f5f9;
+    }
+
+    .question-icon-btn.danger {
+        color: #b42318;
+    }
+
+    .question-content {
+        padding: 17px;
+    }
+
+
+    /* =========================================================
+       REQUIRED
+       ========================================================= */
+
+    .required-checkbox {
+        min-height: 43px;
+        border: 1px solid #d8dee8;
+        border-radius: 10px;
+        background: white;
+        padding: 10px 11px;
+        display: flex !important;
+        align-items: center;
+        gap: 9px;
+        margin: 0 !important;
+        cursor: pointer;
+    }
+
+    .required-checkbox input {
+        width: 16px;
+        height: 16px;
+        accent-color: #0f766e;
+    }
+
+    .required-checkbox span {
+        color: #475467 !important;
+        font-size: 12px;
+        margin: 0 !important;
+    }
+
+
+    /* =========================================================
+       EMPTY
+       ========================================================= */
+
+    .question-empty {
+        border: 1px dashed #cbd5df;
+        border-radius: 14px;
+        padding: 45px 20px;
+        text-align: center;
+        background: #fbfcfd;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .question-empty-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #ecfdf5;
+        color: #059669;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        margin-bottom: 11px;
+    }
+
+    .question-empty strong {
+        color: #1f2937;
+        font-size: 14px;
+    }
+
+    .question-empty span {
+        margin-top: 4px;
+        color: #8a94a6;
+        font-size: 12px;
+    }
+
+    .question-empty button {
+        margin-top: 15px;
+        border: 1px solid #d8dee8;
+        background: white;
+        color: #344054;
+        padding: 9px 13px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    .builder-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-bottom: 40px;
+    }
+
+    .builder-cancel-btn,
+    .builder-save-btn {
+        min-width: 130px;
+        padding: 11px 18px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .builder-cancel-btn {
+        border: 1px solid #d8dee8;
+        background: white;
+        color: #475467;
+    }
+
+    .builder-save-btn {
+        border: none;
+        background: #0f766e;
+        color: white;
+        cursor: pointer;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @@media (max-width: 850px) {
+
+        .builder-grid.two,
+        .builder-grid.three {
+            grid-template-columns: 1fr;
+        }
+
+        .builder-header {
+            flex-direction: column;
+        }
+
+        .question-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+    /* =========================================================
+       WEBSITE THEME OVERRIDE
+       Replace green/teal with HireTrack purple
+       ========================================================= */
+
+    :root {
+        --hiretrack-purple: #806cf4;
+        --hiretrack-purple-dark: #6554d9;
+        --hiretrack-purple-soft: #f1edff;
+        --hiretrack-purple-border: #ddd4ff;
+    }
+
+
+    /* HEADER / SECTION ICONS */
+
+    .builder-card-icon {
+        background: var(--hiretrack-purple-soft) !important;
+        color: var(--hiretrack-purple) !important;
+    }
+
+
+    /* INPUT FOCUS */
+
+    .builder-field input:focus,
+    .builder-field select:focus,
+    .builder-field textarea:focus {
+        border-color: var(--hiretrack-purple) !important;
+        box-shadow: 0 0 0 3px rgba(128, 108, 244, .10) !important;
+    }
+
+
+    /* ACTIVE TOGGLE */
+
+    .switch input:checked + .slider {
+        background: var(--hiretrack-purple) !important;
+    }
+
+
+    /* ADD QUESTION */
+
+    .add-question-btn {
+        background: var(--hiretrack-purple) !important;
+        color: #ffffff !important;
+    }
+
+        .add-question-btn:hover {
+            background: var(--hiretrack-purple-dark) !important;
+        }
+
+
+    /* QUESTION NUMBER */
+
+    .question-number {
+        background: var(--hiretrack-purple-soft) !important;
+        color: var(--hiretrack-purple-dark) !important;
+    }
+
+
+    /* CHECKBOX */
+
+    .required-checkbox input {
+        accent-color: var(--hiretrack-purple) !important;
+    }
+
+
+    /* EMPTY QUESTION ICON */
+
+    .question-empty-icon {
+        background: var(--hiretrack-purple-soft) !important;
+        color: var(--hiretrack-purple) !important;
+    }
+
+
+    /* MAIN SAVE BUTTON */
+
+    .builder-save-btn {
+        background: var(--hiretrack-purple) !important;
+        color: #ffffff !important;
+    }
+
+        .builder-save-btn:hover {
+            background: var(--hiretrack-purple-dark) !important;
+        }
+
+
+    /* OPTIONAL - QUESTION EMPTY BUTTON HOVER */
+
+    .question-empty button:hover {
+        border-color: var(--hiretrack-purple-border) !important;
+        background: var(--hiretrack-purple-soft) !important;
+        color: var(--hiretrack-purple-dark) !important;
+    }
+
+
+    /* BACK BUTTON HOVER */
+
+    .builder-back-btn:hover,
+    .builder-cancel-btn:hover {
+        border-color: var(--hiretrack-purple-border) !important;
+        background: #faf8ff !important;
+        color: var(--hiretrack-purple-dark) !important;
+    }
+
+</style>
+
+
+@section Scripts {
+
+    <script>
+
+        let questionIndex =
+            @(
+                            Model.Questions != null
+                                    ? Model.Questions.Count
+                                    : 0
+                    );
+
+
+        // ============================================================
+        // LOAD ROUNDS
+        // ============================================================
+
+        async function loadAssessmentRounds() {
+
+            const job =
+                document.getElementById(
+                    "assessmentJob"
+                );
+
+
+            const round =
+                document.getElementById(
+                    "assessmentRound"
+                );
+
+
+            if (!job || !round) {
+                return;
+            }
+
+
+            const jobId =
+                job.value;
+
+
+            round.innerHTML = `
+                <option value="">
+                    Select Interview Round
+                </option>
+            `;
+
+
+            if (!jobId) {
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/Assessment/GetRounds?jobId=${encodeURIComponent(jobId)}`
+                    );
+
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Could not load interview rounds."
+                    );
+                }
+
+
+                const rounds =
+                    await response.json();
+
+
+                rounds.forEach(
+                    item => {
+
+                        const option =
+                            document.createElement(
+                                "option"
+                            );
+
+
+                        option.value =
+                            item.id;
+
+
+                        option.textContent =
+                            `Round ${item.sequence} — ${item.name}`;
+
+
+                        round.appendChild(
+                            option
+                        );
+                    }
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    error
+                );
+
+
+                round.innerHTML = `
+                    <option value="">
+                        Unable to load rounds
+                    </option>
+                `;
+            }
+        }
+
+
+        // ============================================================
+        // ADD QUESTION
+        // ============================================================
+
+        function addQuestion() {
+
+            const list =
+                document.getElementById(
+                    "questionList"
+                );
+
+
+            const empty =
+                document.getElementById(
+                    "questionEmptyState"
+                );
+
+
+            if (!list) {
+                return;
+            }
+
+
+            if (empty) {
+                empty.remove();
+            }
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "question-card";
+
+
+            card.dataset.questionIndex =
+                questionIndex;
+
+
+            card.innerHTML =
+                buildQuestionHtml(
+                    questionIndex
+                );
+
+
+            list.appendChild(
+                card
+            );
+
+
+            questionIndex++;
+
+
+            renumberQuestions();
+        }
+
+
+        // ============================================================
+        // BUILD QUESTION
+        // ============================================================
+
+        function buildQuestionHtml(
+            index) {
+
+            return `
+
+                <div class="question-card-top">
+
+                    <div class="question-number">
+                        ${index + 1}
+                    </div>
+
+
+                    <div class="question-actions">
+
+                        <button type="button"
+                                class="question-icon-btn"
+                                title="Move up"
+                                onclick="moveQuestionUp(this)">
+                            ↑
+                        </button>
+
+                        <button type="button"
+                                class="question-icon-btn"
+                                title="Move down"
+                                onclick="moveQuestionDown(this)">
+                            ↓
+                        </button>
+
+                        <button type="button"
+                                class="question-icon-btn danger"
+                                title="Remove"
+                                onclick="removeQuestion(this)">
+                            ×
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="question-content">
+
+                    <div class="builder-field">
+
+                        <label>
+                            Question / Task
+                            <span>*</span>
+                        </label>
+
+                        <textarea name="Questions[${index}].QuestionText"
+                                  rows="3"
+                                  placeholder="Enter the question, coding task or interview item..."
+                                  required></textarea>
+
+                    </div>
+
+
+                    <div class="builder-grid three">
+
+                        <div class="builder-field">
+
+                            <label>
+                                Type
+                            </label>
+
+                            <select name="Questions[${index}].QuestionType"
+                                    class="question-type"
+                                    onchange="questionTypeChanged(this)">
+
+                                <option value="ShortText">
+                                    Short Answer
+                                </option>
+
+                                <option value="LongText"
+                                        selected>
+                                    Long Answer
+                                </option>
+
+                                <option value="Rating">
+                                    Rating 1–5
+                                </option>
+
+                                <option value="YesNo">
+                                    Yes / No
+                                </option>
+
+                                <option value="MultipleChoice">
+                                    Multiple Choice
+                                </option>
+
+                                <option value="CodingTask">
+                                    Coding Task
+                                </option>
+
+                                <option value="PracticalTask">
+                                    Practical Task
+                                </option>
+
+                                <option value="Notes">
+                                    Interviewer Notes
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="builder-field">
+
+                            <label>
+                                Maximum Marks
+                            </label>
+
+                            <input type="number"
+                                   name="Questions[${index}].MaximumMarks"
+                                   min="0"
+                                   step="0.5"
+                                   placeholder="Optional" />
+
+                        </div>
+
+
+                        <div class="builder-field">
+
+                            <label>
+                                Required
+                            </label>
+
+                            <label class="required-checkbox">
+
+                                <input type="checkbox"
+                                       name="Questions[${index}].IsRequired"
+                                       value="true"
+                                       checked />
+
+                                <input type="hidden"
+                                       name="Questions[${index}].IsRequired"
+                                       value="false" />
+
+                                <span>
+                                    Interviewer must complete this
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="builder-field question-options-field"
+                         style="display:none;">
+
+                        <label>
+                            Multiple Choice Options
+                        </label>
+
+                        <textarea name="Questions[${index}].OptionsJson"
+                                  rows="3"
+                                  placeholder='["Option A","Option B","Option C"]'>[]</textarea>
+
+                        <small>
+                            Enter options as JSON for now.
+                        </small>
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+
+        // ============================================================
+        // TYPE CHANGED
+        // ============================================================
+
+        function questionTypeChanged(
+            select) {
+
+            const card =
+                select.closest(
+                    ".question-card"
+                );
+
+
+            if (!card) {
+                return;
+            }
+
+
+            const optionField =
+                card.querySelector(
+                    ".question-options-field"
+                );
+
+
+            if (!optionField) {
+                return;
+            }
+
+
+            optionField.style.display =
+                select.value ===
+                    "MultipleChoice"
+
+                    ? ""
+
+                    : "none";
+        }
+
+
+        // ============================================================
+        // REMOVE
+        // ============================================================
+
+        function removeQuestion(
+            button) {
+
+            const card =
+                button.closest(
+                    ".question-card"
+                );
+
+
+            if (!card) {
+                return;
+            }
+
+
+            card.remove();
+
+
+            normalizeQuestionIndexes();
+
+
+            showQuestionEmptyStateIfNeeded();
+        }
+
+
+        // ============================================================
+        // MOVE UP
+        // ============================================================
+
+        function moveQuestionUp(
+            button) {
+
+            const card =
+                button.closest(
+                    ".question-card"
+                );
+
+
+            if (!card) {
+                return;
+            }
+
+
+            const previous =
+                card.previousElementSibling;
+
+
+            if (
+                previous &&
+                previous.classList.contains(
+                    "question-card"
+                )
+            ) {
+
+                card.parentElement.insertBefore(
+                    card,
+                    previous
+                );
+
+
+                normalizeQuestionIndexes();
+            }
+        }
+
+
+        // ============================================================
+        // MOVE DOWN
+        // ============================================================
+
+        function moveQuestionDown(
+            button) {
+
+            const card =
+                button.closest(
+                    ".question-card"
+                );
+
+
+            if (!card) {
+                return;
+            }
+
+
+            const next =
+                card.nextElementSibling;
+
+
+            if (
+                next &&
+                next.classList.contains(
+                    "question-card"
+                )
+            ) {
+
+                card.parentElement.insertBefore(
+                    next,
+                    card
+                );
+
+
+                normalizeQuestionIndexes();
+            }
+        }
+
+
+        // ============================================================
+        // NORMALIZE QUESTION INDEXES
+        //
+        // Important for ASP.NET model binding after questions
+        // are removed/reordered.
+        // ============================================================
+
+        function normalizeQuestionIndexes() {
+
+            const cards =
+                Array.from(
+                    document.querySelectorAll(
+                        "#questionList .question-card"
+                    )
+                );
+
+
+            cards.forEach(
+                (card, index) => {
+
+                    card.dataset.questionIndex =
+                        index;
+
+
+                    const number =
+                        card.querySelector(
+                            ".question-number"
+                        );
+
+
+                    if (number) {
+
+                        number.textContent =
+                            index + 1;
+                    }
+
+
+                    card.querySelectorAll(
+                        "[name]"
+                    )
+                    .forEach(
+                        field => {
+
+                            field.name =
+                                field.name.replace(
+                                    /Questions\[\d+\]/,
+                                    `Questions[${index}]`
+                                );
+                        }
+                    );
+                }
+            );
+
+
+            questionIndex =
+                cards.length;
+        }
+
+
+        // ============================================================
+        // RENUMBER ONLY
+        // ============================================================
+
+        function renumberQuestions() {
+
+            document.querySelectorAll(
+                "#questionList .question-card"
+            )
+            .forEach(
+                (card, index) => {
+
+                    const number =
+                        card.querySelector(
+                            ".question-number"
+                        );
+
+
+                    if (number) {
+
+                        number.textContent =
+                            index + 1;
+                    }
+                }
+            );
+        }
+
+
+        // ============================================================
+        // EMPTY STATE
+        // ============================================================
+
+        function showQuestionEmptyStateIfNeeded() {
+
+            const list =
+                document.getElementById(
+                    "questionList"
+                );
+
+
+            if (!list) {
+                return;
+            }
+
+
+            const cards =
+                list.querySelectorAll(
+                    ".question-card"
+                );
+
+
+            if (cards.length > 0) {
+                return;
+            }
+
+
+            list.innerHTML = `
+
+                <div id="questionEmptyState"
+                     class="question-empty">
+
+                    <div class="question-empty-icon">
+                        +
+                    </div>
+
+                    <strong>
+                        No questions added yet
+                    </strong>
+
+                    <span>
+                        Start by adding a question,
+                        coding task or rating item.
+                    </span>
+
+                    <button type="button"
+                            onclick="addQuestion()">
+
+                        + Add First Question
+
+                    </button>
+
+                </div>
+            `;
+
+
+            questionIndex =
+                0;
+        }
+
+
+        // ============================================================
+        // SUBMIT
+        // ============================================================
+
+        document
+            .getElementById(
+                "assessmentBuilderForm"
+            )
+            ?.addEventListener(
+                "submit",
+                function (event) {
+
+                    normalizeQuestionIndexes();
+
+
+                    const questions =
+                        document.querySelectorAll(
+                            "#questionList .question-card"
+                        );
+
+
+                    if (questions.length === 0) {
+
+                        event.preventDefault();
+
+
+                        alert(
+                            "Please add at least one question or task."
+                        );
+                    }
+                }
+            );
+
+
+        // ============================================================
+        // INITIALIZE
+        // ============================================================
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                normalizeQuestionIndexes();
+
+
+                document.querySelectorAll(
+                    ".question-type"
+                )
+                .forEach(
+                    select =>
+                        questionTypeChanged(
+                            select
+                        )
+                );
+            }
+        );
+
+    </script>
+
+}

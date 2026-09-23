@@ -171,6 +171,12 @@ namespace RecruitmentTracker.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -180,6 +186,15 @@ namespace RecruitmentTracker.Data.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("InterviewerProfileCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobTitle")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -205,7 +220,16 @@ namespace RecruitmentTracker.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ProfileImagePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SeniorityLevel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Skills")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -214,6 +238,9 @@ namespace RecruitmentTracker.Data.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -226,6 +253,534 @@ namespace RecruitmentTracker.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.AssessmentAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AnswerText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AssessmentQuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InterviewAssessmentId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Score")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentQuestionId");
+
+                    b.HasIndex("InterviewAssessmentId");
+
+                    b.ToTable("AssessmentAnswer");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.AssessmentQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssessmentTemplateId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("MaximumMarks")
+                        .HasColumnType("float");
+
+                    b.Property<string>("OptionsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("QuestionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentTemplateId");
+
+                    b.ToTable("AssessmentQuestion");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.AssessmentTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Instructions")
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar(3000)");
+
+                    b.Property<int>("InterviewRoundId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JobVacancyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InterviewRoundId");
+
+                    b.HasIndex("JobVacancyId");
+
+                    b.ToTable("AssessmentTemplate");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.CandidateProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CandidateId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CurrentPosition")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("DefaultCVFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultCVPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Education")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Experience")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GitHubUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("IsProfileComplete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("PortfolioUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ProfileImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Skills")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CandidateId");
+
+                    b.ToTable("CandidateProfiles");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.Interview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FeedbackStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("InterviewDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InterviewRoundId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("InterviewTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("InterviewTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InterviewerIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("JobApplicationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MeetingLink")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoundDecisionBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RoundDecisionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RoundDecisionNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoundResult")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("RoundScore")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InterviewRoundId");
+
+                    b.HasIndex("InterviewTypeId");
+
+                    b.HasIndex("JobApplicationId");
+
+                    b.ToTable("Interviews");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewAssessment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AssessmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("AssessmentTemplateId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AssignedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("AssignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar(3000)");
+
+                    b.Property<string>("ConductedByInterviewerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("InterviewId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("MaxScore")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ResultStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Score")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SubmittedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentTemplateId");
+
+                    b.HasIndex("ConductedByInterviewerId");
+
+                    b.HasIndex("InterviewId");
+
+                    b.ToTable("InterviewAssessment");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewFeedback", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<int>("CommunicationRating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InterviewId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InterviewerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("OverallRating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProblemSolvingRating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProfessionalismRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Recommendation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleFitRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Strengths")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("SubmittedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TechnicalRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Weaknesses")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InterviewId");
+
+                    b.HasIndex("InterviewerId");
+
+                    b.ToTable("InterviewFeedback");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewRound", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JobVacancyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("SequenceNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobVacancyId");
+
+                    b.ToTable("InterviewRounds");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InterviewTypes");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewerSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("InterviewId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InterviewerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsAllDay")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSystemGenerated")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ScheduleType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InterviewerId");
+
+                    b.ToTable("InterviewerSchedules");
                 });
 
             modelBuilder.Entity("RecruitmentTracker.Models.JobApplication", b =>
@@ -300,6 +855,22 @@ namespace RecruitmentTracker.Data.Migrations
                     b.Property<bool>("HiringManagerShortlisted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("InterviewDecisionBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("InterviewDecisionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("InterviewOverallScore")
+                        .HasColumnType("float");
+
+                    b.Property<bool>("InterviewProcessCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("InterviewStageStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("JobVacancyId")
                         .HasColumnType("int");
 
@@ -345,6 +916,9 @@ namespace RecruitmentTracker.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("InterviewerRequiredSkills")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -358,6 +932,12 @@ namespace RecruitmentTracker.Data.Migrations
 
                     b.Property<string>("Location")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MinimumInterviewerExperience")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MinimumInterviewerSeniority")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PreferredRequirements")
@@ -374,11 +954,47 @@ namespace RecruitmentTracker.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Salary")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.ToTable("JobVacancies");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.OfferTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Variables")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OfferTemplates");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -432,6 +1048,159 @@ namespace RecruitmentTracker.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RecruitmentTracker.Models.AssessmentAnswer", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.AssessmentQuestion", "AssessmentQuestion")
+                        .WithMany()
+                        .HasForeignKey("AssessmentQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecruitmentTracker.Models.InterviewAssessment", "InterviewAssessment")
+                        .WithMany("Answers")
+                        .HasForeignKey("InterviewAssessmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentQuestion");
+
+                    b.Navigation("InterviewAssessment");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.AssessmentQuestion", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.AssessmentTemplate", "AssessmentTemplate")
+                        .WithMany("Questions")
+                        .HasForeignKey("AssessmentTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentTemplate");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.AssessmentTemplate", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.InterviewRound", "InterviewRound")
+                        .WithMany()
+                        .HasForeignKey("InterviewRoundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecruitmentTracker.Models.JobVacancy", "JobVacancy")
+                        .WithMany()
+                        .HasForeignKey("JobVacancyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InterviewRound");
+
+                    b.Navigation("JobVacancy");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.CandidateProfile", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.ApplicationUser", "Candidate")
+                        .WithMany()
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.Interview", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.InterviewRound", "InterviewRound")
+                        .WithMany()
+                        .HasForeignKey("InterviewRoundId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("RecruitmentTracker.Models.InterviewType", "InterviewType")
+                        .WithMany()
+                        .HasForeignKey("InterviewTypeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("RecruitmentTracker.Models.JobApplication", "JobApplication")
+                        .WithMany()
+                        .HasForeignKey("JobApplicationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("InterviewRound");
+
+                    b.Navigation("InterviewType");
+
+                    b.Navigation("JobApplication");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewAssessment", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.AssessmentTemplate", "AssessmentTemplate")
+                        .WithMany()
+                        .HasForeignKey("AssessmentTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecruitmentTracker.Models.ApplicationUser", "ConductedByInterviewer")
+                        .WithMany()
+                        .HasForeignKey("ConductedByInterviewerId");
+
+                    b.HasOne("RecruitmentTracker.Models.Interview", "Interview")
+                        .WithMany("Assessments")
+                        .HasForeignKey("InterviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentTemplate");
+
+                    b.Navigation("ConductedByInterviewer");
+
+                    b.Navigation("Interview");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewFeedback", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.Interview", "Interview")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("InterviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecruitmentTracker.Models.ApplicationUser", "Interviewer")
+                        .WithMany()
+                        .HasForeignKey("InterviewerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Interview");
+
+                    b.Navigation("Interviewer");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewRound", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.JobVacancy", "JobVacancy")
+                        .WithMany()
+                        .HasForeignKey("JobVacancyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("JobVacancy");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewerSchedule", b =>
+                {
+                    b.HasOne("RecruitmentTracker.Models.ApplicationUser", "Interviewer")
+                        .WithMany()
+                        .HasForeignKey("InterviewerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Interviewer");
+                });
+
             modelBuilder.Entity("RecruitmentTracker.Models.JobApplication", b =>
                 {
                     b.HasOne("RecruitmentTracker.Models.ApplicationUser", "Candidate")
@@ -449,6 +1218,23 @@ namespace RecruitmentTracker.Data.Migrations
                     b.Navigation("Candidate");
 
                     b.Navigation("JobVacancy");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.AssessmentTemplate", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.Interview", b =>
+                {
+                    b.Navigation("Assessments");
+
+                    b.Navigation("Feedbacks");
+                });
+
+            modelBuilder.Entity("RecruitmentTracker.Models.InterviewAssessment", b =>
+                {
+                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }

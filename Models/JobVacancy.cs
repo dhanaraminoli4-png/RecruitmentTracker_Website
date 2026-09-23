@@ -42,5 +42,10 @@ namespace RecruitmentTracker.Models
 
         public bool RequiresCoverLetter { get; set; } = false;
 
+        public string? MinimumInterviewerSeniority { get; set; }
+
+        public int MinimumInterviewerExperience { get; set; } = 0;
+
+        public string? InterviewerRequiredSkills { get; set; }
     }
 }

@@ -1,0 +1,1059 @@
+﻿@model RecruitmentTracker.Models.CandidateProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+
+    var displayName =
+        string.IsNullOrWhiteSpace(Model.FullName)
+            ? "Candidate"
+            : Model.FullName;
+
+    var initials =
+        !string.IsNullOrWhiteSpace(displayName)
+            ? displayName.Substring(0, 1).ToUpper()
+            : "C";
+}
+
+
+<div class="candidate-profile-page">
+
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="profile-page-header">
+
+        <div>
+
+            <div class="profile-eyebrow">
+                CANDIDATE · PROFILE
+            </div>
+
+            <h1>
+                My Profile
+            </h1>
+
+            <p>
+                Keep your information and resume up to date.
+                These details can be reused when you apply for jobs.
+            </p>
+
+        </div>
+
+
+        <a asp-controller="Application"
+           asp-action="Vacancies"
+           class="profile-jobs-btn">
+
+            Find Jobs
+
+        </a>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         MESSAGES
+         ========================================================= -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="profile-alert success">
+            @TempData["Success"]
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="profile-alert error">
+            @TempData["Error"]
+        </div>
+    }
+
+
+
+    <form asp-controller="CandidateProfile"
+          asp-action="Profile"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+
+        <div class="profile-layout">
+
+
+            <!-- =====================================================
+                 LEFT PROFILE SUMMARY
+                 ===================================================== -->
+
+            <aside class="profile-sidebar">
+
+
+                <div class="profile-avatar-section">
+
+
+                    <div class="candidate-large-avatar">
+
+                        @if (!string.IsNullOrWhiteSpace(
+                                                Model.ProfileImagePath))
+                        {
+                            <img src="@Model.ProfileImagePath"
+                                 alt="@displayName" />
+                        }
+                        else
+                        {
+                            @initials
+                        }
+
+                    </div>
+
+
+                    <h2>
+                        @displayName
+                    </h2>
+
+
+                    <span>
+                        @Model.Email
+                    </span>
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.CurrentPosition))
+                    {
+                        <p>
+                            @Model.CurrentPosition
+                        </p>
+                    }
+
+
+                    <label class="photo-upload-btn">
+
+                        Change Photo
+
+                        <input asp-for="ProfileImage"
+                               type="file"
+                               accept=".jpg,.jpeg,.png,.webp"
+                               hidden />
+
+                    </label>
+
+                </div>
+
+
+
+                <div class="profile-completion-card">
+
+                    <span class="completion-label">
+                        PROFILE SETUP
+                    </span>
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.DefaultCVPath))
+                    {
+                        <strong class="complete-text">
+                            Resume ready
+                        </strong>
+
+                        <span>
+                            Your saved CV can be reused
+                            when applying.
+                        </span>
+                    }
+                    else
+                    {
+                        <strong class="incomplete-text">
+                            Resume required
+                        </strong>
+
+                        <span>
+                            Upload a default CV to make
+                            applications faster.
+                        </span>
+                    }
+
+                </div>
+
+
+            </aside>
+
+
+
+            <!-- =====================================================
+                 MAIN PROFILE
+                 ===================================================== -->
+
+            <main class="profile-main">
+
+
+                <!-- PERSONAL INFO -->
+
+                <section class="profile-card">
+
+
+                    <div class="profile-card-heading">
+
+                        <div>
+
+                            <span>
+                                PERSONAL INFORMATION
+                            </span>
+
+                            <h2>
+                                Basic Details
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="profile-form-grid">
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Full Name
+                            </label>
+
+                            <input asp-for="FullName"
+                                   class="profile-control"
+                                   placeholder="Your full name" />
+
+                        </div>
+
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Email Address
+                            </label>
+
+                            <input value="@Model.Email"
+                                   class="profile-control readonly"
+                                   readonly />
+
+                            <small>
+                                Email comes from your HireTrack account.
+                            </small>
+
+                        </div>
+
+
+
+                        <div class="profile-field">
+
+                            <label>
+                                Phone Number
+                            </label>
+
+                            <input asp-for="PhoneNumber"
+                                   class="profile-control"
+                                   placeholder="+94..." />
+
+                        </div>
+
+
+
+                        <div class="profile-field">
+
+                            <label>
+                                City
+                            </label>
+
+                            <input asp-for="City"
+                                   class="profile-control"
+                                   placeholder="Colombo" />
+
+                        </div>
+
+
+
+                        <div class="profile-field">
+
+                            <label>
+                                Country
+                            </label>
+
+                            <input asp-for="Country"
+                                   class="profile-control"
+                                   placeholder="Sri Lanka" />
+
+                        </div>
+
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Address
+                            </label>
+
+                            <input asp-for="Address"
+                                   class="profile-control"
+                                   placeholder="Your address" />
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- PROFESSIONAL INFO -->
+
+                <section class="profile-card">
+
+
+                    <div class="profile-card-heading">
+
+                        <div>
+
+                            <span>
+                                PROFESSIONAL PROFILE
+                            </span>
+
+                            <h2>
+                                Career Information
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="profile-form-grid">
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Current Position
+                            </label>
+
+                            <input asp-for="CurrentPosition"
+                                   class="profile-control"
+                                   placeholder="e.g. AI Undergraduate" />
+
+                        </div>
+
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Skills
+                            </label>
+
+                            <textarea asp-for="Skills"
+                                      class="profile-control profile-textarea"
+                                      rows="4"
+                                      placeholder="Python, C#, Machine Learning, SQL..."></textarea>
+
+                            <small>
+                                Separate skills using commas.
+                            </small>
+
+                        </div>
+
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Education
+                            </label>
+
+                            <textarea asp-for="Education"
+                                      class="profile-control profile-textarea"
+                                      rows="5"
+                                      placeholder="Your education and qualifications..."></textarea>
+
+                        </div>
+
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Experience
+                            </label>
+
+                            <textarea asp-for="Experience"
+                                      class="profile-control profile-textarea"
+                                      rows="6"
+                                      placeholder="Work experience, internships, projects..."></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- LINKS -->
+
+                <section class="profile-card">
+
+
+                    <div class="profile-card-heading">
+
+                        <div>
+
+                            <span>
+                                PROFESSIONAL LINKS
+                            </span>
+
+                            <h2>
+                                Online Presence
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="profile-form-grid">
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                LinkedIn
+                            </label>
+
+                            <input asp-for="LinkedInUrl"
+                                   class="profile-control"
+                                   placeholder="https://linkedin.com/in/..." />
+
+                        </div>
+
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                GitHub
+                            </label>
+
+                            <input asp-for="GitHubUrl"
+                                   class="profile-control"
+                                   placeholder="https://github.com/..." />
+
+                        </div>
+
+
+
+                        <div class="profile-field full">
+
+                            <label>
+                                Portfolio
+                            </label>
+
+                            <input asp-for="PortfolioUrl"
+                                   class="profile-control"
+                                   placeholder="https://..." />
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- CV -->
+
+                <section class="profile-card">
+
+
+                    <div class="profile-card-heading">
+
+                        <div>
+
+                            <span>
+                                DEFAULT RESUME
+                            </span>
+
+                            <h2>
+                                Resume / CV
+                            </h2>
+
+                            <p>
+                                This CV will automatically be available
+                                when you apply for a vacancy.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                                        Model.DefaultCVPath))
+                    {
+                        <div class="current-cv-card">
+
+                            <div class="cv-icon">
+                                CV
+                            </div>
+
+
+                            <div class="cv-info">
+
+                                <strong>
+                                    @(Model.DefaultCVFileName
+                                                                    ?? "Candidate CV")
+                            </strong>
+
+                                <span>
+                                    Current default resume
+                                </span>
+
+                            </div>
+
+
+                            <a asp-controller="CandidateProfile"
+                               asp-action="ViewCV"
+                               target="_blank"
+                               class="view-cv-btn">
+
+                                View CV
+
+                            </a>
+
+                        </div>
+                                        }
+
+
+
+                    <div class="profile-field">
+
+                        <label>
+                            @(string.IsNullOrWhiteSpace(
+                                                        Model.DefaultCVPath)
+                                                        ? "Upload CV"
+                                                        : "Replace CV")
+                        </label>
+
+
+                        <input asp-for="CVFile"
+                               type="file"
+                               accept=".pdf,.doc,.docx"
+                               class="profile-control file-control" />
+
+
+                        <small>
+                            PDF, DOC or DOCX · Maximum 10 MB
+                        </small>
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- SAVE -->
+
+                <div class="profile-save-area">
+
+                    <div>
+
+                        <strong>
+                            Keep your profile updated
+                        </strong>
+
+                        <span>
+                            Your latest information will be available
+                            when you submit new applications.
+                        </span>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="save-profile-btn">
+
+                        Save Profile
+
+                    </button>
+
+                </div>
+
+
+            </main>
+
+
+        </div>
+
+
+    </form>
+
+
+</div>
+
+
+
+<style>
+
+    .candidate-profile-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px;
+        color: #172033;
+    }
+
+
+    .profile-page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+
+    .profile-eyebrow {
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .09em;
+        color: #98a2b3;
+        margin-bottom: 6px;
+    }
+
+
+    .profile-page-header h1 {
+        margin: 0;
+        font-size: 30px;
+        color: #101828;
+    }
+
+
+    .profile-page-header p {
+        max-width: 630px;
+        margin: 6px 0 0;
+        color: #7b8495;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+
+    .profile-jobs-btn {
+        border: 1px solid #d0d5dd;
+        border-radius: 9px;
+        padding: 10px 15px;
+        background: white;
+        color: #475467;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+
+    .profile-alert {
+        padding: 12px 15px;
+        margin-bottom: 18px;
+        border-radius: 9px;
+        font-size: 11px;
+    }
+
+
+        .profile-alert.success {
+            background: #ecfdf3;
+            border: 1px solid #abefc6;
+            color: #067647;
+        }
+
+
+        .profile-alert.error {
+            background: #fef3f2;
+            border: 1px solid #fecdca;
+            color: #b42318;
+        }
+
+
+    .profile-layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+
+    .profile-sidebar {
+        position: sticky;
+        top: 95px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+
+    .profile-avatar-section,
+    .profile-completion-card,
+    .profile-card,
+    .profile-save-area {
+        background: white;
+        border: 1px solid #e4e7ec;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(15,23,42,.03);
+    }
+
+
+    .profile-avatar-section {
+        padding: 25px 18px;
+        text-align: center;
+    }
+
+
+    .candidate-large-avatar {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 13px;
+        border-radius: 50%;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        font-size: 28px;
+        font-weight: 750;
+    }
+
+
+        .candidate-large-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+    .profile-avatar-section h2 {
+        margin: 0;
+        color: #101828;
+        font-size: 16px;
+    }
+
+
+    .profile-avatar-section > span {
+        display: block;
+        margin-top: 4px;
+        color: #98a2b3;
+        font-size: 10px;
+    }
+
+
+    .profile-avatar-section p {
+        margin: 6px 0 0;
+        color: #667085;
+        font-size: 10px;
+    }
+
+
+    .photo-upload-btn {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 7px 11px;
+        border: 1px solid #d0d5dd;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+
+    .profile-completion-card {
+        padding: 16px;
+    }
+
+
+    .completion-label {
+        display: block;
+        color: #98a2b3;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .07em;
+    }
+
+
+    .profile-completion-card strong {
+        display: block;
+        margin-top: 7px;
+        font-size: 12px;
+    }
+
+
+    .complete-text {
+        color: #067647;
+    }
+
+
+    .incomplete-text {
+        color: #b54708;
+    }
+
+
+    .profile-completion-card > span:last-child {
+        display: block;
+        margin-top: 4px;
+        color: #98a2b3;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+
+    .profile-main {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+
+    .profile-card {
+        padding: 20px;
+    }
+
+
+    .profile-card-heading {
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+
+        .profile-card-heading span {
+            display: block;
+            color: #98a2b3;
+            font-size: 8px;
+            font-weight: 750;
+            letter-spacing: .08em;
+        }
+
+
+        .profile-card-heading h2 {
+            margin: 4px 0 0;
+            color: #101828;
+            font-size: 15px;
+        }
+
+
+        .profile-card-heading p {
+            margin: 4px 0 0;
+            color: #98a2b3;
+            font-size: 9px;
+        }
+
+
+    .profile-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+
+    .profile-field.full {
+        grid-column: 1 / -1;
+    }
+
+
+    .profile-field label {
+        display: block;
+        margin-bottom: 6px;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+
+    .profile-control {
+        width: 100%;
+        min-height: 40px;
+        box-sizing: border-box;
+        border: 1px solid #d0d5dd;
+        border-radius: 8px;
+        background: white;
+        color: #344054;
+        padding: 9px 11px;
+        font-size: 11px;
+        outline: none;
+    }
+
+
+        .profile-control:focus {
+            border-color: #98a2b3;
+            box-shadow: 0 0 0 3px rgba(152,162,179,.12);
+        }
+
+
+        .profile-control.readonly {
+            background: #f9fafb;
+            color: #98a2b3;
+        }
+
+
+    .profile-textarea {
+        resize: vertical;
+    }
+
+
+    .profile-field small {
+        display: block;
+        margin-top: 5px;
+        color: #98a2b3;
+        font-size: 8px;
+    }
+
+
+    .current-cv-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 17px;
+        padding: 12px;
+        border: 1px solid #e4e7ec;
+        border-radius: 10px;
+        background: #f9fafb;
+    }
+
+
+    .cv-icon {
+        width: 39px;
+        height: 39px;
+        border-radius: 8px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+
+    .cv-info {
+        flex: 1;
+    }
+
+
+        .cv-info strong {
+            display: block;
+            color: #344054;
+            font-size: 10px;
+        }
+
+
+        .cv-info span {
+            display: block;
+            margin-top: 2px;
+            color: #98a2b3;
+            font-size: 8px;
+        }
+
+
+    .view-cv-btn {
+        padding: 7px 10px;
+        border: 1px solid #d0d5dd;
+        border-radius: 7px;
+        background: white;
+        color: #475467;
+        text-decoration: none;
+        font-size: 9px;
+        font-weight: 650;
+    }
+
+
+    .profile-save-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 17px 20px;
+    }
+
+
+        .profile-save-area strong {
+            display: block;
+            color: #344054;
+            font-size: 11px;
+        }
+
+
+        .profile-save-area span {
+            display: block;
+            margin-top: 3px;
+            color: #98a2b3;
+            font-size: 9px;
+        }
+
+
+    .save-profile-btn {
+        border: 0;
+        border-radius: 8px;
+        background: #111827;
+        color: white;
+        padding: 10px 19px;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+
+    @@media (max-width: 850px) {
+
+        .profile-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-sidebar {
+            position: static;
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .candidate-profile-page {
+            padding: 20px;
+        }
+
+        .profile-page-header,
+        .profile-save-area {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .profile-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-field.full {
+            grid-column: auto;
+        }
+
+        .save-profile-btn {
+            width: 100%;
+        }
+    }
+
+</style>

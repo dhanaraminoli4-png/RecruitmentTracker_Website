@@ -1,0 +1,167 @@
+﻿@model RecruitmentTracker.ViewModels.OfferPreviewViewModel
+
+@{
+    ViewData["Title"] = "Offer Letter Preview";
+}
+
+
+<div class="offer-preview-page">
+
+
+    <!-- HEADER -->
+
+    <div class="offer-preview-page-header">
+
+        <div>
+            <h1>Offer Letter Preview</h1>
+
+            <p>
+                Review the offer carefully before
+                downloading the final PDF.
+            </p>
+        </div>
+
+
+        <a asp-controller="OfferTemplate"
+           asp-action="Index"
+           class="offer-back-btn">
+
+            ← Back to Templates
+
+        </a>
+
+    </div>
+
+
+
+    <!-- NOTICE -->
+
+    <div class="offer-preview-notice">
+
+        <span>ⓘ</span>
+
+        <div>
+            <strong>Review before downloading</strong>
+
+            <p>
+                Check the candidate name, position,
+                salary and dates before creating
+                the final PDF.
+            </p>
+        </div>
+
+    </div>
+
+
+
+    <!-- DOCUMENT -->
+
+    <div class="offer-document-wrapper">
+
+        <div class="offer-document">
+
+
+            <!-- DOCUMENT HEADER -->
+
+            <div class="offer-document-header">
+
+                <div class="offer-document-brand">
+                    HIRETRACK
+                </div>
+
+                <div class="offer-document-type">
+                    OFFER LETTER
+                </div>
+
+            </div>
+
+
+            <div class="offer-document-line"></div>
+
+
+
+            <!-- DATE -->
+
+            <div class="offer-document-date">
+
+                @DateTime.Now.ToString("MMMM dd, yyyy")
+
+            </div>
+
+
+
+            <!-- OFFER CONTENT -->
+
+            <div class="offer-document-content">
+                @Model.FinalContent
+            </div>
+
+
+
+            <!-- SIGNATURE -->
+
+            <div class="offer-document-signature">
+
+                <p>Sincerely,</p>
+
+                <div class="signature-space"></div>
+
+                <strong>Human Resources</strong>
+
+                <span>HireTrack</span>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- BUTTONS -->
+
+    <div class="offer-preview-actions">
+
+
+        <button type="button"
+                class="offer-cancel-btn"
+                onclick="history.back()">
+
+            ← Back & Edit
+
+        </button>
+
+
+
+        <form asp-controller="OfferTemplate"
+              asp-action="DownloadPdf"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+
+            <input type="hidden"
+                   name="templateName"
+                   value="@Model.TemplateName" />
+
+
+            <input type="hidden"
+                   name="finalContent"
+                   value="@Model.FinalContent" />
+
+
+            <button type="submit"
+                    class="offer-create-btn">
+
+                ↓ Download PDF
+
+            </button>
+
+        </form>
+
+
+    </div>
+
+
+</div>

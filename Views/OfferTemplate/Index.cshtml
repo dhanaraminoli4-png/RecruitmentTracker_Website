@@ -1,0 +1,920 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.OfferTemplate>
+
+@{
+    ViewData["Title"] = "Offer Templates";
+
+    var templates = Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.OfferTemplate>();
+
+    var total = templates.Count;
+    var active = templates.Count(x => x.IsActive);
+    var inactive = templates.Count(x => !x.IsActive);
+}
+
+<div class="offer-page">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="offer-success-message">
+            <span>✓</span>
+            @TempData["Success"]
+        </div>
+    }
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="offer-page-header">
+
+        <div>
+            <h1>Offer Templates</h1>
+            <p>Manage reusable templates for job offer letters.</p>
+        </div>
+
+        <a asp-controller="OfferTemplate"
+           asp-action="Create"
+           class="offer-add-btn">
+
+            <span>+</span>
+            Add Template
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================================
+         FILTER
+         ========================================================= -->
+
+    <div class="offer-filter-card">
+
+        <div class="offer-search-row">
+
+            <div class="offer-search">
+
+                <span class="offer-search-icon">⌕</span>
+
+                <input type="text"
+                       id="offerSearch"
+                       placeholder="Search..."
+                       oninput="filterOffers()" />
+
+            </div>
+
+        </div>
+
+
+        <div class="offer-tabs">
+
+            <button type="button"
+                    class="offer-tab active"
+                    onclick="setOfferStatus(this, '')">
+
+                All
+                <span class="offer-count">@total</span>
+
+            </button>
+
+
+            <button type="button"
+                    class="offer-tab"
+                    onclick="setOfferStatus(this, 'Active')">
+
+                Active
+                <span class="offer-count">@active</span>
+
+            </button>
+
+
+            <button type="button"
+                    class="offer-tab"
+                    onclick="setOfferStatus(this, 'Inactive')">
+
+                Inactive
+                <span class="offer-count">@inactive</span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         TABLE
+         ========================================================= -->
+
+    <div class="offer-table-card">
+
+        <div class="offer-table-scroll">
+
+            <table class="offer-table">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Content Preview</th>
+                        <th>Variables</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    @if (!templates.Any())
+                    {
+                        <tr>
+                            <td colspan="7">
+
+                                <div class="offer-empty">
+
+                                    <strong>
+                                        No offer templates
+                                    </strong>
+
+                                    <span>
+                                        Create your first reusable offer template.
+                                    </span>
+
+                                </div>
+
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        var number = 1;
+
+                        foreach (var template in templates)
+                        {
+                            var variables = template.Variables
+                            .Split(
+                            ',',
+                            StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .ToList();
+
+                            var status =
+                            template.IsActive
+                            ? "Active"
+                            : "Inactive";
+
+
+                            <tr class="offer-row"
+                                data-status="@status"
+                                data-search="@($"{template.Name} {template.Content}".ToLower())">
+
+                                <!-- NUMBER -->
+
+                                <td>
+                                    @number
+                                </td>
+
+
+                                <!-- NAME -->
+
+                                <td>
+
+                                    <strong class="offer-template-name">
+                                        @template.Name
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- CONTENT -->
+
+                                <td>
+
+                                    <div class="offer-preview">
+                                        @template.Content
+                                    </div>
+
+                                </td>
+
+
+                                <!-- VARIABLES -->
+
+                                <td>
+
+                                    <div class="offer-variables">
+
+                                        @foreach (var variable in variables.Take(3))
+                                        {
+                                            <span>
+                                                @variable
+                                            </span>
+                                        }
+
+                                        @if (variables.Count > 3)
+                                        {
+                                            <small>
+                                                +@(variables.Count - 3) more
+                                            </small>
+                                        }
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    <span class="offer-status @status.ToLower()">
+                                        @status
+                                    </span>
+
+                                </td>
+
+
+                                <!-- CREATED -->
+
+                                <td>
+
+                                    <div class="offer-date">
+                                        @template.CreatedDate.ToString("yyyy-MM-dd")
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =================================================
+                                     ACTIONS
+                                     1 VIEW
+                                     2 PREVIEW
+                                     3 GENERATE
+                                     4 EDIT
+                                     ================================================= -->
+
+                                <td>
+
+                                    <div class="offer-actions">
+
+
+                                        <!-- 1. VIEW -->
+
+                                        <a asp-controller="OfferTemplate"
+                                           asp-action="Details"
+                                           asp-route-id="@template.Id"
+                                           class="offer-action-link"
+                                           title="View Template">
+
+                                            <svg viewBox="0 0 24 24"
+                                                 aria-hidden="true">
+
+                                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+
+                                                <circle cx="12"
+                                                        cy="12"
+                                                        r="2.8" />
+
+                                            </svg>
+
+                                        </a>
+
+
+                                        <!-- 2. PREVIEW -->
+
+                                        <button type="button"
+                                                class="offer-icon-btn"
+                                                title="Preview Template"
+                                                onclick="openTemplatePreview(@template.Id)">
+
+                                            <svg viewBox="0 0 24 24"
+                                                 aria-hidden="true">
+
+                                                <path d="M6 2.75h8l4 4V21.25H6Z" />
+
+                                                <path d="M14 2.75v4h4" />
+
+                                                <path d="M9 11h6M9 15h6" />
+
+                                            </svg>
+
+                                        </button>
+
+
+                                        <!-- 3. GENERATE -->
+                                        @if (template.IsActive)
+                                        {
+                                            <button type="button"
+                                                    class="offer-icon-btn"
+                                                    title="Generate Offer"
+                                                    onclick="openGenerateOffer(@template.Id)">
+
+                                                <svg viewBox="0 0 24 24"
+                                                     aria-hidden="true">
+
+                                                    <path d="M12 3v12" />
+
+                                                    <path d="m8 11 4 4 4-4" />
+
+                                                    <path d="M5 19h14" />
+
+                                                </svg>
+
+                                            </button>
+                                        }
+
+
+                                        <!-- 4. EDIT -->
+
+                                        <a asp-controller="OfferTemplate"
+                                           asp-action="Edit"
+                                           asp-route-id="@template.Id"
+                                           class="offer-action-link"
+                                           title="Edit Template">
+
+                                            <svg viewBox="0 0 24 24"
+                                                 aria-hidden="true">
+
+                                                <path d="M4 20h4L19 9l-4-4L4 16Z" />
+
+                                                <path d="m13.5 6.5 4 4" />
+
+                                            </svg>
+
+                                        </a>
+
+                                        <!-- 5. DELETE -->
+
+                                        <form asp-controller="OfferTemplate"
+                                              asp-action="Delete"
+                                              asp-route-id="@template.Id"
+                                              method="post"
+                                              class="offer-delete-form"
+                                              onsubmit="return confirmDeleteTemplate('@template.Name');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="offer-icon-btn offer-delete-btn"
+                                                    title="Delete Template">
+
+                                                <svg viewBox="0 0 24 24"
+                                                     aria-hidden="true">
+
+                                                    <path d="M4 7h16" />
+
+                                                    <path d="M9 7V4h6v3" />
+
+                                                    <path d="M6.5 7l1 13h9l1-13" />
+
+                                                    <path d="M10 11v5" />
+
+                                                    <path d="M14 11v5" />
+
+                                                </svg>
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            number++;
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =============================================================
+     TEMPLATE PREVIEW MODAL
+     ============================================================= -->
+
+<div id="templatePreviewOverlay"
+     class="offer-modal-overlay">
+
+    <div class="template-preview-modal">
+
+        <div class="preview-modal-header">
+
+            <h2 id="previewTemplateTitle">
+                Template Preview
+            </h2>
+
+            <button type="button"
+                    class="offer-modal-close"
+                    onclick="closeTemplatePreview()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="preview-modal-body">
+
+            <div id="previewTemplateContent"
+                 class="preview-template-content">
+            </div>
+
+
+            <div class="preview-variable-section">
+
+                <h3>Available Variables:</h3>
+
+                <div id="previewVariables"
+                     class="preview-variable-list">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =============================================================
+     GENERATE OFFER MODAL
+     ============================================================= -->
+
+<div id="generateOfferOverlay"
+     class="offer-modal-overlay">
+
+    <div class="generate-offer-modal">
+
+
+        <div class="generate-offer-header">
+
+            <div class="generate-offer-title">
+
+                <div class="generate-offer-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path d="M12 3v12" />
+                        <path d="m8 11 4 4 4-4" />
+                        <path d="M5 19h14" />
+
+                    </svg>
+
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        Generate Offer
+                    </h2>
+
+                    <p id="generateTemplateName"></p>
+
+                </div>
+
+            </div>
+
+
+            <button type="button"
+                    class="offer-modal-close"
+                    onclick="closeGenerateOffer()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <form asp-controller="OfferTemplate"
+              asp-action="Generate"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+
+            <input type="hidden"
+                   name="templateId"
+                   id="generateTemplateId" />
+
+
+            <div class="generate-offer-body">
+
+                <p class="generate-description">
+                    Fill in the values for the template variables below.
+                </p>
+
+
+                <div id="generateFields">
+                </div>
+
+            </div>
+
+
+            <div class="generate-offer-footer">
+
+                <button type="button"
+                        class="offer-cancel-btn"
+                        onclick="closeGenerateOffer()">
+
+                    Cancel
+
+                </button>
+
+
+                <button type="submit"
+                        class="offer-create-btn">
+
+                    Preview Offer →
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+
+        let selectedOfferStatus = "";
+
+
+        // =========================================================
+        // FILTERS
+        // =========================================================
+
+        function setOfferStatus(button, status) {
+
+            selectedOfferStatus = status;
+
+            document
+                .querySelectorAll(".offer-tab")
+                .forEach(x =>
+                    x.classList.remove("active")
+                );
+
+            button.classList.add("active");
+
+            filterOffers();
+        }
+
+
+        function filterOffers() {
+
+            const search =
+                document
+                    .getElementById("offerSearch")
+                    .value
+                    .toLowerCase()
+                    .trim();
+
+
+            document
+                .querySelectorAll(".offer-row")
+                .forEach(row => {
+
+                    const matchesSearch =
+                        !search ||
+                        row.dataset.search.includes(search);
+
+                    const matchesStatus =
+                        !selectedOfferStatus ||
+                        row.dataset.status ===
+                        selectedOfferStatus;
+
+                    row.style.display =
+                        matchesSearch && matchesStatus
+                            ? ""
+                            : "none";
+                });
+        }
+
+
+
+        // =========================================================
+        // PREVIEW TEMPLATE
+        // =========================================================
+
+        async function openTemplatePreview(templateId) {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/OfferTemplate/GetTemplate?id=${templateId}`
+                    );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Could not load template."
+                    );
+                }
+
+
+                const template =
+                    await response.json();
+
+
+                document.getElementById(
+                    "previewTemplateTitle"
+                ).textContent =
+                    `Template Preview: ${template.name}`;
+
+
+                document.getElementById(
+                    "previewTemplateContent"
+                ).textContent =
+                    template.content;
+
+
+                const variables =
+                    document.getElementById(
+                        "previewVariables"
+                    );
+
+                variables.innerHTML = "";
+
+
+                template.variables.forEach(variable => {
+
+                    const badge =
+                        document.createElement("span");
+
+                    badge.textContent =
+                        `{{${variable}}}`;
+
+                    variables.appendChild(badge);
+
+                });
+
+
+                document.getElementById(
+                    "templatePreviewOverlay"
+                ).classList.add("show");
+
+
+                document.body.classList.add(
+                    "modal-open"
+                );
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Could not load the template preview."
+                );
+
+            }
+
+        }
+
+
+        function closeTemplatePreview() {
+
+            document.getElementById(
+                "templatePreviewOverlay"
+            ).classList.remove("show");
+
+            document.body.classList.remove(
+                "modal-open"
+            );
+        }
+
+
+
+        // =========================================================
+        // GENERATE OFFER
+        // =========================================================
+
+        async function openGenerateOffer(templateId) {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/OfferTemplate/GetTemplate?id=${templateId}`
+                    );
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Could not load template."
+                    );
+
+                }
+
+
+                const template =
+                    await response.json();
+
+
+                document.getElementById(
+                    "generateTemplateId"
+                ).value =
+                    template.id;
+
+
+                document.getElementById(
+                    "generateTemplateName"
+                ).textContent =
+                    template.name;
+
+
+                const fields =
+                    document.getElementById(
+                        "generateFields"
+                    );
+
+                fields.innerHTML = "";
+
+
+                template.variables.forEach(variable => {
+
+                    const wrapper =
+                        document.createElement("div");
+
+                    wrapper.className =
+                        "generate-field";
+
+
+                    const label =
+                        document.createElement("label");
+
+                    label.textContent =
+                        formatVariableName(variable);
+
+
+                    const input =
+                        document.createElement("input");
+
+                    input.name =
+                        `values[${variable}]`;
+
+                    input.required = true;
+
+
+                    // ---------------------------------------------
+                    // DATE FIELDS
+                    // ---------------------------------------------
+
+                    if (
+                        variable
+                            .toLowerCase()
+                            .includes("date")
+                    ) {
+
+                        input.type = "date";
+
+                    }
+
+                    // ---------------------------------------------
+                    // EVERYTHING ELSE
+                    // ---------------------------------------------
+
+                    else {
+
+                        input.type = "text";
+
+                        input.placeholder =
+                            `Enter ${formatVariableName(variable).toLowerCase()}`;
+
+                    }
+
+
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(input);
+
+                    fields.appendChild(wrapper);
+
+                });
+
+
+                document.getElementById(
+                    "generateOfferOverlay"
+                ).classList.add("show");
+
+
+                document.body.classList.add(
+                    "modal-open"
+                );
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Could not load this offer template."
+                );
+
+            }
+
+        }
+
+
+        function closeGenerateOffer() {
+
+            document.getElementById(
+                "generateOfferOverlay"
+            ).classList.remove("show");
+
+            document.body.classList.remove(
+                "modal-open"
+            );
+
+        }
+
+
+
+        // =========================================================
+        // VARIABLE LABEL
+        // candidate_name -> Candidate Name
+        // =========================================================
+
+        function formatVariableName(value) {
+
+            return value
+                .replace(/_/g, " ")
+                .replace(
+                    /\b\w/g,
+                    character =>
+                        character.toUpperCase()
+                );
+        }
+
+                // =========================================================
+        // DELETE TEMPLATE
+        // =========================================================
+
+        function confirmDeleteTemplate(templateName) {
+
+            return confirm(
+                `Are you sure you want to delete "${templateName}"?\n\n` +
+                `This action cannot be undone.`
+            );
+        }
+
+
+
+
+
+        // =========================================================
+        // CLICK OUTSIDE MODALS
+        // =========================================================
+
+        document.getElementById(
+            "templatePreviewOverlay"
+        ).addEventListener(
+            "click",
+            function (event) {
+
+                if (event.target === this) {
+                    closeTemplatePreview();
+                }
+
+            }
+        );
+
+
+        document.getElementById(
+            "generateOfferOverlay"
+        ).addEventListener(
+            "click",
+            function (event) {
+
+                if (event.target === this) {
+                    closeGenerateOffer();
+                }
+
+            }
+        );
+
+    </script>
+
+}

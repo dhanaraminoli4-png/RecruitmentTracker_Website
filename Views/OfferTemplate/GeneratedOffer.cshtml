@@ -1,0 +1,45 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "Generated Offer";
+}
+
+<div class="generated-offer-page">
+
+
+    <div class="generated-offer-header">
+
+        <div>
+
+            <h1>
+                Generated Offer Letter
+            </h1>
+
+            <p>
+                @ViewBag.TemplateName
+            </p>
+
+        </div>
+
+
+        <a asp-controller="OfferTemplate"
+           asp-action="Index"
+           class="offer-back-btn">
+
+            ← Back to Templates
+
+        </a>
+
+    </div>
+
+
+
+    <div class="generated-offer-card">
+
+        <div class="generated-offer-content">
+            @Model
+        </div>
+
+    </div>
+
+</div>

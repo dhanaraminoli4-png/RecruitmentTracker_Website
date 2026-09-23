@@ -15,7 +15,7 @@ namespace RecruitmentTracker.Models
         [Required]
         public string CandidateId { get; set; } = "";
 
-        [ForeignKey("CandidateId")]
+        [ForeignKey(nameof(CandidateId))]
         public ApplicationUser? Candidate { get; set; }
 
 
@@ -25,25 +25,15 @@ namespace RecruitmentTracker.Models
 
         public int JobVacancyId { get; set; }
 
-        [ForeignKey("JobVacancyId")]
+        [ForeignKey(nameof(JobVacancyId))]
         public JobVacancy? JobVacancy { get; set; }
 
 
         // ============================================================
         // APPLICATION STATUS
+        //
+        // Candidate-facing Sprint 1 status.
         // ============================================================
-
-        /*
-         * Examples:
-         *
-         * Applied
-         * Under Review
-         * Shortlisted
-         * Not Shortlisted
-
-         * Hiring Manager decisions are stored in separate fields and
-         * must not overwrite the candidate-facing Sprint 1 status.
-         */
 
         public string Status { get; set; } = "Applied";
 
@@ -52,38 +42,24 @@ namespace RecruitmentTracker.Models
         // AI CV ANALYSIS
         // ============================================================
 
-        // Final AI matching score
         public double AIScore { get; set; } = 0;
 
-        // AI score for required requirements
         public double AIRequiredScore { get; set; } = 0;
 
-        // AI score for preferred requirements
         public double AIPreferredScore { get; set; } = 0;
 
-        // AI semantic job-description score
         public double AIOverallScore { get; set; } = 0;
 
-        // AI recommendation
-        //
-        // Examples:
-        // High Match
-        // Good Match
-        // Review
-        // Low Match
-        // Not Analyzed
 
         public string AIRecommendation { get; set; }
             = "Not Analyzed";
 
 
-        // Detailed AI analysis stored as JSON
         public string AIRequiredResults { get; set; } = "[]";
 
         public string AIPreferredResults { get; set; } = "[]";
 
 
-        // Candidate position after AI ranking
         public int AIRank { get; set; } = 0;
 
 
@@ -91,60 +67,92 @@ namespace RecruitmentTracker.Models
         // HR REVIEW
         // ============================================================
 
-        // HR has manually reviewed the candidate
         public bool HRReviewed { get; set; } = false;
 
-
-        // HR selected the candidate to send to
-        // the Hiring Manager
-        // HR selected the candidate to be sent
-        // to the Hiring Manager
         public bool HRShortlisted { get; set; } = false;
-
-        // HR's reason/comment for forwarding the candidate
 
 
         // ============================================================
         // HIRING MANAGER REVIEW
         // ============================================================
 
-        // Hiring Manager has reviewed the candidate
         public bool HiringManagerReviewed { get; set; } = false;
 
-
-        // Hiring Manager selected the candidate
-        // as a final candidate
         public bool HiringManagerShortlisted { get; set; } = false;
 
-
-        // Hiring Manager's decision
-        //
-        // Pending
-        // Shortlisted
-        // Rejected
 
         public string HiringManagerDecision { get; set; }
             = "Pending";
 
 
-        // Optional comments/reason from Hiring Manager
         public string HiringManagerComments { get; set; } = "";
 
 
         // ============================================================
-        // CV
+        // INTERVIEW PIPELINE
+        //
+        // Not Started
+        // Scheduled
+        // In Progress
+        // Completed
+        // Failed
+        // Cancelled
+        // No Show
+        // ============================================================
+
+        public string InterviewStageStatus { get; set; }
+            = "Not Started";
+
+
+        // ============================================================
+        // INTERVIEW PROCESS COMPLETED
+        //
+        // true when:
+        // - final round passed
+        // OR
+        // - candidate failed and cannot continue
+        // ============================================================
+
+        public bool InterviewProcessCompleted { get; set; }
+            = false;
+
+
+        // ============================================================
+        // OVERALL INTERVIEW SCORE
+        //
+        // We can use this later as a summary value.
+        // It does NOT automatically decide Pass / Fail.
+        // ============================================================
+
+        public double InterviewOverallScore { get; set; }
+            = 0;
+
+
+        // ============================================================
+        // FINAL INTERVIEW DECISION AUDIT
+        // ============================================================
+
+        public string? InterviewDecisionBy { get; set; }
+
+        public DateTime? InterviewDecisionDate { get; set; }
+
+
+        // ============================================================
+        // CV / COVER LETTER
         // ============================================================
 
         public string? CVFilePath { get; set; }
 
-        // COVER LETTER
-
         public string? CoverLetterFilePath { get; set; }
+
+
+        // ============================================================
+        // CANDIDATE DETAILS
+        // ============================================================
 
         public string FirstName { get; set; } = "";
 
         public string LastName { get; set; } = "";
-
 
 
         // ============================================================

@@ -203,10 +203,15 @@ namespace RecruitmentTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> Apply(int vacancyId)
         {
+            // =========================================================
+            // GET VACANCY
+            // =========================================================
+
             var vacancy =
                 await _context.JobVacancies
                     .FirstOrDefaultAsync(
                         v => v.Id == vacancyId);
+
 
             if (vacancy == null)
             {
@@ -217,6 +222,7 @@ namespace RecruitmentTracker.Controllers
                     nameof(Vacancies));
             }
 
+
             if (!vacancy.IsActive)
             {
                 TempData["Error"] =
@@ -226,19 +232,31 @@ namespace RecruitmentTracker.Controllers
                     nameof(Vacancies));
             }
 
-            var candidateId =
-                _userManager.GetUserId(User);
 
-            if (string.IsNullOrEmpty(candidateId))
+            // =========================================================
+            // GET CANDIDATE
+            // =========================================================
+
+            var candidate =
+                await _userManager.GetUserAsync(User);
+
+
+            if (candidate == null)
             {
                 return Challenge();
             }
+
+
+            // =========================================================
+            // CHECK DUPLICATE APPLICATION
+            // =========================================================
 
             var alreadyApplied =
                 await _context.JobApplications
                     .AnyAsync(a =>
                         a.JobVacancyId == vacancyId &&
-                        a.CandidateId == candidateId);
+                        a.CandidateId == candidate.Id);
+
 
             if (alreadyApplied)
             {
@@ -249,8 +267,52 @@ namespace RecruitmentTracker.Controllers
                     nameof(MyApplications));
             }
 
+
+            // =========================================================
+            // GET SAVED CANDIDATE PROFILE
+            // =========================================================
+
+            var profile =
+                await _context.CandidateProfiles
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p =>
+                        p.CandidateId == candidate.Id);
+
+
+            // Candidate should create the reusable profile first.
+            if (profile == null)
+            {
+                TempData["Error"] =
+                    "Please complete your candidate profile before applying for a job.";
+
+                return RedirectToAction(
+                    "Profile",
+                    "CandidateProfile");
+            }
+
+
+            // Require the basic reusable profile information.
+            if (string.IsNullOrWhiteSpace(candidate.FullName) ||
+                string.IsNullOrWhiteSpace(profile.PhoneNumber))
+            {
+                TempData["Error"] =
+                    "Please complete your name and phone number in My Profile before applying.";
+
+                return RedirectToAction(
+                    "Profile",
+                    "CandidateProfile");
+            }
+
+
             ViewBag.Vacancy =
                 vacancy;
+
+            ViewBag.Candidate =
+                candidate;
+
+            ViewBag.CandidateProfile =
+                profile;
+
 
             return View("Apply");
         }
@@ -263,12 +325,9 @@ namespace RecruitmentTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Apply(
             int vacancyId,
-            string firstName,
-            string lastName,
-            string phoneNumber,
-            string email,
-            IFormFile? cvFile,
-            IFormFile? coverLetterFile)
+            bool useProfileCV = true,
+            IFormFile? cvFile = null,
+            IFormFile? coverLetterFile = null)
         {
             try
             {
@@ -281,6 +340,7 @@ namespace RecruitmentTracker.Controllers
                         .FirstOrDefaultAsync(
                             v => v.Id == vacancyId);
 
+
                 if (vacancy == null)
                 {
                     TempData["Error"] =
@@ -289,6 +349,7 @@ namespace RecruitmentTracker.Controllers
                     return RedirectToAction(
                         nameof(Vacancies));
                 }
+
 
                 if (!vacancy.IsActive)
                 {
@@ -299,17 +360,24 @@ namespace RecruitmentTracker.Controllers
                         nameof(Vacancies));
                 }
 
+
                 // =================================================
                 // GET CANDIDATE
                 // =================================================
 
-                var candidateId =
-                    _userManager.GetUserId(User);
+                var candidate =
+                    await _userManager.GetUserAsync(User);
 
-                if (string.IsNullOrEmpty(candidateId))
+
+                if (candidate == null)
                 {
                     return Unauthorized();
                 }
+
+
+                var candidateId =
+                    candidate.Id;
+
 
                 // =================================================
                 // CHECK DUPLICATE APPLICATION
@@ -321,6 +389,7 @@ namespace RecruitmentTracker.Controllers
                             a.JobVacancyId == vacancyId &&
                             a.CandidateId == candidateId);
 
+
                 if (alreadyApplied)
                 {
                     TempData["Error"] =
@@ -330,73 +399,67 @@ namespace RecruitmentTracker.Controllers
                         nameof(MyApplications));
                 }
 
+
                 // =================================================
-                // CHECK PERSONAL DETAILS
+                // GET SAVED CANDIDATE PROFILE
                 // =================================================
 
-                if (string.IsNullOrWhiteSpace(firstName) ||
-                    string.IsNullOrWhiteSpace(lastName) ||
-                    string.IsNullOrWhiteSpace(phoneNumber) ||
-                    string.IsNullOrWhiteSpace(email))
+                var profile =
+                    await _context.CandidateProfiles
+                        .FirstOrDefaultAsync(p =>
+                            p.CandidateId == candidateId);
+
+
+                if (profile == null)
                 {
                     TempData["Error"] =
-                        "Please complete all required application details.";
+                        "Please complete your candidate profile before applying.";
 
                     return RedirectToAction(
-                        nameof(Apply),
-                        new { vacancyId });
+                        "Profile",
+                        "CandidateProfile");
                 }
 
-                // =================================================
-                // CHECK CV
-                // =================================================
 
-                if (cvFile == null ||
-                    cvFile.Length == 0)
+                if (string.IsNullOrWhiteSpace(candidate.FullName) ||
+                    string.IsNullOrWhiteSpace(profile.PhoneNumber))
                 {
                     TempData["Error"] =
-                        "Please upload your CV.";
+                        "Please complete your name and phone number in My Profile before applying.";
 
                     return RedirectToAction(
-                        nameof(Apply),
-                        new { vacancyId });
+                        "Profile",
+                        "CandidateProfile");
                 }
 
-                // =================================================
-                // CV FILE TYPE
-                // =================================================
-
-                var cvExtension =
-                    Path.GetExtension(
-                        cvFile.FileName)
-                        .ToLowerInvariant();
-
-                if (cvExtension != ".pdf" &&
-                    cvExtension != ".doc" &&
-                    cvExtension != ".docx")
-                {
-                    TempData["Error"] =
-                        "Only PDF, DOC and DOCX files are allowed.";
-
-                    return RedirectToAction(
-                        nameof(Apply),
-                        new { vacancyId });
-                }
 
                 // =================================================
-                // CV SIZE
+                // PREPARE FIRST / LAST NAME FROM SAVED ACCOUNT NAME
                 // =================================================
 
-                if (cvFile.Length >
-                    5 * 1024 * 1024)
-                {
-                    TempData["Error"] =
-                        "Your CV must be smaller than 5 MB.";
+                var fullName =
+                    candidate.FullName.Trim();
 
-                    return RedirectToAction(
-                        nameof(Apply),
-                        new { vacancyId });
-                }
+
+                var nameParts =
+                    fullName.Split(
+                        ' ',
+                        StringSplitOptions.RemoveEmptyEntries);
+
+
+                var firstName =
+                    nameParts.Length > 0
+                        ? nameParts[0]
+                        : fullName;
+
+
+                var lastName =
+                    nameParts.Length > 1
+                        ? string.Join(
+                            " ",
+                            nameParts.Skip(1))
+                        : "";
+
 
                 // =================================================
                 // REQUIRED COVER LETTER
@@ -414,6 +477,7 @@ namespace RecruitmentTracker.Controllers
                         new { vacancyId });
                 }
 
+
                 // =================================================
                 // COVER LETTER VALIDATION
                 // =================================================
@@ -425,6 +489,7 @@ namespace RecruitmentTracker.Controllers
                         Path.GetExtension(
                             coverLetterFile.FileName)
                             .ToLowerInvariant();
+
 
                     if (coverExtension != ".pdf" &&
                         coverExtension != ".doc" &&
@@ -438,6 +503,7 @@ namespace RecruitmentTracker.Controllers
                             new { vacancyId });
                     }
 
+
                     if (coverLetterFile.Length >
                         5 * 1024 * 1024)
                     {
@@ -450,8 +516,9 @@ namespace RecruitmentTracker.Controllers
                     }
                 }
 
+
                 // =================================================
-                // CREATE UPLOAD FOLDER
+                // CREATE APPLICATION UPLOAD FOLDER
                 // =================================================
 
                 var uploadFolder =
@@ -459,35 +526,163 @@ namespace RecruitmentTracker.Controllers
                         _environment.WebRootPath,
                         "UploadedCVs");
 
+
                 Directory.CreateDirectory(
                     uploadFolder);
 
+
                 // =================================================
-                // SAVE CV
+                // PREPARE CV
+                // =================================================
+                //
+                // IMPORTANT:
+                // Even when the candidate uses the profile CV,
+                // HireTrack creates an application-specific copy.
+                //
+                // This means changing the profile CV later does NOT
+                // change the CV stored on an older application.
+                // =================================================
+
+                string sourceCvPath;
+                string cvExtension;
+
+
+                if (useProfileCV)
+                {
+                    if (string.IsNullOrWhiteSpace(
+                        profile.DefaultCVPath))
+                    {
+                        TempData["Error"] =
+                            "Your profile does not have a default CV. Upload one in My Profile or choose a different CV for this application.";
+
+                        return RedirectToAction(
+                            nameof(Apply),
+                            new { vacancyId });
+                    }
+
+
+                    var profileCvRelativePath =
+                        profile.DefaultCVPath
+                            .TrimStart('/')
+                            .Replace(
+                                '/',
+                                Path.DirectorySeparatorChar);
+
+
+                    sourceCvPath =
+                        Path.Combine(
+                            _environment.WebRootPath,
+                            profileCvRelativePath);
+
+
+                    if (!System.IO.File.Exists(
+                        sourceCvPath))
+                    {
+                        TempData["Error"] =
+                            "Your saved profile CV could not be found. Please upload it again in My Profile.";
+
+                        return RedirectToAction(
+                            "Profile",
+                            "CandidateProfile");
+                    }
+
+
+                    cvExtension =
+                        Path.GetExtension(
+                            sourceCvPath)
+                            .ToLowerInvariant();
+                }
+                else
+                {
+                    if (cvFile == null ||
+                        cvFile.Length == 0)
+                    {
+                        TempData["Error"] =
+                            "Please upload a CV for this application.";
+
+                        return RedirectToAction(
+                            nameof(Apply),
+                            new { vacancyId });
+                    }
+
+
+                    cvExtension =
+                        Path.GetExtension(
+                            cvFile.FileName)
+                            .ToLowerInvariant();
+
+
+                    if (cvExtension != ".pdf" &&
+                        cvExtension != ".doc" &&
+                        cvExtension != ".docx")
+                    {
+                        TempData["Error"] =
+                            "Only PDF, DOC and DOCX files are allowed.";
+
+                        return RedirectToAction(
+                            nameof(Apply),
+                            new { vacancyId });
+                    }
+
+
+                    if (cvFile.Length >
+                        5 * 1024 * 1024)
+                    {
+                        TempData["Error"] =
+                            "Your CV must be smaller than 5 MB.";
+
+                        return RedirectToAction(
+                            nameof(Apply),
+                            new { vacancyId });
+                    }
+
+
+                    sourceCvPath = "";
+                }
+
+
+                // =================================================
+                // SAVE APPLICATION-SPECIFIC CV COPY
                 // =================================================
 
                 var cvFileName =
                     Guid.NewGuid().ToString("N") +
                     cvExtension;
 
+
                 var cvFilePath =
                     Path.Combine(
                         uploadFolder,
                         cvFileName);
 
-                using (var stream =
-                    new FileStream(
-                        cvFilePath,
-                        FileMode.Create))
+
+                if (useProfileCV)
                 {
-                    await cvFile.CopyToAsync(stream);
+                    System.IO.File.Copy(
+                        sourceCvPath,
+                        cvFilePath,
+                        overwrite: true);
                 }
+                else
+                {
+                    await using var stream =
+                        new FileStream(
+                            cvFilePath,
+                            FileMode.Create);
+
+
+                    await cvFile!.CopyToAsync(
+                        stream);
+                }
+
 
                 // =================================================
                 // SAVE COVER LETTER
                 // =================================================
 
-                string? coverLetterPath = null;
+                string? coverLetterPath =
+                    null;
+
 
                 if (coverLetterFile != null &&
                     coverLetterFile.Length > 0)
@@ -497,28 +692,34 @@ namespace RecruitmentTracker.Controllers
                             coverLetterFile.FileName)
                             .ToLowerInvariant();
 
+
                     var coverFileName =
                         Guid.NewGuid().ToString("N") +
                         coverExtension;
+
 
                     var coverFilePath =
                         Path.Combine(
                             uploadFolder,
                             coverFileName);
 
-                    using (var stream =
-                        new FileStream(
-                            coverFilePath,
-                            FileMode.Create))
+
+                    await using (
+                        var stream =
+                            new FileStream(
+                                coverFilePath,
+                                FileMode.Create))
                     {
-                        await coverLetterFile.CopyToAsync(
-                            stream);
+                        await coverLetterFile
+                            .CopyToAsync(stream);
                     }
+
 
                     coverLetterPath =
                         "/UploadedCVs/" +
                         coverFileName;
                 }
+
 
                 // =================================================
                 // CREATE APPLICATION
@@ -528,10 +729,10 @@ namespace RecruitmentTracker.Controllers
                     new JobApplication
                     {
                         FirstName =
-                            firstName.Trim(),
+                            firstName,
 
                         LastName =
-                            lastName.Trim(),
+                            lastName,
 
                         CandidateId =
                             candidateId,
@@ -576,6 +777,7 @@ namespace RecruitmentTracker.Controllers
                             DateTime.Now
                     };
 
+
                 // =================================================
                 // SAVE APPLICATION
                 // =================================================
@@ -583,7 +785,9 @@ namespace RecruitmentTracker.Controllers
                 _context.JobApplications.Add(
                     application);
 
+
                 await _context.SaveChangesAsync();
+
 
                 // =================================================
                 // AI ANALYSIS
@@ -593,6 +797,7 @@ namespace RecruitmentTracker.Controllers
                     await AnalyzeCVWithAI(
                         cvFilePath,
                         vacancy);
+
 
                 // =================================================
                 // SAVE AI RESULT
@@ -630,6 +835,7 @@ namespace RecruitmentTracker.Controllers
                         "AI Analysis Failed";
                 }
 
+
                 // =================================================
                 // APPLICATION STATUS
                 // =================================================
@@ -637,7 +843,9 @@ namespace RecruitmentTracker.Controllers
                 application.Status =
                     "Under Review";
 
+
                 await _context.SaveChangesAsync();
+
 
                 // =================================================
                 // SUCCESS
@@ -645,6 +853,7 @@ namespace RecruitmentTracker.Controllers
 
                 TempData["Success"] =
                     "Your application was submitted successfully.";
+
 
                 return RedirectToAction(
                     nameof(MyApplications));
@@ -897,19 +1106,90 @@ namespace RecruitmentTracker.Controllers
             var candidateId =
                 _userManager.GetUserId(User);
 
+
             if (string.IsNullOrEmpty(candidateId))
             {
                 return Unauthorized();
             }
 
+
+            // =========================================================
+            // GET THIS CANDIDATE'S APPLICATIONS
+            // =========================================================
+
             var applications =
                 await _context.JobApplications
-                    .Include(a => a.JobVacancy)
+
+                    .Include(a =>
+                        a.JobVacancy)
+
                     .Where(a =>
                         a.CandidateId == candidateId)
-                    .OrderByDescending(
-                        a => a.AppliedDate)
+
+                    .OrderByDescending(a =>
+                        a.AppliedDate)
+
                     .ToListAsync();
+
+
+            // =========================================================
+            // GET INTERVIEW ROUNDS FOR THESE APPLICATIONS
+            // =========================================================
+
+            var applicationIds =
+                applications
+                    .Select(a => a.Id)
+                    .ToList();
+
+
+            var interviews =
+                await _context.Interviews
+
+                    .Include(i =>
+                        i.InterviewRound)
+
+                    .Include(i =>
+                        i.InterviewType)
+
+                    .Where(i =>
+                        applicationIds.Contains(
+                            i.JobApplicationId))
+
+                    .OrderBy(i =>
+                        i.InterviewRound != null
+                            ? i.InterviewRound.SequenceNumber
+                            : int.MaxValue)
+
+                    .ThenBy(i =>
+                        i.InterviewDate)
+
+                    .ThenBy(i =>
+                        i.InterviewTime)
+
+                    .AsNoTracking()
+
+                    .ToListAsync();
+
+
+            // =========================================================
+            // GROUP INTERVIEWS BY APPLICATION
+            // =========================================================
+
+            var interviewsByApplication =
+                interviews
+
+                    .GroupBy(i =>
+                        i.JobApplicationId)
+
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.ToList()
+                    );
+
+
+            ViewBag.InterviewsByApplication =
+                interviewsByApplication;
+
 
             return View(applications);
         }

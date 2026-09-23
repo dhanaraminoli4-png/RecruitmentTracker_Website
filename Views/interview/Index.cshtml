@@ -1,0 +1,3398 @@
+﻿@model IEnumerable<RecruitmentTracker.Models.Interview>
+
+@{
+    ViewData["Title"] = "Interviews";
+
+    var interviews =
+        Model?.ToList()
+        ?? new List<RecruitmentTracker.Models.Interview>();
+
+
+    // =========================================================
+    // VACANCY FILTER
+    // =========================================================
+
+    var vacancyOptions =
+        interviews
+            .Where(x =>
+                x.JobApplication?.JobVacancy != null)
+            .Select(x =>
+                x.JobApplication!.JobVacancy!)
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .OrderBy(x => x.JobTitle)
+            .ThenBy(x => x.JobCode)
+            .ToList();
+
+
+    var selectedVacancyId =
+        Context.Request.Query["jobId"]
+            .ToString();
+
+
+    string GetInterviewDisplayStatus(
+        RecruitmentTracker.Models.Interview interview)
+    {
+        var applicationStatus =
+            interview.JobApplication?.InterviewStageStatus;
+
+
+        if (interview.Status == "Cancelled")
+            return "Cancelled";
+
+
+        if (interview.Status == "No Show")
+            return "No Show";
+
+
+        if (applicationStatus == "Failed")
+            return "Failed";
+
+
+        if (applicationStatus == "Completed")
+            return "Completed";
+
+
+        if (applicationStatus == "In Progress")
+            return "In Progress";
+
+
+        if (applicationStatus == "Scheduled")
+            return "Scheduled";
+
+
+        return interview.Status ?? "Scheduled";
+    }
+
+
+    var total =
+        interviews.Count;
+
+
+    var scheduled =
+        interviews.Count(x =>
+            GetInterviewDisplayStatus(x) == "Scheduled");
+
+
+    var inProgress =
+        interviews.Count(x =>
+            GetInterviewDisplayStatus(x) == "In Progress");
+
+
+    var completed =
+        interviews.Count(x =>
+            GetInterviewDisplayStatus(x) == "Completed");
+
+
+    var failed =
+        interviews.Count(x =>
+            GetInterviewDisplayStatus(x) == "Failed");
+
+
+    var cancelled =
+        interviews.Count(x =>
+            GetInterviewDisplayStatus(x) == "Cancelled");
+
+
+    var noShow =
+        interviews.Count(x =>
+            GetInterviewDisplayStatus(x) == "No Show");
+
+
+    var pendingFeedback =
+        interviews.Count(x =>
+            x.FeedbackStatus == "Pending" &&
+            x.Status == "Completed");
+
+
+    var initialStatus =
+        Context.Request.Query["status"]
+            .ToString();
+
+
+    var boardStatuses =
+        new[]
+        {
+            new
+            {
+                Name = "Scheduled",
+                Css = "scheduled"
+            },
+
+            new
+            {
+                Name = "In Progress",
+                Css = "in-progress"
+            },
+
+            new
+            {
+                Name = "Completed",
+                Css = "completed"
+            },
+
+            new
+            {
+                Name = "Failed",
+                Css = "failed"
+            },
+
+            new
+            {
+                Name = "Cancelled",
+                Css = "cancelled"
+            },
+
+            new
+            {
+                Name = "No Show",
+                Css = "no-show"
+            }
+        };
+}
+
+
+<div class="interview-page">
+
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="interview-page-header">
+
+        <div>
+
+            <h1>
+                Interviews
+            </h1>
+
+            <p>
+                Schedule and manage candidate interviews.
+            </p>
+
+        </div>
+
+
+        <button type="button"
+                class="interview-primary-btn"
+                onclick="openScheduleModal()">
+
+            <span class="plus-icon">
+                +
+            </span>
+
+            Schedule Interview
+
+        </button>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         STAT CARDS
+         ========================================================= -->
+    <!-- =========================================================
+         FILTER
+         ========================================================= -->
+
+    <div class="interview-filter-card">
+
+
+        <div class="interview-filter-top">
+
+
+            <div class="interview-search">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input type="text"
+                       id="interviewSearch"
+                       placeholder="Search candidate, job, round..."
+                       oninput="filterInterviews()" />
+
+            </div>
+
+
+            <div class="vacancy-filter-wrap">
+
+                <label for="vacancyFilter">
+                    Current Vacancy
+                </label>
+
+                <select id="vacancyFilter"
+                        onchange="filterInterviews()">
+
+                    <option value="">
+                        All Current Vacancies
+                    </option>
+
+                    @foreach (var vacancyOption in vacancyOptions)
+                    {
+                        var vacancyLabel =
+                        string.IsNullOrWhiteSpace(
+                        vacancyOption.JobCode)
+
+                        ? vacancyOption.JobTitle
+
+                        : $"{vacancyOption.JobTitle} · {vacancyOption.JobCode}";
+
+
+                        if (selectedVacancyId ==
+                        vacancyOption.Id.ToString())
+                        {
+                            <option value="@vacancyOption.Id"
+                                    selected>
+                                @vacancyLabel
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@vacancyOption.Id">
+                                @vacancyLabel
+                            </option>
+                        }
+                    }
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =====================================================
+             TABS
+             ===================================================== -->
+
+        <div class="interview-tabs">
+
+
+            <button type="button"
+                    class="interview-tab active"
+                    data-status=""
+                    onclick="setInterviewStatus(this, '')">
+
+                All
+
+                <span>
+                    @total
+                </span>
+
+            </button>
+
+
+            <button type="button"
+                    class="interview-tab"
+                    data-status="Scheduled"
+                    onclick="setInterviewStatus(this, 'Scheduled')">
+
+                Scheduled
+
+                <span>
+                    @scheduled
+                </span>
+
+            </button>
+
+
+            <button type="button"
+                    class="interview-tab"
+                    data-status="In Progress"
+                    onclick="setInterviewStatus(this, 'In Progress')">
+
+                In Progress
+
+                <span>
+                    @inProgress
+                </span>
+
+            </button>
+
+
+            <button type="button"
+                    class="interview-tab"
+                    data-status="Completed"
+                    onclick="setInterviewStatus(this, 'Completed')">
+
+                Completed
+
+                <span>
+                    @completed
+                </span>
+
+            </button>
+
+
+            <button type="button"
+                    class="interview-tab"
+                    data-status="Failed"
+                    onclick="setInterviewStatus(this, 'Failed')">
+
+                Failed
+
+                <span>
+                    @failed
+                </span>
+
+            </button>
+
+
+            <button type="button"
+                    class="interview-tab"
+                    data-status="Cancelled"
+                    onclick="setInterviewStatus(this, 'Cancelled')">
+
+                Cancelled
+
+                <span>
+                    @cancelled
+                </span>
+
+            </button>
+
+
+            <button type="button"
+                    class="interview-tab"
+                    data-status="No Show"
+                    onclick="setInterviewStatus(this, 'No Show')">
+
+                No Show
+
+                <span>
+                    @noShow
+                </span>
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =========================================================
+         BOARD
+         ========================================================= -->
+
+    <div class="interview-board-wrapper"
+         id="interviewBoard">
+
+
+        @foreach (
+                var boardStatus in boardStatuses)
+        {
+            var statusInterviews =
+            interviews
+
+            .Where(x =>
+            GetInterviewDisplayStatus(x) ==
+            boardStatus.Name)
+
+            .ToList();
+
+
+            <section class="interview-board-column @boardStatus.Css"
+                     data-board-status="@boardStatus.Name">
+
+
+                <!-- COLUMN HEADER -->
+
+                <div class="board-column-header">
+
+
+                    <div class="board-column-heading">
+
+
+                        <span class="board-status-dot">
+                        </span>
+
+
+                        <h3>
+                            @boardStatus.Name
+                        </h3>
+
+
+                        <span class="board-count">
+
+                            @statusInterviews.Count
+
+                        </span>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- CARDS -->
+
+                <div class="board-card-scroll">
+
+
+                    @if (!statusInterviews.Any())
+                    {
+                        <div class="board-empty">
+
+
+                            <div class="board-empty-icon">
+                                ◌
+                            </div>
+
+
+                            <strong>
+
+                                No @boardStatus.Name interviews
+
+                            </strong>
+
+
+                            <span>
+
+                                Interviews will appear here.
+
+                            </span>
+
+
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (
+                        var interview in statusInterviews)
+                        {
+                            var candidate =
+                            interview
+                            .JobApplication
+                            ?.Candidate;
+
+
+                            var vacancy =
+                            interview
+                            .JobApplication
+                            ?.JobVacancy;
+
+
+                            var candidateName =
+                            candidate?.FullName
+                            ?? "Unknown Candidate";
+
+
+                            var candidateRole =
+                            vacancy?.JobTitle
+                            ?? "Candidate";
+
+
+                            var initials =
+                            "UC";
+
+
+                            if (
+                            !string.IsNullOrWhiteSpace(
+                            candidateName))
+                            {
+                                var parts =
+                                candidateName.Split(
+                                ' ',
+                                StringSplitOptions
+                                .RemoveEmptyEntries
+                                );
+
+
+                                initials =
+                                parts.Length >= 2
+
+                                ? $"{parts[0][0]}{parts[1][0]}"
+                                .ToUpper()
+
+                                : candidateName
+                                .Substring(
+                                0,
+                                Math.Min(
+                                2,
+                                candidateName.Length
+                                )
+                                )
+                                .ToUpper();
+                            }
+
+
+                            var interviewerCount =
+                            string.IsNullOrWhiteSpace(
+                            interview.InterviewerIds)
+
+                            ? 0
+
+                            : interview.InterviewerIds
+
+                            .Split(
+                            ',',
+                            StringSplitOptions
+                            .RemoveEmptyEntries
+                            )
+
+                            .Select(x =>
+                            x.Trim())
+
+                            .Distinct()
+
+                            .Count();
+
+
+                            var searchable =
+                            (
+                            $"{candidateName} " +
+                            $"{candidateRole} " +
+                            $"{vacancy?.JobCode} " +
+                            $"{interview.InterviewRound?.Name} " +
+                            $"{interview.InterviewType?.Name}"
+                            )
+                            .ToLower();
+
+
+                            <article class="interview-board-card"
+                                     data-card-status="@boardStatus.Name"
+                                     data-candidate="@candidate?.Id"
+                                     data-job="@vacancy?.Id"
+                                     data-search="@searchable">
+
+
+                                <!-- PERSON -->
+
+                                <div class="board-person-row">
+
+
+                                    <div class="board-avatar">
+
+                                        @initials
+
+                                    </div>
+
+
+                                    <div class="board-person-info">
+
+
+                                        <strong>
+
+                                            @candidateName
+
+                                        </strong>
+
+
+                                        <span>
+
+                                            @candidateRole
+
+                                        </span>
+
+
+                                    </div>
+
+
+
+                                    <!-- ACTIONS -->
+
+                                    <div class="board-card-actions">
+
+
+                                        @if (
+                                                                    boardStatus.Name ==
+                                                                    "Scheduled"
+
+                                                                    ||
+
+                                                                    boardStatus.Name ==
+                                                                    "In Progress")
+                                        {
+                                            <a asp-controller="Interview"
+                                               asp-action="Edit"
+                                               asp-route-id="@interview.Id"
+                                               class="board-icon-action"
+                                               title="Edit Interview">
+
+                                                ✎
+
+                                            </a>
+                                        }
+
+
+                                        @if (
+                                                                    boardStatus.Name ==
+                                                                    "Scheduled")
+                                        {
+                                            <form asp-controller="Interview"
+                                                  asp-action="Cancel"
+                                                  asp-route-id="@interview.Id"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+
+                                                <button type="submit"
+                                                        class="board-icon-action danger"
+                                                        title="Cancel Interview"
+                                                        onclick="return confirm('Cancel this interview?')">
+
+                                                    ×
+
+                                                </button>
+
+
+                                            </form>
+                                        }
+
+
+                                    </div>
+
+
+                                </div>
+
+
+
+                                <div class="board-divider">
+                                </div>
+
+
+
+                                <!-- DATE -->
+
+                                <div class="board-detail-row">
+
+
+                                    <span class="board-detail-icon">
+                                        ▣
+                                    </span>
+
+
+                                    <span>
+
+                                        @interview.InterviewDate.ToString(
+                                        "yyyy-MM-dd"
+                                                        )
+
+                            at
+
+                            @interview.InterviewTime.ToString(
+                                                        @"hh\:mm"
+                                                        )
+
+                        </span>
+
+
+                        <span class="board-duration">
+
+                            ◷ @interview.DurationMinutes mins
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <!-- ROUND -->
+
+                    <div class="board-badge-row">
+
+
+                        <span class="board-round-badge">
+
+                            @(interview.InterviewRound?.Name
+                                                        ?? "Interview Round")
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <!-- TYPE -->
+
+                    <div class="board-badge-row">
+
+
+                        <span class="board-type-badge">
+
+                            @(interview.InterviewType?.Name
+                                                        ?? "Interview")
+
+                        </span>
+
+
+                                </div>
+
+
+
+                                <!-- LOCATION -->
+
+                                <div class="board-detail-row location">
+
+
+                                    <span class="board-detail-icon">
+                                        ⌖
+                                    </span>
+
+
+                                    <span>
+
+                            @if (
+                                                        !string.IsNullOrWhiteSpace(
+                                                        interview.Location))
+                                        {
+                                            @interview.Location
+                                        }
+                                        else if (
+                                        !string.IsNullOrWhiteSpace(
+                                        interview.MeetingLink))
+                                        {
+                                            @("Online")
+                                        }
+                                        else
+                                        {
+                                            @("Not specified")
+                                        }
+
+                                    </span>
+
+
+                                </div>
+
+
+
+                                <div class="board-divider">
+                                </div>
+
+
+
+                                <!-- INTERVIEWERS -->
+
+                                <div class="board-interviewer-footer">
+
+
+                                    <span>
+                                        Interviewers
+                                    </span>
+
+
+                                    <div class="board-interviewer-display">
+
+
+                                        @if (
+                                                                    interviewerCount == 0)
+                                        {
+                                            <span class="board-no-interviewer">
+
+                                                —
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            @for (
+                                                                        var avatarIndex = 0;
+
+                                                                        avatarIndex <
+                                                                        Math.Min(
+                                                                        interviewerCount,
+                                                                        3
+                                                                        );
+
+                                                                        avatarIndex++)
+                                            {
+                                                <span class="mini-interviewer-avatar">
+
+                                                    I@(avatarIndex + 1)
+
+                                                </span>
+                                            }
+
+
+                                            @if (
+                                                                        interviewerCount > 3)
+                                            {
+                                                <span class="mini-interviewer-more">
+
+                                                    +@(interviewerCount - 3)
+
+                                                </span>
+                                            }
+                                        }
+
+
+                                    </div>
+
+
+                                </div>
+
+
+                            </article>
+                        }
+                    }
+
+
+                </div>
+
+
+            </section>
+        }
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =============================================================
+     BOARD STYLE
+     ============================================================= -->
+
+<style>
+
+    /* ============================================================
+               BOARD
+               ============================================================ */
+
+    .interview-board-wrapper {
+        width: 100%;
+        padding: 18px 0 14px;
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-behavior: smooth;
+    }
+
+
+        .interview-board-wrapper::-webkit-scrollbar {
+            height: 7px;
+        }
+
+
+        .interview-board-wrapper::-webkit-scrollbar-track {
+            background: #eef0f4;
+            border-radius: 999px;
+        }
+
+
+        .interview-board-wrapper::-webkit-scrollbar-thumb {
+            background: #c4cad4;
+            border-radius: 999px;
+        }
+
+
+
+    /* ============================================================
+               COLUMN
+               ============================================================ */
+
+    .interview-board-column {
+        width: 320px;
+        min-width: 320px;
+        height: 630px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #dfe4ec;
+        border-radius: 18px;
+        background: #f8fafc;
+        transition: opacity .18s ease, transform .18s ease;
+    }
+
+
+        /* SCHEDULED */
+
+        .interview-board-column.scheduled {
+            border-color: #b9d7ff;
+            background: #f5f9ff;
+        }
+
+
+            .interview-board-column.scheduled
+            .board-status-dot {
+                background: #3788ee;
+            }
+
+
+        /* IN PROGRESS */
+
+        .interview-board-column.in-progress {
+            border-color: #dbcfff;
+            background: #faf7ff;
+        }
+
+
+            .interview-board-column.in-progress
+            .board-status-dot {
+                background: #8568ed;
+            }
+
+
+        /* COMPLETED */
+
+        .interview-board-column.completed {
+            border-color: #a8e8d0;
+            background: #f3fcf8;
+        }
+
+
+            .interview-board-column.completed
+            .board-status-dot {
+                background: #15b981;
+            }
+
+
+        /* FAILED */
+
+        .interview-board-column.failed {
+            border-color: #ffc5c5;
+            background: #fff7f7;
+        }
+
+
+            .interview-board-column.failed
+            .board-status-dot {
+                background: #e45050;
+            }
+
+
+        /* CANCELLED */
+
+        .interview-board-column.cancelled {
+            border-color: #d0d9e5;
+            background: #f7f9fc;
+        }
+
+
+            .interview-board-column.cancelled
+            .board-status-dot {
+                background: #64748b;
+            }
+
+
+        /* NO SHOW */
+
+        .interview-board-column.no-show {
+            border-color: #ffc3cf;
+            background: #fff7fa;
+        }
+
+
+            .interview-board-column.no-show
+            .board-status-dot {
+                background: #ff275d;
+            }
+
+
+
+    /* ============================================================
+               COLUMN HEADER
+               ============================================================ */
+
+    .board-column-header {
+        min-height: 66px;
+        padding: 0 19px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba( 150, 160, 175, .24 );
+    }
+
+
+    .board-column-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+
+        .board-column-heading h3 {
+            margin: 0;
+            color: #17223a;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+
+    .board-status-dot {
+        width: 11px;
+        height: 11px;
+        flex: 0 0 11px;
+        border-radius: 50%;
+    }
+
+
+    .board-count {
+        min-width: 27px;
+        height: 27px;
+        padding: 0 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(150, 160, 175, .22);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .78);
+        color: #344054;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+
+
+    /* ============================================================
+               CARD SCROLL AREA
+               ============================================================ */
+
+    .board-card-scroll {
+        flex: 1;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        overflow-y: auto;
+    }
+
+
+        .board-card-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+
+
+        .board-card-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+
+        .board-card-scroll::-webkit-scrollbar-thumb {
+            background: #a8b0bd;
+            border-radius: 999px;
+        }
+
+
+
+    /* ============================================================
+               CARD
+               ============================================================ */
+
+    .interview-board-card {
+        padding: 14px;
+        flex: 0 0 auto;
+        border: 1px solid #e4e7ed;
+        border-radius: 15px;
+        background: #ffffff;
+        box-shadow: 0 2px 5px rgba(15, 23, 42, .07);
+        transition: transform .2s cubic-bezier( .22, .8, .25, 1 ), box-shadow .2s ease, border-color .2s ease;
+    }
+
+
+        .interview-board-card:hover {
+            transform: translateY(-3px);
+            border-color: #d8dce5;
+            box-shadow: 0 9px 21px rgba(15, 23, 42, .10);
+        }
+
+
+
+    /* ============================================================
+               PERSON
+               ============================================================ */
+
+    .board-person-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+
+    .board-avatar {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ffb8c1;
+        border-radius: 50%;
+        background: #fff3f4;
+        color: #da1e48;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+
+    .board-person-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+
+        .board-person-info strong {
+            display: block;
+            overflow: hidden;
+            color: #101828;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+
+        .board-person-info span {
+            display: block;
+            margin-top: 3px;
+            color: #667085;
+            font-size: 10px;
+        }
+
+
+
+    /* ============================================================
+               ACTION ICONS
+               ============================================================ */
+
+    .board-card-actions {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+
+        .board-card-actions form {
+            margin: 0;
+        }
+
+
+    .board-icon-action {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 7px;
+        background: transparent;
+        color: #8a94a4;
+        text-decoration: none;
+        font-size: 17px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+
+
+        .board-icon-action:hover {
+            background: #eef1f5;
+            color: #344054;
+            transform: translateY(-1px);
+        }
+
+
+        .board-icon-action.danger:hover {
+            background: #fff0f1;
+            color: #d3484d;
+        }
+
+
+
+    /* ============================================================
+               DETAILS
+               ============================================================ */
+
+    .board-divider {
+        height: 1px;
+        margin: 11px 0;
+        background: #e6e9ee;
+    }
+
+
+    .board-detail-row {
+        min-height: 25px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #58677a;
+        font-size: 10px;
+    }
+
+
+    .board-detail-icon {
+        color: #9ba6b5;
+        font-size: 13px;
+    }
+
+
+    .board-duration {
+        margin-left: auto;
+        white-space: nowrap;
+    }
+
+
+    .board-detail-row.location {
+        margin-top: 5px;
+    }
+
+
+
+    /* ============================================================
+               BADGES
+               ============================================================ */
+
+    .board-badge-row {
+        margin-top: 7px;
+    }
+
+
+    .board-round-badge,
+    .board-type-badge {
+        min-height: 27px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+
+    .board-round-badge {
+        border: 1px solid #e7d8ff;
+        background: #f6efff;
+        color: #7000db;
+    }
+
+
+    .board-type-badge {
+        border: 1px solid #f5d587;
+        background: #fff9e8;
+        color: #c96300;
+    }
+
+
+
+    /* ============================================================
+               INTERVIEWERS
+               ============================================================ */
+
+    .board-interviewer-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #98a2b3;
+        font-size: 10px;
+    }
+
+
+    .board-interviewer-display {
+        display: flex;
+        align-items: center;
+        padding-left: 8px;
+    }
+
+
+    .mini-interviewer-avatar,
+    .mini-interviewer-more {
+        width: 28px;
+        height: 28px;
+        margin-left: -7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        background: #e9edf3;
+        color: #4c5a70;
+        font-size: 7px;
+        font-weight: 750;
+    }
+
+
+        .mini-interviewer-avatar:first-child {
+            margin-left: 0;
+        }
+
+
+    .mini-interviewer-more {
+        background: #ede9fa;
+        color: #6554b7;
+    }
+
+
+
+    /* ============================================================
+               EMPTY COLUMN
+               ============================================================ */
+
+    .board-empty {
+        min-height: 160px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #98a2b3;
+    }
+
+
+    .board-empty-icon {
+        width: 38px;
+        height: 38px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .8);
+        font-size: 17px;
+    }
+
+
+    .board-empty strong {
+        color: #667085;
+        font-size: 10px;
+    }
+
+
+    .board-empty span {
+        margin-top: 4px;
+        font-size: 8px;
+    }
+
+
+
+    /* ============================================================
+               FILTERED COLUMN
+               ============================================================ */
+
+    .interview-board-column.board-hidden {
+        display: none;
+    }
+
+
+    @@media (max-width: 850px) {
+
+        .interview-board-column {
+            width: 290px;
+            min-width: 290px;
+        }
+    }
+
+
+    /* ============================================================
+           VACANCY FILTER
+           ============================================================ */
+
+    .interview-filter-top {
+        display: flex;
+        align-items: end;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .interview-search {
+        flex: 1 1 320px;
+    }
+
+    .vacancy-filter-wrap {
+        width: min(420px, 100%);
+    }
+
+        .vacancy-filter-wrap label {
+            display: block;
+            margin-bottom: 6px;
+            color: #667085;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .vacancy-filter-wrap select {
+            width: 100%;
+            height: 42px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            background: #ffffff;
+            padding: 0 12px;
+            color: #344054;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+            .vacancy-filter-wrap select:focus {
+                border-color: #98a2b3;
+                box-shadow: 0 0 0 3px rgba(152, 162, 179, .12);
+            }
+
+    @@media (max-width: 700px) {
+
+        .interview-filter-top {
+            align-items: stretch;
+        }
+
+        .vacancy-filter-wrap {
+            width: 100%;
+        }
+    }
+
+    /* ============================================================
+           COMPACT BOARD OVERRIDE
+           PASTE THIS AT THE VERY BOTTOM
+           ============================================================ */
+
+    .interview-board-wrapper {
+        gap: 8px !important;
+        padding: 10px 0 6px !important;
+    }
+
+
+    .interview-board-column {
+        width: 245px !important;
+        min-width: 245px !important;
+        height: 500px !important;
+        border-radius: 13px !important;
+    }
+
+
+    .board-column-header {
+        min-height: 46px !important;
+        padding: 0 12px !important;
+    }
+
+
+    .board-column-heading {
+        gap: 6px !important;
+    }
+
+
+        .board-column-heading h3 {
+            font-size: 12px !important;
+        }
+
+
+    .board-status-dot {
+        width: 7px !important;
+        height: 7px !important;
+        flex: 0 0 7px !important;
+    }
+
+
+    .board-count {
+        min-width: 20px !important;
+        height: 20px !important;
+        padding: 0 5px !important;
+        font-size: 8px !important;
+    }
+
+
+    /* ============================================================
+           CARD AREA
+           ============================================================ */
+
+    .board-card-scroll {
+        padding: 8px !important;
+        gap: 8px !important;
+    }
+
+
+    .interview-board-card {
+        padding: 9px !important;
+        border-radius: 11px !important;
+    }
+
+
+    /* ============================================================
+           CANDIDATE
+           ============================================================ */
+
+    .board-person-row {
+        gap: 7px !important;
+    }
+
+
+    .board-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        flex: 0 0 32px !important;
+        font-size: 10px !important;
+    }
+
+
+    .board-person-info strong {
+        font-size: 10px !important;
+    }
+
+
+    .board-person-info span {
+        font-size: 7px !important;
+    }
+
+
+    /* ============================================================
+           ACTIONS
+           ============================================================ */
+
+    .board-icon-action {
+        width: 23px !important;
+        height: 23px !important;
+        font-size: 12px !important;
+    }
+
+
+    /* ============================================================
+           DETAILS
+           ============================================================ */
+
+    .board-divider {
+        margin: 6px 0 !important;
+    }
+
+
+    .board-detail-row {
+        min-height: 18px !important;
+        gap: 4px !important;
+        font-size: 7px !important;
+    }
+
+
+    .board-detail-icon {
+        font-size: 9px !important;
+    }
+
+
+    .board-duration {
+        font-size: 7px !important;
+    }
+
+
+    /* ============================================================
+           BADGES
+           ============================================================ */
+
+    .board-badge-row {
+        margin-top: 4px !important;
+    }
+
+
+    .board-round-badge,
+    .board-type-badge {
+        min-height: 20px !important;
+        padding: 0 6px !important;
+        border-radius: 6px !important;
+        font-size: 7px !important;
+    }
+
+
+    /* ============================================================
+           INTERVIEWER FOOTER
+           ============================================================ */
+
+    .board-interviewer-footer {
+        font-size: 7px !important;
+    }
+
+
+    .mini-interviewer-avatar,
+    .mini-interviewer-more {
+        width: 21px !important;
+        height: 21px !important;
+        font-size: 6px !important;
+    }
+
+    /* ============================================================
+           BIGGER TEXT INSIDE COMPACT INTERVIEW CARDS
+           ============================================================ */
+
+    .board-person-info strong {
+        font-size: 12px !important;
+        font-weight: 800 !important;
+    }
+
+    .board-person-info span {
+        font-size: 9px !important;
+    }
+
+    .board-detail-row {
+        font-size: 9px !important;
+    }
+
+    .board-duration {
+        font-size: 8px !important;
+    }
+
+    .board-round-badge,
+    .board-type-badge {
+        font-size: 9px !important;
+        font-weight: 700 !important;
+    }
+
+    .board-interviewer-footer {
+        font-size: 9px !important;
+    }
+
+    .board-column-heading h3 {
+        font-size: 13px !important;
+    }
+
+    .board-count {
+        font-size: 9px !important;
+    }
+    /* ============================================================
+           MUCH BIGGER TEXT INSIDE COMPACT INTERVIEW CARDS
+           ============================================================ */
+
+    .board-person-info strong {
+        font-size: 15px !important;
+        font-weight: 800 !important;
+    }
+
+    .board-person-info span {
+        font-size: 11px !important;
+    }
+
+    .board-detail-row {
+        font-size: 11px !important;
+        line-height: 1.4 !important;
+    }
+
+    .board-detail-icon {
+        font-size: 11px !important;
+    }
+
+    .board-duration {
+        font-size: 10px !important;
+    }
+
+    .board-round-badge,
+    .board-type-badge {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        min-height: 23px !important;
+        padding: 0 8px !important;
+    }
+
+    .board-interviewer-footer {
+        font-size: 10px !important;
+    }
+
+    .board-column-heading h3 {
+        font-size: 15px !important;
+        font-weight: 800 !important;
+    }
+
+    .board-count {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+    }
+
+    .mini-interviewer-avatar,
+    .mini-interviewer-more {
+        font-size: 7px !important;
+    }
+
+</style>
+
+
+
+<!-- =============================================================
+     SCHEDULE INTERVIEW MODAL
+     ============================================================= -->
+
+<div id="scheduleModalOverlay"
+     class="schedule-modal-overlay">
+
+
+    <div id="scheduleModalContainer"
+         class="schedule-modal-container">
+
+        <!-- Schedule partial loads here -->
+
+    </div>
+
+
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+
+            /* =========================================================
+               GLOBAL
+               ========================================================= */
+
+            let selectedInterviewStatus =
+                @Html.Raw(
+                    System.Text.Json.JsonSerializer.Serialize(
+                                    initialStatus
+                    )
+                                );
+
+
+    let selectedInterviewerIds =
+        [];
+
+
+    /* =========================================================
+       OPEN SCHEDULE MODAL
+       ========================================================= */
+
+    async function openScheduleModal() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/Interview/Schedule"
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Could not load scheduling form."
+                );
+            }
+
+
+            const html =
+                await response.text();
+
+
+            const container =
+                document.getElementById(
+                    "scheduleModalContainer"
+                );
+
+
+            if (!container) {
+
+                return;
+            }
+
+
+            container.innerHTML =
+                html;
+
+
+            selectedInterviewerIds =
+                [];
+
+
+            document
+                .getElementById(
+                    "scheduleModalOverlay"
+                )
+                ?.classList
+                .add(
+                    "show"
+                );
+
+
+            document.body
+                .classList
+                .add(
+                    "modal-open"
+                );
+
+        }
+        catch (error) {
+
+            console.error(
+                "Schedule modal error:",
+                error
+            );
+
+
+            alert(
+                "Could not open the interview scheduling form."
+            );
+        }
+    }
+
+
+
+    /* =========================================================
+       CLOSE SCHEDULE MODAL
+       ========================================================= */
+
+    function closeScheduleModal() {
+
+        document
+            .getElementById(
+                "scheduleModalOverlay"
+            )
+            ?.classList
+            .remove(
+                "show"
+            );
+
+
+        document.body
+            .classList
+            .remove(
+                "modal-open"
+            );
+
+
+        selectedInterviewerIds =
+            [];
+    }
+
+
+
+    /* =========================================================
+       LOAD JOB
+       ========================================================= */
+
+    async function loadJobInformation() {
+
+        const jobSelect =
+            document.getElementById(
+                "scheduleJob"
+            );
+
+
+        const candidateList =
+            document.getElementById(
+                "candidateList"
+            );
+
+
+        const roundSelect =
+            document.getElementById(
+                "scheduleRound"
+            );
+
+
+        const selectAllButton =
+            document.getElementById(
+                "selectAllCandidatesButton"
+            );
+
+
+        if (
+            !jobSelect ||
+            !candidateList ||
+            !roundSelect
+        ) {
+
+            return;
+        }
+
+
+        const jobId =
+            jobSelect.value;
+
+
+        candidateList.innerHTML = `
+            <div class="candidate-empty">
+                Loading approved candidates...
+            </div>
+        `;
+
+
+        roundSelect.innerHTML = `
+            <option value="">
+                Loading interview rounds...
+            </option>
+        `;
+
+
+        clearSelectedInterviewers();
+
+
+        clearAssessmentSelection();
+
+
+        if (selectAllButton) {
+
+            selectAllButton.disabled =
+                true;
+
+
+            selectAllButton.textContent =
+                "Select All";
+        }
+
+
+        if (!jobId) {
+
+            candidateList.innerHTML = `
+                <div class="candidate-empty">
+                    Select a job first to view approved candidates.
+                </div>
+            `;
+
+
+            roundSelect.innerHTML = `
+                <option value="">
+                    Select Interview Round
+                </option>
+            `;
+
+
+            return;
+        }
+
+
+        await loadApprovedCandidates(
+            jobId,
+            candidateList,
+            selectAllButton
+        );
+
+
+        await loadInterviewRounds(
+            jobId,
+            roundSelect
+        );
+    }
+
+
+
+    /* =========================================================
+       APPROVED CANDIDATES
+       ========================================================= */
+
+    async function loadApprovedCandidates(
+        jobId,
+        candidateList,
+        selectAllButton) {
+
+        try {
+
+            const response =
+                await fetch(
+                    `/Interview/GetCandidates?jobId=${encodeURIComponent(jobId)}`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Could not load candidates."
+                );
+            }
+
+
+            const candidates =
+                await response.json();
+
+
+            candidateList.innerHTML =
+                "";
+
+
+            if (
+                !candidates ||
+                candidates.length === 0
+            ) {
+
+                candidateList.innerHTML = `
+                    <div class="candidate-empty">
+                        No candidates have been approved
+                        for interview for this job.
+                    </div>
+                `;
+
+
+                if (selectAllButton) {
+
+                    selectAllButton.disabled =
+                        true;
+                }
+
+
+                return;
+            }
+
+
+            candidates.forEach(
+                candidate => {
+
+                    const card =
+                        document.createElement(
+                            "label"
+                        );
+
+
+                    card.className =
+                        "candidate-select-card";
+
+
+                    const candidateName =
+                        candidate.name ||
+                        "Unknown Candidate";
+
+
+                    const score =
+                        candidate.aiScore !== null &&
+                        candidate.aiScore !== undefined
+
+                            ? Number(
+                                candidate.aiScore
+                            ).toFixed(1)
+
+                            : "0.0";
+
+
+                    card.innerHTML = `
+
+                        <input type="checkbox"
+                               name="SelectedApplicationIds"
+                               value="${candidate.applicationId}"
+                               class="candidate-checkbox schedule-candidate-checkbox" />
+
+
+                        <div class="candidate-select-avatar">
+
+                            ${getInitials(candidateName)}
+
+                        </div>
+
+
+                        <div class="candidate-select-info">
+
+                            <strong>
+                                ${escapeHtml(candidateName)}
+                            </strong>
+
+                            <span>
+                                ${escapeHtml(candidate.email || "")}
+                            </span>
+
+                        </div>
+
+
+                        <div class="candidate-ai-score">
+
+                            ${score}%
+
+                        </div>
+
+                    `;
+
+
+                    candidateList.appendChild(
+                        card
+                    );
+                }
+            );
+
+
+            if (selectAllButton) {
+
+                selectAllButton.disabled =
+                    false;
+            }
+
+        }
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            candidateList.innerHTML = `
+                <div class="candidate-empty">
+                    Unable to load approved candidates.
+                </div>
+            `;
+
+
+            if (selectAllButton) {
+
+                selectAllButton.disabled =
+                    true;
+            }
+        }
+    }
+
+
+
+    /* =========================================================
+       INTERVIEW ROUNDS
+       ========================================================= */
+
+    async function loadInterviewRounds(
+        jobId,
+        roundSelect) {
+
+        try {
+
+            const response =
+                await fetch(
+                    `/Interview/GetRounds?jobId=${encodeURIComponent(jobId)}`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Could not load interview rounds."
+                );
+            }
+
+
+            const rounds =
+                await response.json();
+
+
+            roundSelect.innerHTML = `
+                <option value="">
+                    Select Interview Round
+                </option>
+            `;
+
+
+            if (
+                !rounds ||
+                rounds.length === 0
+            ) {
+
+                roundSelect.innerHTML += `
+                    <option value="" disabled>
+                        No interview rounds available
+                    </option>
+                `;
+
+
+                return;
+            }
+
+
+            rounds.forEach(
+                round => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        round.id;
+
+
+                    option.textContent =
+                        round.sequence !== null &&
+                        round.sequence !== undefined
+
+                            ? `Round ${round.sequence} — ${round.name}`
+
+                            : round.name;
+
+
+                    roundSelect.appendChild(
+                        option
+                    );
+                }
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            roundSelect.innerHTML = `
+                <option value="">
+                    Unable to load interview rounds
+                </option>
+            `;
+        }
+    }
+
+
+
+    /* =========================================================
+       ASSESSMENTS
+       ========================================================= */
+
+    function clearAssessmentSelection() {
+
+        const assessment =
+            document.getElementById(
+                "scheduleAssessment"
+            );
+
+
+        if (!assessment) {
+
+            return;
+        }
+
+
+        assessment.innerHTML = `
+            <option value="">
+                Select Assessment
+            </option>
+        `;
+    }
+
+
+    async function loadAssessmentsForRound() {
+
+        const job =
+            document.getElementById(
+                "scheduleJob"
+            );
+
+
+        const round =
+            document.getElementById(
+                "scheduleRound"
+            );
+
+
+        const assessment =
+            document.getElementById(
+                "scheduleAssessment"
+            );
+
+
+        if (
+            !job ||
+            !round ||
+            !assessment
+        ) {
+
+            return;
+        }
+
+
+        const jobId =
+            job.value;
+
+
+        const roundId =
+            round.value;
+
+
+        if (
+            !jobId ||
+            !roundId
+        ) {
+
+            clearAssessmentSelection();
+
+            return;
+        }
+
+
+        try {
+
+            assessment.disabled =
+                true;
+
+
+            assessment.innerHTML = `
+                <option value="">
+                    Loading assessments...
+                </option>
+            `;
+
+
+            const response =
+                await fetch(
+                    `/Interview/GetAssessments?jobId=${encodeURIComponent(jobId)}&roundId=${encodeURIComponent(roundId)}`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load assessments."
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            assessment.innerHTML = `
+                <option value="">
+                    Select Assessment
+                </option>
+            `;
+
+
+            if (
+                !data ||
+                data.length === 0
+            ) {
+
+                assessment.innerHTML = `
+                    <option value="">
+                        No assessment available for this round
+                    </option>
+                `;
+
+
+                return;
+            }
+
+
+            data.forEach(
+                item => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        item.id;
+
+
+                    option.textContent =
+                        item.name;
+
+
+                    assessment.appendChild(
+                        option
+                    );
+                }
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            assessment.innerHTML = `
+                <option value="">
+                    Unable to load assessments
+                </option>
+            `;
+
+        }
+        finally {
+
+            assessment.disabled =
+                false;
+        }
+    }
+
+
+
+    /* =========================================================
+       SELECT ALL CANDIDATES
+       ========================================================= */
+
+    function toggleAllCandidates() {
+
+        const checkboxes =
+            Array.from(
+                document.querySelectorAll(
+                    "#candidateList .schedule-candidate-checkbox"
+                )
+            );
+
+
+        if (
+            checkboxes.length === 0
+        ) {
+
+            return;
+        }
+
+
+        const shouldSelect =
+            checkboxes.some(
+                x =>
+                    !x.checked
+            );
+
+
+        checkboxes.forEach(
+            checkbox => {
+
+                checkbox.checked =
+                    shouldSelect;
+            }
+        );
+
+
+        const button =
+            document.getElementById(
+                "selectAllCandidatesButton"
+            );
+
+
+        if (button) {
+
+            button.textContent =
+                shouldSelect
+                    ? "Clear All"
+                    : "Select All";
+        }
+    }
+
+
+
+    /* =========================================================
+       AVAILABLE INTERVIEWERS
+       ========================================================= */
+
+    async function loadAvailableInterviewers() {
+
+        const job =
+            document.getElementById(
+                "scheduleJob"
+            )?.value;
+
+
+        const date =
+            document.getElementById(
+                "scheduleDate"
+            )?.value;
+
+
+        const time =
+            document.getElementById(
+                "scheduleTime"
+            )?.value;
+
+
+        const duration =
+            document.getElementById(
+                "scheduleDuration"
+            )?.value;
+
+
+        const container =
+            document.getElementById(
+                "availableInterviewers"
+            );
+
+
+        const count =
+            document.getElementById(
+                "interviewerAvailabilityCount"
+            );
+
+
+        if (!container) {
+
+            return;
+        }
+
+
+        if (
+            !job ||
+            !date ||
+            !time ||
+            !duration
+        ) {
+
+            container.innerHTML = `
+
+                <div class="interviewer-empty-state">
+
+                    <div class="interviewer-empty-icon">
+                        ◷
+                    </div>
+
+                    <strong>
+                        Select interview details first
+                    </strong>
+
+                    <span>
+                        Choose job, date, time and duration.
+                    </span>
+
+                </div>
+
+            `;
+
+
+            if (count) {
+
+                count.style.display =
+                    "none";
+            }
+
+
+            clearSelectedInterviewers();
+
+
+            return;
+        }
+
+
+        container.innerHTML = `
+            <div class="interviewer-loading">
+                Checking interviewer availability...
+            </div>
+        `;
+
+
+        try {
+
+            const response =
+                await fetch(
+
+                    `/Interview/GetAvailableInterviewers` +
+
+                    `?jobId=${encodeURIComponent(job)}` +
+
+                    `&date=${encodeURIComponent(date)}` +
+
+                    `&time=${encodeURIComponent(time)}` +
+
+                    `&durationMinutes=${encodeURIComponent(duration)}`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load interviewers."
+                );
+            }
+
+
+            const interviewers =
+                await response.json();
+
+
+            clearSelectedInterviewers();
+
+
+            if (
+                !interviewers ||
+                interviewers.length === 0
+            ) {
+
+                container.innerHTML = `
+
+                    <div class="interviewer-empty-state">
+
+                        <div class="interviewer-empty-icon">
+                            !
+                        </div>
+
+                        <strong>
+                            No interviewers available
+                        </strong>
+
+                        <span>
+                            Try another date or time.
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                if (count) {
+
+                    count.textContent =
+                        "0 available";
+
+
+                    count.style.display =
+                        "inline-flex";
+                }
+
+
+                return;
+            }
+
+
+            if (count) {
+
+                count.textContent =
+                    `${interviewers.length} available`;
+
+
+                count.style.display =
+                    "inline-flex";
+            }
+
+
+            container.innerHTML =
+                interviewers
+
+                    .map(
+                        interviewer =>
+                            createInterviewerCard(
+                                interviewer
+                            )
+                    )
+
+                    .join("");
+
+        }
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            container.innerHTML = `
+
+                <div class="interviewer-empty-state">
+
+                    <div class="interviewer-empty-icon">
+                        !
+                    </div>
+
+                    <strong>
+                        Could not load interviewers
+                    </strong>
+
+                </div>
+
+            `;
+
+
+            if (count) {
+
+                count.style.display =
+                    "none";
+            }
+        }
+    }
+
+
+
+    /* =========================================================
+       INTERVIEWER CARD
+       ========================================================= */
+
+    function createInterviewerCard(
+        interviewer) {
+
+        const name =
+            interviewer.name ||
+            "Interviewer";
+
+
+        const metadata =
+            [];
+
+
+        if (interviewer.department) {
+
+            metadata.push(`
+
+                <span class="interviewer-meta-chip">
+
+                    ${escapeHtml(
+                        interviewer.department
+                    )}
+
+                </span>
+
+            `);
+        }
+
+
+        if (interviewer.seniority) {
+
+            metadata.push(`
+
+                <span class="interviewer-meta-chip">
+
+                    ${escapeHtml(
+                        interviewer.seniority
+                    )}
+
+                </span>
+
+            `);
+        }
+
+
+        if (
+            interviewer.yearsOfExperience !== null &&
+            interviewer.yearsOfExperience !== undefined
+        ) {
+
+            metadata.push(`
+
+                <span class="interviewer-meta-chip">
+
+                    ${interviewer.yearsOfExperience}
+                    yrs experience
+
+                </span>
+
+            `);
+        }
+
+
+        return `
+
+            <div class="interviewer-option-card"
+                 id="interviewer-card-${interviewer.id}"
+                 onclick="toggleInterviewerSelection('${interviewer.id}')">
+
+
+                <div class="interviewer-avatar">
+
+                    ${getInitials(name)}
+
+                </div>
+
+
+                <div class="interviewer-card-info">
+
+
+                    <div class="interviewer-card-top">
+
+
+                        <div class="interviewer-card-name">
+
+                            ${escapeHtml(name)}
+
+                        </div>
+
+
+                        <span class="interviewer-available-badge">
+
+                            ✓ Available
+
+                        </span>
+
+
+                    </div>
+
+
+                    <div class="interviewer-card-role">
+
+                        ${escapeHtml(
+                            interviewer.jobTitle ||
+                            "Interviewer"
+                        )}
+
+                    </div>
+
+
+                    <div class="interviewer-card-meta">
+
+                        ${metadata.join("")}
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="interviewer-select-indicator">
+
+                    ✓
+
+                </div>
+
+
+            </div>
+
+        `;
+    }
+
+
+
+    /* =========================================================
+       SELECT INTERVIEWER
+       ========================================================= */
+
+    function toggleInterviewerSelection(
+        interviewerId) {
+
+        const index =
+            selectedInterviewerIds
+                .indexOf(
+                    interviewerId
+                );
+
+
+        const card =
+            document.getElementById(
+                `interviewer-card-${interviewerId}`
+            );
+
+
+        if (index === -1) {
+
+            selectedInterviewerIds.push(
+                interviewerId
+            );
+
+
+            card?.classList
+                .add(
+                    "selected"
+                );
+
+        }
+        else {
+
+            selectedInterviewerIds.splice(
+                index,
+                1
+            );
+
+
+            card?.classList
+                .remove(
+                    "selected"
+                );
+        }
+
+
+        rebuildInterviewerInputs();
+    }
+
+
+
+    function rebuildInterviewerInputs() {
+
+        const container =
+            document.getElementById(
+                "selectedInterviewerInputs"
+            );
+
+
+        if (!container) {
+
+            return;
+        }
+
+
+        container.innerHTML =
+            selectedInterviewerIds
+
+                .map(
+                    id => `
+
+                        <input type="hidden"
+                               name="SelectedInterviewerIds"
+                               value="${escapeHtml(id)}" />
+
+                    `
+                )
+
+                .join("");
+    }
+
+
+
+    function clearSelectedInterviewers() {
+
+        selectedInterviewerIds =
+            [];
+
+
+        const inputs =
+            document.getElementById(
+                "selectedInterviewerInputs"
+            );
+
+
+        if (inputs) {
+
+            inputs.innerHTML =
+                "";
+        }
+
+
+        document
+            .querySelectorAll(
+                ".interviewer-option-card.selected"
+            )
+
+            .forEach(
+                card => {
+
+                    card.classList.remove(
+                        "selected"
+                    );
+                }
+            );
+    }
+
+
+
+    /* =========================================================
+       SCHEDULE FORM VALIDATION
+       ========================================================= */
+
+    document.addEventListener(
+        "submit",
+        function (event) {
+
+            const form =
+                event.target;
+
+
+            if (
+                !form ||
+                form.id !==
+                "scheduleInterviewForm"
+            ) {
+
+                return;
+            }
+
+
+            const selectedCandidates =
+                form.querySelectorAll(
+                    'input[name="SelectedApplicationIds"]:checked'
+                );
+
+
+            if (
+                selectedCandidates.length === 0
+            ) {
+
+                event.preventDefault();
+
+
+                alert(
+                    "Please select at least one candidate."
+                );
+
+
+                return;
+            }
+
+
+            if (
+                selectedInterviewerIds.length === 0
+            ) {
+
+                event.preventDefault();
+
+
+                alert(
+                    "Please select at least one interviewer."
+                );
+
+
+                return;
+            }
+        }
+    );
+
+
+
+    /* =========================================================
+       BOARD STATUS TAB
+       ========================================================= */
+
+    function setInterviewStatus(
+        button,
+        status) {
+
+        selectedInterviewStatus =
+            status;
+
+
+        document
+            .querySelectorAll(
+                ".interview-tab"
+            )
+            .forEach(
+                tab => {
+
+                    tab.classList.remove(
+                        "active"
+                    );
+                }
+            );
+
+
+        button.classList.add(
+            "active"
+        );
+
+
+        filterInterviews();
+    }
+
+
+
+    /* =========================================================
+       BOARD FILTER
+       ========================================================= */
+
+    function filterInterviews() {
+
+        const search =
+            (
+                document
+                    .getElementById(
+                        "interviewSearch"
+                    )
+                    ?.value
+                || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        const vacancy =
+            document
+                .getElementById(
+                    "vacancyFilter"
+                )
+                ?.value
+            || "";
+
+
+        let visibleTotal =
+            0;
+
+
+        const visibleByStatus =
+            {};
+
+
+        document
+            .querySelectorAll(
+                ".interview-board-column"
+            )
+            .forEach(
+                column => {
+
+                    const status =
+                        column.dataset.boardStatus
+                        || "";
+
+
+                    const showColumn =
+                        !selectedInterviewStatus
+
+                        ||
+
+                        status ===
+                            selectedInterviewStatus;
+
+
+                    column.classList.toggle(
+                        "board-hidden",
+                        !showColumn
+                    );
+
+
+                    let visibleInColumn =
+                        0;
+
+
+                    column
+                        .querySelectorAll(
+                            ".interview-board-card"
+                        )
+                        .forEach(
+                            card => {
+
+                                const cardSearch =
+                                    (
+                                        card.dataset.search
+                                        || ""
+                                    )
+                                    .toLowerCase();
+
+
+                                const cardVacancy =
+                                    card.dataset.job
+                                    || "";
+
+
+                                const matchesSearch =
+                                    !search
+
+                                    ||
+
+                                    cardSearch.includes(
+                                        search
+                                    );
+
+
+                                const matchesVacancy =
+                                    !vacancy
+
+                                    ||
+
+                                    cardVacancy ===
+                                        vacancy;
+
+
+                                const visible =
+                                    showColumn &&
+                                    matchesSearch &&
+                                    matchesVacancy;
+
+
+                                card.style.display =
+                                    visible
+
+                                        ? ""
+
+                                        : "none";
+
+
+                                if (
+                                    visible
+                                ) {
+
+                                    visibleInColumn++;
+
+                                    visibleTotal++;
+                                }
+                            }
+                        );
+
+
+                    visibleByStatus[
+                        status
+                    ] =
+                        visibleInColumn;
+
+
+                    const columnCount =
+                        column.querySelector(
+                            ".board-count"
+                        );
+
+
+                    if (
+                        columnCount
+                    ) {
+
+                        columnCount.textContent =
+                            String(
+                                visibleInColumn
+                            );
+                    }
+
+
+                    const emptyState =
+                        column.querySelector(
+                            ".board-empty"
+                        );
+
+
+                    if (
+                        emptyState
+                    ) {
+
+                        emptyState.style.display =
+                            visibleInColumn === 0
+
+                                ? ""
+
+                                : "none";
+                    }
+                }
+            );
+
+
+        // Update tab counts so they match the selected vacancy/search.
+        document
+            .querySelectorAll(
+                ".interview-tab"
+            )
+            .forEach(
+                tab => {
+
+                    const status =
+                        tab.dataset.status
+                        || "";
+
+
+                    const countElement =
+                        tab.querySelector(
+                            "span"
+                        );
+
+
+                    if (
+                        !countElement
+                    ) {
+
+                        return;
+                    }
+
+
+                    countElement.textContent =
+                        status
+
+                            ? String(
+                                visibleByStatus[
+                                    status
+                                ] || 0
+                            )
+
+                            : String(
+                                visibleTotal
+                            );
+                }
+            );
+    }
+
+
+
+    /* =========================================================
+       HELPERS
+       ========================================================= */
+
+    function getInitials(
+        name) {
+
+        if (!name) {
+
+            return "IN";
+        }
+
+
+        const parts =
+            String(name)
+                .trim()
+                .split(/\s+/);
+
+
+        if (
+            parts.length >= 2
+        ) {
+
+            return (
+                parts[0][0] +
+                parts[1][0]
+            )
+            .toUpperCase();
+        }
+
+
+        return String(name)
+            .substring(
+                0,
+                2
+            )
+            .toUpperCase();
+    }
+
+
+
+    function escapeHtml(
+        value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+        }
+
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+
+        div.textContent =
+            String(value);
+
+
+        return div.innerHTML;
+    }
+
+
+
+    /* =========================================================
+       RESTORE TAB AFTER CANCEL
+       ========================================================= */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            if (
+                selectedInterviewStatus
+            ) {
+
+                const tab =
+                    document.querySelector(
+                        `.interview-tab[data-status="${selectedInterviewStatus}"]`
+                    );
+
+
+                if (tab) {
+
+                    document
+                        .querySelectorAll(
+                            ".interview-tab"
+                        )
+                        .forEach(
+                            item => {
+
+                                item.classList.remove(
+                                    "active"
+                                );
+                            }
+                        );
+
+
+                    tab.classList.add(
+                        "active"
+                    );
+                }
+            }
+
+
+            filterInterviews();
+        }
+    );
+
+
+
+    /* =========================================================
+       MODAL BACKDROP
+       ========================================================= */
+
+    document
+        .getElementById(
+            "scheduleModalOverlay"
+        )
+        ?.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === this
+                ) {
+
+                    closeScheduleModal();
+                }
+            }
+        );
+
+
+</script>
+}

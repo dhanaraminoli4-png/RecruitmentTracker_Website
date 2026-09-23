@@ -1,0 +1,694 @@
+﻿@model RecruitmentTracker.Models.Interview
+
+@{
+    ViewData["Title"] = "Edit Interview";
+
+    var candidate =
+        Model.JobApplication?.Candidate;
+
+    var vacancy =
+        Model.JobApplication?.JobVacancy;
+
+    var rounds =
+        ViewBag.InterviewRounds
+            as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+
+    var types =
+        ViewBag.InterviewTypes
+            as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+}
+
+
+<div class="edit-interview-page">
+
+
+    <div class="edit-interview-card">
+
+
+        <!-- HEADER -->
+
+        <div class="edit-header">
+
+
+            <div>
+
+                <div class="edit-eyebrow">
+                    INTERVIEW MANAGEMENT
+                </div>
+
+                <h1>
+                    Edit Interview
+                </h1>
+
+                <p>
+                    Update the interview schedule and interview details.
+                </p>
+
+            </div>
+
+
+            <a asp-controller="Interview"
+               asp-action="Index"
+               class="back-button">
+
+                ← Back to Interviews
+
+            </a>
+
+
+        </div>
+
+
+
+        <!-- CANDIDATE INFO -->
+
+        <div class="candidate-summary">
+
+
+            <div class="candidate-avatar">
+
+                @{
+                    var displayName =
+                    candidate?.FullName
+                    ?? candidate?.Email
+                    ?? "Candidate";
+
+                    var initial =
+                    !string.IsNullOrWhiteSpace(displayName)
+                    ? displayName.Substring(0, 1).ToUpper()
+                    : "C";
+                }
+
+                @initial
+
+            </div>
+
+
+            <div>
+
+
+                <div class="candidate-name">
+                    @displayName
+                </div>
+
+
+                <div class="candidate-job">
+
+                    @(vacancy != null
+                                        ? $"{vacancy.JobCode} — {vacancy.JobTitle}"
+                                        : "Job information unavailable")
+
+                </div>
+
+
+            </div>
+
+
+            <div class="current-status">
+
+                @Model.Status
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- FORM -->
+
+        <form asp-controller="Interview"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              method="post"
+              class="edit-form">
+
+            @Html.AntiForgeryToken()
+
+
+            <input asp-for="Id"
+                   type="hidden" />
+
+
+            <!-- DATE / TIME -->
+
+            <div class="form-grid">
+
+
+                <div class="form-field">
+
+                    <label asp-for="InterviewDate">
+                        Interview Date
+                    </label>
+
+                    <input asp-for="InterviewDate"
+                           type="date"
+                           class="form-control-custom" />
+
+                    <span asp-validation-for="InterviewDate"
+                          class="validation-error">
+                    </span>
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label asp-for="InterviewTime">
+                        Interview Time
+                    </label>
+
+                    <input asp-for="InterviewTime"
+                           type="time"
+                           class="form-control-custom" />
+
+                    <span asp-validation-for="InterviewTime"
+                          class="validation-error">
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- DURATION -->
+
+            <div class="form-field">
+
+                <label asp-for="DurationMinutes">
+                    Duration
+                </label>
+
+                <div class="input-with-label">
+
+                    <input asp-for="DurationMinutes"
+                           type="number"
+                           min="15"
+                           step="15"
+                           class="form-control-custom" />
+
+                    <span>
+                        minutes
+                    </span>
+
+                </div>
+
+                <span asp-validation-for="DurationMinutes"
+                      class="validation-error">
+                </span>
+
+            </div>
+
+
+
+            <!-- ROUND / TYPE -->
+
+            <div class="form-grid">
+
+
+                <div class="form-field">
+
+                    <label asp-for="InterviewRoundId">
+                        Interview Round
+                    </label>
+
+                    <select asp-for="InterviewRoundId"
+                            asp-items="rounds"
+                            class="form-control-custom">
+
+                        <option value="">
+                            Select interview round
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="InterviewRoundId"
+                          class="validation-error">
+                    </span>
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label asp-for="InterviewTypeId">
+                        Interview Type
+                    </label>
+
+                    <select asp-for="InterviewTypeId"
+                            asp-items="types"
+                            class="form-control-custom">
+
+                        <option value="">
+                            Select interview type
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="InterviewTypeId"
+                          class="validation-error">
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- LOCATION -->
+
+            <div class="form-field">
+
+                <label asp-for="Location">
+                    Location
+                </label>
+
+                <input asp-for="Location"
+                       class="form-control-custom"
+                       placeholder="e.g. Conference Room A" />
+
+                <span asp-validation-for="Location"
+                      class="validation-error">
+                </span>
+
+            </div>
+
+
+
+            <!-- MEETING LINK -->
+
+            <div class="form-field">
+
+                <label asp-for="MeetingLink">
+                    Meeting Link
+                </label>
+
+                <input asp-for="MeetingLink"
+                       class="form-control-custom"
+                       placeholder="https://..." />
+
+                <span asp-validation-for="MeetingLink"
+                      class="validation-error">
+                </span>
+
+            </div>
+
+
+
+            <!-- INFO -->
+
+            <div class="edit-info-box">
+
+                <div class="edit-info-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        Calendar will update automatically
+                    </strong>
+
+                    <p>
+                        Changing the interview date, time or duration
+                        will also update the interviewer calendar booking.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ACTIONS -->
+
+            <div class="edit-actions">
+
+
+                <a asp-controller="Interview"
+                   asp-action="Index"
+                   class="cancel-edit-button">
+
+                    Cancel
+
+                </a>
+
+
+                <button type="submit"
+                        class="save-edit-button">
+
+                    Save Changes
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+
+<style>
+
+    .edit-interview-page {
+        min-height: calc(100vh - 80px);
+        padding: 28px;
+        display: flex;
+        justify-content: center;
+        background: #f7f8fb;
+    }
+
+
+    .edit-interview-card {
+        width: min(900px, 100%);
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e6e8ee;
+        border-radius: 18px;
+        box-shadow: 0 12px 35px rgba(15,23,42,.06);
+    }
+
+
+    /* HEADER */
+
+    .edit-header {
+        padding: 24px 26px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+
+    .edit-eyebrow {
+        margin-bottom: 4px;
+        color: #9aa4b2;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: .8px;
+    }
+
+
+    .edit-header h1 {
+        margin: 0;
+        color: #13213a;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+
+    .edit-header p {
+        margin: 6px 0 0;
+        color: #929cac;
+        font-size: 10px;
+    }
+
+
+    .back-button {
+        min-height: 37px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #dfe3ea;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #637085;
+        text-decoration: none;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+        .back-button:hover {
+            background: #f8fafc;
+            color: #334155;
+        }
+
+
+    /* CANDIDATE */
+
+    .candidate-summary {
+        margin: 22px 26px 0;
+        padding: 15px 17px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #eceef3;
+        border-radius: 13px;
+        background: linear-gradient( 135deg, #faf9ff, #f8fbff );
+    }
+
+
+    .candidate-avatar {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #eeeaff;
+        color: #6752d8;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+
+    .candidate-name {
+        color: #17233a;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+
+    .candidate-job {
+        margin-top: 3px;
+        color: #8c97a7;
+        font-size: 9px;
+    }
+
+
+    .current-status {
+        margin-left: auto;
+        min-height: 25px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: #eaf2ff;
+        color: #3971c5;
+        font-size: 8px;
+        font-weight: 750;
+    }
+
+
+    /* FORM */
+
+    .edit-form {
+        padding: 23px 26px 26px;
+    }
+
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+
+    .form-field {
+        margin-bottom: 15px;
+    }
+
+
+        .form-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: #58667a;
+            font-size: 8px;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+
+    .form-control-custom {
+        width: 100%;
+        min-height: 43px;
+        padding: 0 12px;
+        border: 1px solid #dfe3ea;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #27354b;
+        font-size: 10px;
+        outline: none;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+
+        .form-control-custom:focus {
+            border-color: #9e8ff3;
+            box-shadow: 0 0 0 3px rgba(128,108,244,.08);
+        }
+
+
+    .input-with-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+
+        .input-with-label input {
+            flex: 1;
+        }
+
+
+        .input-with-label span {
+            color: #8e98a8;
+            font-size: 9px;
+        }
+
+
+    .validation-error {
+        display: block;
+        margin-top: 4px;
+        color: #c7484e;
+        font-size: 8px;
+    }
+
+
+    /* INFO */
+
+    .edit-info-box {
+        margin-top: 5px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        border-radius: 10px;
+        background: #f5f7fb;
+    }
+
+
+    .edit-info-icon {
+        width: 25px;
+        height: 25px;
+        flex: 0 0 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #e8ecf5;
+        color: #607087;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+
+    .edit-info-box strong {
+        color: #435066;
+        font-size: 9px;
+    }
+
+
+    .edit-info-box p {
+        margin: 3px 0 0;
+        color: #8d98a9;
+        font-size: 8px;
+        line-height: 1.45;
+    }
+
+
+    /* ACTIONS */
+
+    .edit-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        padding-top: 16px;
+        border-top: 1px solid #edf0f4;
+    }
+
+
+    .cancel-edit-button,
+    .save-edit-button {
+        min-height: 40px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        font-size: 9px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+
+    .cancel-edit-button {
+        border: 1px solid #dfe3ea;
+        background: #ffffff;
+        color: #667387;
+        text-decoration: none;
+    }
+
+
+    .save-edit-button {
+        border: none;
+        background: #0b1f3a;
+        color: #ffffff;
+        box-shadow: 0 4px 10px rgba(11,31,58,.11);
+    }
+
+
+        .save-edit-button:hover {
+            background: #17385d;
+        }
+
+
+    @@media (max-width: 700px) {
+
+        .edit-interview-page {
+            padding: 12px;
+        }
+
+        .edit-header {
+            flex-direction: column;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .candidate-summary {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .current-status {
+            margin-left: 0;
+        }
+    }
+
+</style>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

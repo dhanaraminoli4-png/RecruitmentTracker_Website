@@ -1,0 +1,1221 @@
+﻿@model RecruitmentTracker.Models.Interview
+
+@{
+    ViewData["Title"] = "Interview Review";
+
+    var application = Model.JobApplication;
+    var candidate = application?.Candidate;
+    var vacancy = application?.JobVacancy;
+
+    var candidateName =
+        !string.IsNullOrWhiteSpace(candidate?.FullName)
+            ? candidate!.FullName!
+            : "Unknown Candidate";
+
+    var initials =
+        !string.IsNullOrWhiteSpace(candidateName)
+            ? candidateName.Substring(0, 1).ToUpperInvariant()
+            : "?";
+
+    var assessments =
+        Model.Assessments?.ToList()
+        ?? new List<RecruitmentTracker.Models.InterviewAssessment>();
+
+    var feedbacks =
+        Model.Feedbacks?.ToList()
+        ?? new List<RecruitmentTracker.Models.InterviewFeedback>();
+
+    var roundResult =
+        string.IsNullOrWhiteSpace(Model.RoundResult)
+            ? "Pending"
+            : Model.RoundResult;
+}
+
+<div class="hm-detail-page">
+
+    <div class="hm-detail-header">
+        <div>
+            <div class="hm-eyebrow">HIRING MANAGER · INTERVIEW REVIEW</div>
+            <h1>@candidateName</h1>
+            <p>
+                Review the completed assessment, question-by-question evaluation
+                and interviewer feedback before making the round decision.
+            </p>
+        </div>
+
+        <a asp-controller="HiringManager"
+           asp-action="InterviewReviews"
+           class="hm-back-btn">
+            ← Back to Interview Reviews
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="hm-alert success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="hm-alert error">@TempData["Error"]</div>
+    }
+
+    <section class="summary-card">
+        <div class="candidate-summary">
+            <div class="candidate-avatar">@initials</div>
+
+            <div class="candidate-summary-text">
+                <h2>@candidateName</h2>
+                <span>@(candidate?.Email ?? "")</span>
+                <strong>@(vacancy?.JobTitle ?? "Unknown Position")</strong>
+
+                @if (!string.IsNullOrWhiteSpace(vacancy?.JobCode))
+                {
+                    <small>@vacancy.JobCode</small>
+                }
+            </div>
+
+            <span class="round-result-badge @roundResult.ToLower()">
+                @roundResult
+            </span>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span>Interview Round</span>
+                <strong>@(Model.InterviewRound?.Name ?? "—")</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Interview Type</span>
+                <strong>@(Model.InterviewType?.Name ?? "—")</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Date</span>
+                <strong>@(Model.InterviewDate.ToString("dd MMM yyyy"))</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Time</span>
+                <strong>@(Model.InterviewTime.ToString(@"hh\:mm"))</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Duration</span>
+                <strong>@Model.DurationMinutes min</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Status</span>
+                <strong>@Model.Status</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Location</span>
+                <strong>@(string.IsNullOrWhiteSpace(Model.Location) ? "—" : Model.Location)</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Feedback Status</span>
+                <strong>@(string.IsNullOrWhiteSpace(Model.FeedbackStatus) ? "—" : Model.FeedbackStatus)</strong>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.MeetingLink))
+        {
+            <div class="meeting-row">
+                <span>Meeting Link</span>
+                <a href="@Model.MeetingLink" target="_blank" rel="noopener noreferrer">
+                    Open Meeting Link
+                </a>
+            </div>
+        }
+    </section>
+
+    <div class="section-heading">
+        <div>
+            <span>ASSESSMENT EVIDENCE</span>
+            <h2>Assessment Results</h2>
+        </div>
+
+        <p>
+            View the exact questions or practical tasks, the recorded interviewer
+            evaluation, and the score awarded for each item.
+        </p>
+    </div>
+
+    @if (assessments.Any())
+    {
+        @foreach (var assessment in assessments)
+        {
+            var answers =
+            assessment.Answers?
+            .OrderBy(a => a.AssessmentQuestion?.DisplayOrder ?? int.MaxValue)
+            .ThenBy(a => a.AssessmentQuestionId)
+            .ToList()
+            ?? new List<RecruitmentTracker.Models.AssessmentAnswer>();
+
+            <section class="assessment-card">
+                <div class="assessment-header">
+                    <div>
+                        <span class="section-kicker">ASSESSMENT</span>
+                        <h3>@(assessment.AssessmentTemplate?.Name ?? "Assessment")</h3>
+
+                        @if (!string.IsNullOrWhiteSpace(assessment.AssessmentTemplate?.Description))
+                        {
+                            <p>@assessment.AssessmentTemplate.Description</p>
+                        }
+                    </div>
+
+                    <div class="assessment-result-area">
+                        @if (assessment.Score.HasValue && assessment.MaxScore.HasValue)
+                        {
+                            <strong>
+                                @assessment.Score.Value.ToString("0.##") / @assessment.MaxScore.Value.ToString("0.##")
+                            </strong>
+                        }
+                        else
+                        {
+                            <strong>—</strong>
+                        }
+
+                    <span class="assessment-result-badge @(assessment.ResultStatus?.ToLower() ?? "pending")">
+                        @(assessment.ResultStatus ?? "Pending")
+                    </span>
+                </div>
+            </div>
+
+            <div class="assessment-meta">
+                <div>
+                    <span>Status</span>
+                    <strong>@assessment.Status</strong>
+                </div>
+
+                <div>
+                    <span>Assessment Date</span>
+                    <strong>
+                        @(assessment.AssessmentDate.HasValue
+                                            ? assessment.AssessmentDate.Value.ToString("dd MMM yyyy")
+                                            : "—")
+                                              </strong>
+                                          </div>
+
+                <div>
+                    <span>Evaluated By</span>
+                    <strong>
+                        @(assessment.ConductedByInterviewer?.FullName
+                                            ?? assessment.ConductedByInterviewer?.Email
+                                            ?? "—")
+                                               </strong>
+                                           </div>
+
+                <div>
+                    <span>Submitted</span>
+                    <strong>
+                        @(assessment.SubmittedDate.HasValue
+                                            ? assessment.SubmittedDate.Value.ToString("dd MMM yyyy HH:mm")
+                                            : "—")
+                </strong>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(assessment.Comments))
+                {
+                    <div class="overall-comment">
+                        <span>Overall Assessment Comment</span>
+                        <p>@assessment.Comments</p>
+                    </div>
+                }
+
+                @if (answers.Any())
+                {
+                    <div class="question-list">
+                        @{
+                            var questionNumber = 0;
+                        }
+
+                        @foreach (var answer in answers)
+                        {
+                            questionNumber++;
+
+                            var question = answer.AssessmentQuestion;
+                            var questionType = question?.QuestionType ?? "Question";
+
+                            var isPractical =
+                            questionType == "CodingTask" ||
+                            questionType == "PracticalTask";
+
+                            <article class="question-card @(isPractical ? "practical-question" : "")">
+                                <div class="question-top">
+                                    <div class="question-title-area">
+                                        <div class="question-meta-row">
+                                            <span class="question-number">Question @questionNumber</span>
+
+                                            <span class="question-type-badge @(isPractical ? "practical" : "")">
+                                                @GetQuestionTypeLabel(questionType)
+                                            </span>
+
+                                            @if (question?.IsRequired == true)
+                                            {
+                                                <span class="required-badge">Required</span>
+                                            }
+                                        </div>
+
+                                        <h4>@(question?.QuestionText ?? "Assessment Question")</h4>
+                                    </div>
+
+                                    <div class="question-score">
+                                        @if (answer.Score.HasValue)
+                                        {
+                                            <strong>@answer.Score.Value.ToString("0.##")</strong>
+
+                                            @if (question?.MaximumMarks != null)
+                                            {
+                                                <span>/ @question.MaximumMarks.Value.ToString("0.##")</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <strong>—</strong>
+                                        }
+                                </div>
+                            </div>
+
+                            <div class="evaluation-box">
+                                <span>
+                                    @(isPractical
+                                                            ? "Interviewer Evaluation / Practical Result"
+                                                            : "Interviewer Notes / Candidate Response")
+                    </span>
+
+                    @if (!string.IsNullOrWhiteSpace(answer.AnswerText))
+                                    {
+                                        <p>@answer.AnswerText</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="muted-text">No written evaluation was recorded.</p>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-section">
+                        No question-level responses were recorded for this assessment.
+                    </div>
+                }
+            </section>
+        }
+    }
+    else
+    {
+        <div class="empty-section">
+            No assessment was assigned to this interview.
+        </div>
+    }
+
+    <div class="section-heading feedback-heading">
+        <div>
+            <span>INTERVIEWER EVALUATION</span>
+            <h2>Interviewer Feedback</h2>
+        </div>
+
+        <p>
+            Structured ratings and written feedback submitted by the interviewer.
+        </p>
+    </div>
+
+    @if (feedbacks.Any())
+    {
+        @foreach (var feedback in feedbacks)
+        {
+            <section class="feedback-card">
+                <div class="feedback-header">
+                    <div>
+                        <span class="section-kicker">INTERVIEWER</span>
+                        <h3>
+                            @(feedback.Interviewer?.FullName
+                                                ?? feedback.Interviewer?.Email
+                                                ?? "Interviewer")
+                                                             </h3>
+                                                             <small>
+                                                                 Submitted @(feedback.SubmittedDate.ToString("dd MMM yyyy · HH:mm"))
+                                                             </small>
+                                                         </div>
+
+                    <div class="recommendation-box">
+                        <span>Recommendation</span>
+                        <strong>@feedback.Recommendation</strong>
+                    </div>
+                </div>
+
+                <div class="rating-grid">
+                    <div class="rating-box">
+                        <span>Technical Knowledge</span>
+                        <strong>@feedback.TechnicalRating / 5</strong>
+                        <small>@GetStars(feedback.TechnicalRating)</small>
+                    </div>
+
+                    <div class="rating-box">
+                        <span>Problem Solving</span>
+                        <strong>@feedback.ProblemSolvingRating / 5</strong>
+                        <small>@GetStars(feedback.ProblemSolvingRating)</small>
+                    </div>
+
+                    <div class="rating-box">
+                        <span>Communication</span>
+                        <strong>@feedback.CommunicationRating / 5</strong>
+                        <small>@GetStars(feedback.CommunicationRating)</small>
+                    </div>
+
+                    <div class="rating-box">
+                        <span>Role / Cultural Fit</span>
+                        <strong>@feedback.RoleFitRating / 5</strong>
+                        <small>@GetStars(feedback.RoleFitRating)</small>
+                    </div>
+
+                    <div class="rating-box">
+                        <span>Professionalism</span>
+                        <strong>@feedback.ProfessionalismRating / 5</strong>
+                        <small>@GetStars(feedback.ProfessionalismRating)</small>
+                    </div>
+
+                    <div class="rating-box overall">
+                        <span>Overall Rating</span>
+                        <strong>@feedback.OverallRating / 5</strong>
+                        <small>@GetStars(feedback.OverallRating)</small>
+                    </div>
+                </div>
+
+                <div class="written-feedback-grid">
+                    <div class="written-box strengths-box">
+                        <span>Strengths</span>
+                        <p>
+                            @(string.IsNullOrWhiteSpace(feedback.Strengths)
+                                                ? "No strengths were recorded."
+                                                : feedback.Strengths)
+                                                                 </p>
+                                                             </div>
+
+                    <div class="written-box weaknesses-box">
+                        <span>Weaknesses / Areas to Improve</span>
+                        <p>
+                            @(string.IsNullOrWhiteSpace(feedback.Weaknesses)
+                                                ? "No weaknesses were recorded."
+                                                : feedback.Weaknesses)
+                                                                  </p>
+                                                              </div>
+                                                          </div>
+
+                <div class="written-box comments-box">
+                    <span>General Comments</span>
+                    <p>
+                        @(string.IsNullOrWhiteSpace(feedback.Comments)
+                                        ? "No additional comments were recorded."
+                                        : feedback.Comments)
+            </p>
+        </div>
+    </section>
+        }
+    }
+    else
+    {
+        <div class="empty-section">
+            No interviewer feedback has been submitted yet.
+        </div>
+    }
+
+    <section class="decision-card">
+        <div class="decision-header">
+            <div>
+                <span class="section-kicker">HIRING MANAGER DECISION</span>
+                <h2>Interview Round Decision</h2>
+                <p>
+                    Assessment scores and interviewer recommendations are supporting
+                    evidence only. Record the Hiring Manager's decision for this round.
+                </p>
+            </div>
+
+            <span class="round-result-badge @roundResult.ToLower()">
+                @roundResult
+            </span>
+        </div>
+
+        @if (roundResult == "Pending")
+        {
+            @if (Model.Status == "Completed")
+            {
+                <form asp-controller="HiringManager"
+                      asp-action="DecideRound"
+                      method="post"
+                      class="decision-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="interviewId"
+                           value="@Model.Id" />
+
+                    <div class="decision-notes-field">
+                        <label for="notes">Decision Notes</label>
+
+                        <textarea id="notes"
+                          name="notes"
+                          rows="5"
+                          placeholder="Add the reason for the decision, key evidence from the assessment and interviewer feedback..."></textarea>
+                    </div>
+
+                    <div class="decision-actions">
+                        <button type="submit"
+                                name="decision"
+                                value="Pass"
+                                class="decision-btn pass-btn">
+                            Pass Round
+                        </button>
+
+                        <button type="submit"
+                                name="decision"
+                                value="Fail"
+                                class="decision-btn fail-btn"
+                                onclick="return confirm('Fail this interview round? The candidate will not progress to the next round.');">
+                            Fail Round
+                        </button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="decision-waiting">
+                    <strong>Waiting for interviewer completion</strong>
+                    <p>
+                        The round decision becomes available after all required
+                        assessments and assigned interviewer feedback are submitted.
+                    </p>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="decision-recorded">
+                <div>
+                    <span>Recorded Decision</span>
+                    <strong>@roundResult</strong>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.RoundDecisionNotes))
+                {
+                    <div>
+                        <span>Decision Notes</span>
+                        <p>@Model.RoundDecisionNotes</p>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@functions {
+
+    string GetQuestionTypeLabel(string type)
+    {
+        return type switch
+        {
+            "ShortText" => "Short Answer",
+            "LongText" => "Long Answer",
+            "Rating" => "Rating",
+            "YesNo" => "Yes / No",
+            "MultipleChoice" => "Multiple Choice",
+            "CodingTask" => "Coding Task",
+            "PracticalTask" => "Practical Task",
+            "Notes" => "Interviewer Notes",
+            _ => type
+        };
+    }
+
+    string GetStars(int rating)
+    {
+        var safeRating = Math.Clamp(rating, 0, 5);
+
+        return new string('★', safeRating)
+            + new string('☆', 5 - safeRating);
+    }
+}
+
+<style>
+    .hm-detail-page {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 32px;
+        color: #172033;
+    }
+
+    .hm-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 22px;
+    }
+
+    .hm-eyebrow,
+    .section-kicker {
+        display: block;
+        color: #98a2b3;
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .hm-detail-header h1 {
+        margin: 0;
+        color: #101828;
+        font-size: 30px;
+        font-weight: 760;
+    }
+
+    .hm-detail-header p {
+        max-width: 720px;
+        margin: 7px 0 0;
+        color: #7b8495;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .hm-back-btn {
+        text-decoration: none;
+        border: 1px solid #d8dee8;
+        background: white;
+        color: #475467;
+        padding: 10px 15px;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .hm-alert {
+        padding: 12px 15px;
+        margin-bottom: 16px;
+        border-radius: 10px;
+        font-size: 12px;
+    }
+
+        .hm-alert.success {
+            background: #ecfdf3;
+            border: 1px solid #abefc6;
+            color: #067647;
+        }
+
+        .hm-alert.error {
+            background: #fef3f2;
+            border: 1px solid #fecdca;
+            color: #b42318;
+        }
+
+    .summary-card,
+    .assessment-card,
+    .feedback-card,
+    .decision-card {
+        background: white;
+        border: 1px solid #e4e7ec;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+    }
+
+    .candidate-summary {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 19px 20px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .candidate-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 17px;
+        flex-shrink: 0;
+    }
+
+    .candidate-summary-text {
+        flex: 1;
+    }
+
+        .candidate-summary-text h2 {
+            margin: 0;
+            color: #101828;
+            font-size: 16px;
+        }
+
+        .candidate-summary-text span {
+            display: block;
+            margin-top: 3px;
+            color: #98a2b3;
+            font-size: 11px;
+        }
+
+        .candidate-summary-text strong {
+            display: block;
+            margin-top: 7px;
+            color: #475467;
+            font-size: 12px;
+        }
+
+        .candidate-summary-text small {
+            display: block;
+            margin-top: 2px;
+            color: #98a2b3;
+            font-size: 9px;
+        }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .summary-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+        .summary-item span,
+        .meeting-row > span,
+        .assessment-meta span,
+        .overall-comment > span,
+        .evaluation-box > span,
+        .written-box > span,
+        .decision-recorded span,
+        .recommendation-box span {
+            display: block;
+            color: #98a2b3;
+            font-size: 9px;
+            font-weight: 650;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: 5px;
+        }
+
+        .summary-item strong {
+            color: #344054;
+            font-size: 12px;
+        }
+
+    .meeting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 20px;
+    }
+
+        .meeting-row > span {
+            margin: 0;
+        }
+
+        .meeting-row a {
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+    .round-result-badge,
+    .assessment-result-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 9px;
+        font-weight: 750;
+        background: #fffaeb;
+        color: #b54708;
+        white-space: nowrap;
+    }
+
+        .round-result-badge.passed,
+        .assessment-result-badge.pass,
+        .assessment-result-badge.passed {
+            background: #ecfdf3;
+            color: #067647;
+        }
+
+        .round-result-badge.failed,
+        .assessment-result-badge.fail,
+        .assessment-result-badge.failed {
+            background: #fef3f2;
+            color: #b42318;
+        }
+
+    .section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+        margin: 28px 0 12px;
+    }
+
+        .section-heading > div > span {
+            display: block;
+            color: #98a2b3;
+            font-size: 9px;
+            font-weight: 750;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            color: #101828;
+            font-size: 18px;
+        }
+
+        .section-heading p {
+            max-width: 560px;
+            margin: 0;
+            text-align: right;
+            color: #98a2b3;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+    .assessment-card + .assessment-card,
+    .feedback-card + .feedback-card {
+        margin-top: 15px;
+    }
+
+    .assessment-header,
+    .feedback-header,
+    .decision-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px 20px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+        .assessment-header h3,
+        .feedback-header h3,
+        .decision-header h2 {
+            margin: 0;
+            color: #101828;
+            font-size: 15px;
+        }
+
+        .assessment-header p,
+        .decision-header p {
+            max-width: 720px;
+            margin: 6px 0 0;
+            color: #98a2b3;
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+    .assessment-result-area {
+        text-align: right;
+        min-width: 100px;
+    }
+
+        .assessment-result-area > strong {
+            display: block;
+            color: #101828;
+            font-size: 19px;
+            margin-bottom: 5px;
+        }
+
+    .assessment-meta {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        border-bottom: 1px solid #edf0f3;
+        background: #fbfcfd;
+    }
+
+        .assessment-meta > div {
+            padding: 13px 20px;
+        }
+
+        .assessment-meta strong {
+            color: #475467;
+            font-size: 10px;
+        }
+
+    .overall-comment {
+        padding: 15px 20px;
+        border-bottom: 1px solid #edf0f3;
+        background: #f9fafb;
+    }
+
+        .overall-comment p,
+        .evaluation-box p,
+        .written-box p,
+        .decision-recorded p {
+            margin: 0;
+            color: #475467;
+            font-size: 11px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+    .question-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 18px 20px;
+    }
+
+    .question-card {
+        border: 1px solid #e4e7ec;
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+    }
+
+        .question-card.practical-question {
+            border-color: #c7d7fe;
+        }
+
+    .question-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 15px;
+        background: #f9fafb;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .practical-question .question-top {
+        background: #f5f8ff;
+    }
+
+    .question-title-area {
+        flex: 1;
+    }
+
+    .question-meta-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 7px;
+    }
+
+    .question-number {
+        color: #667085;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    .question-type-badge,
+    .required-badge {
+        padding: 4px 7px;
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+    .question-type-badge {
+        background: #f2f4f7;
+        color: #475467;
+    }
+
+        .question-type-badge.practical {
+            background: #eef4ff;
+            color: #3538cd;
+        }
+
+    .required-badge {
+        background: #fff6ed;
+        color: #c4320a;
+    }
+
+    .question-top h4 {
+        margin: 0;
+        color: #344054;
+        font-size: 12px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+
+    .question-score {
+        min-width: 80px;
+        text-align: right;
+        align-self: center;
+    }
+
+        .question-score strong {
+            color: #101828;
+            font-size: 18px;
+        }
+
+        .question-score span {
+            color: #98a2b3;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+    .evaluation-box {
+        padding: 14px 15px;
+    }
+
+    .muted-text {
+        color: #98a2b3 !important;
+        font-style: italic;
+    }
+
+    .feedback-header small {
+        display: block;
+        margin-top: 5px;
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .recommendation-box {
+        min-width: 130px;
+        padding: 10px 12px;
+        border: 1px solid #c7d7fe;
+        border-radius: 10px;
+        background: #eef4ff;
+    }
+
+        .recommendation-box strong {
+            color: #3538cd;
+            font-size: 12px;
+        }
+
+    .rating-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+        padding: 17px 20px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .rating-box {
+        padding: 12px;
+        border: 1px solid #e4e7ec;
+        border-radius: 10px;
+        background: #f9fafb;
+    }
+
+        .rating-box.overall {
+            background: #eef4ff;
+            border-color: #c7d7fe;
+        }
+
+        .rating-box > span {
+            display: block;
+            color: #98a2b3;
+            font-size: 8px;
+            margin-bottom: 4px;
+        }
+
+        .rating-box strong {
+            display: block;
+            color: #344054;
+            font-size: 12px;
+        }
+
+        .rating-box small {
+            display: block;
+            margin-top: 5px;
+            color: #f59e0b;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+    .written-feedback-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 17px 20px 0;
+    }
+
+    .written-box {
+        padding: 14px 15px;
+        border: 1px solid #e4e7ec;
+        border-radius: 10px;
+        background: #f9fafb;
+    }
+
+    .strengths-box {
+        background: #f6fef9;
+        border-color: #d1fadf;
+    }
+
+    .weaknesses-box {
+        background: #fffafa;
+        border-color: #fee4e2;
+    }
+
+    .comments-box {
+        margin: 12px 20px 18px;
+    }
+
+    .empty-section {
+        padding: 28px 20px;
+        border: 1px dashed #d0d5dd;
+        border-radius: 12px;
+        background: white;
+        color: #98a2b3;
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .decision-card {
+        margin-top: 28px;
+    }
+
+    .decision-header {
+        background: #fbfcfd;
+    }
+
+    .decision-form {
+        padding: 18px 20px 20px;
+    }
+
+    .decision-notes-field label {
+        display: block;
+        margin-bottom: 6px;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .decision-notes-field textarea {
+        width: 100%;
+        border: 1px solid #d0d5dd;
+        border-radius: 10px;
+        padding: 11px 12px;
+        resize: vertical;
+        outline: none;
+        color: #344054;
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .decision-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .decision-btn {
+        border: 0;
+        border-radius: 9px;
+        padding: 10px 16px;
+        font-size: 11px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .pass-btn {
+        background: #067647;
+        color: white;
+    }
+
+    .fail-btn {
+        background: #b42318;
+        color: white;
+    }
+
+    .decision-waiting {
+        padding: 18px 20px;
+        background: #fffaeb;
+    }
+
+        .decision-waiting strong {
+            color: #b54708;
+            font-size: 11px;
+        }
+
+        .decision-waiting p {
+            margin: 5px 0 0;
+            color: #7a5d17;
+            font-size: 10px;
+        }
+
+    .decision-recorded {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 20px;
+        padding: 18px 20px;
+    }
+
+        .decision-recorded strong {
+            color: #344054;
+            font-size: 12px;
+        }
+
+    @@media (max-width: 950px) {
+        .summary-grid,
+        .assessment-meta {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .rating-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .hm-detail-page {
+            padding: 20px;
+        }
+
+        .hm-detail-header,
+        .section-heading,
+        .assessment-header,
+        .feedback-header,
+        .decision-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .section-heading p {
+                text-align: left;
+            }
+
+        .summary-grid,
+        .assessment-meta,
+        .written-feedback-grid,
+        .decision-recorded {
+            grid-template-columns: 1fr;
+        }
+
+        .rating-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .question-top {
+            flex-direction: column;
+        }
+
+        .question-score {
+            text-align: left;
+        }
+
+        .decision-actions {
+            flex-direction: column;
+        }
+
+        .decision-btn {
+            width: 100%;
+        }
+    }
+</style>

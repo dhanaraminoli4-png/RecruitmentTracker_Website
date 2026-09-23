@@ -1,0 +1,687 @@
+﻿@model RecruitmentTracker.Models.ScheduleInterviewViewModel
+
+
+<div class="schedule-modal">
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="schedule-modal-header">
+
+        <div>
+            <h2>Schedule New Interview</h2>
+
+            <p class="schedule-modal-subtitle">
+                Select the candidate, interview round, assessment
+                and a suitable interviewer.
+            </p>
+        </div>
+
+
+        <button type="button"
+                class="schedule-close"
+                onclick="closeScheduleModal()">
+            ×
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+         FORM
+         ========================================================= -->
+
+    <form asp-controller="Interview"
+          asp-action="Schedule"
+          method="post"
+          id="scheduleInterviewForm">
+
+        @Html.AntiForgeryToken()
+
+
+        <!-- =====================================================
+             JOB
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <label>
+                Job <span>*</span>
+            </label>
+
+
+            <select asp-for="JobVacancyId"
+                    asp-items="Model.Jobs"
+                    id="scheduleJob"
+                    onchange="loadJobInformation(); loadAvailableInterviewers(); clearAssessmentSelection();"
+                    required>
+
+                <option value="">
+                    Select Job Posting
+                </option>
+
+            </select>
+
+
+            <span asp-validation-for="JobVacancyId"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             CANDIDATES
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <div class="candidate-heading">
+
+                <label>
+                    Candidates <span>*</span>
+                </label>
+
+
+                <button type="button"
+                        id="selectAllCandidatesButton"
+                        class="select-all-button"
+                        onclick="toggleAllCandidates()"
+                        disabled>
+
+                    Select All
+
+                </button>
+
+            </div>
+
+
+            <div id="candidateList"
+                 class="candidate-selection">
+
+                <div class="candidate-empty">
+
+                    Select a job first to view candidates
+                    approved for interview.
+
+                </div>
+
+            </div>
+
+
+            <span asp-validation-for="SelectedApplicationIds"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             INTERVIEW ROUND
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <label>
+                Interview Round <span>*</span>
+            </label>
+
+
+            <select asp-for="InterviewRoundId"
+                    id="scheduleRound"
+                    onchange="loadAssessmentsForRound()"
+                    required>
+
+                <option value="">
+                    Select Interview Round
+                </option>
+
+            </select>
+
+
+            <span asp-validation-for="InterviewRoundId"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             ASSESSMENT
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <label>
+                Assessment
+            </label>
+
+
+            <select asp-for="AssessmentTemplateId"
+                    id="scheduleAssessment">
+
+                <option value="">
+                    Select Assessment
+                </option>
+
+            </select>
+
+
+            <small>
+                Optional assessment assigned to this
+                candidate interview round.
+            </small>
+
+        </div>
+
+
+        <!-- =====================================================
+             INTERVIEW TYPE
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <label>
+                Interview Type <span>*</span>
+            </label>
+
+
+            <select asp-for="InterviewTypeId"
+                    asp-items="Model.InterviewTypes"
+                    required>
+
+                <option value="">
+                    Select Interview Type
+                </option>
+
+            </select>
+
+
+            <span asp-validation-for="InterviewTypeId"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             DATE + TIME
+             ===================================================== -->
+
+        <div class="schedule-row">
+
+
+            <!-- DATE -->
+
+            <div class="schedule-field">
+
+                <label>
+                    Date <span>*</span>
+                </label>
+
+
+                <input asp-for="InterviewDate"
+                       type="date"
+                       id="scheduleDate"
+                       onchange="loadAvailableInterviewers()"
+                       required />
+
+
+                <span asp-validation-for="InterviewDate"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+
+            <!-- TIME -->
+
+            <div class="schedule-field">
+
+                <label>
+                    Time <span>*</span>
+                </label>
+
+
+                <input asp-for="InterviewTime"
+                       type="time"
+                       id="scheduleTime"
+                       onchange="loadAvailableInterviewers()"
+                       required />
+
+
+                <span asp-validation-for="InterviewTime"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             DURATION
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <label>
+                Duration (minutes) <span>*</span>
+            </label>
+
+
+            <input asp-for="DurationMinutes"
+                   type="number"
+                   id="scheduleDuration"
+                   min="10"
+                   placeholder="e.g. 60"
+                   onchange="loadAvailableInterviewers()"
+                   oninput="loadAvailableInterviewers()"
+                   required />
+
+
+            <span asp-validation-for="DurationMinutes"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             INTERVIEWERS
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <div class="interviewer-picker-header">
+
+                <div>
+
+                    <label>
+                        Available Interviewers <span>*</span>
+                    </label>
+
+
+                    <small>
+                        Only interviewers who meet the eligibility requirements
+                        and have no overlapping HireTrack interview will appear here.
+                    </small>
+
+                </div>
+
+
+                <span id="interviewerAvailabilityCount"
+                      class="availability-count"
+                      style="display:none;">
+                </span>
+
+            </div>
+
+
+            <!-- AVAILABLE INTERVIEWER CARDS -->
+
+            <div id="availableInterviewers"
+                 class="available-interviewers">
+
+                <div class="interviewer-empty-state">
+
+                    <div class="interviewer-empty-icon">
+                        ◷
+                    </div>
+
+
+                    <strong>
+                        Select interview details first
+                    </strong>
+
+
+                    <span>
+                        Choose the job, date, time and duration
+                        to find eligible and available interviewers.
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!--
+                JavaScript creates:
+                <input name="SelectedInterviewerIds" ... />
+                inside this container.
+            -->
+
+            <div id="selectedInterviewerInputs">
+            </div>
+
+
+            <span asp-validation-for="SelectedInterviewerIds"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             LOCATION
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <label>
+                Location
+            </label>
+
+
+            <input asp-for="Location"
+                   placeholder="e.g. Conference Room A, Floor 2" />
+
+
+            <span asp-validation-for="Location"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             MEETING LINK
+             ===================================================== -->
+
+        <div class="schedule-field">
+
+            <label>
+                Meeting Link
+            </label>
+
+
+            <input asp-for="MeetingLink"
+                   placeholder="https://meet.google.com/xxx-xxxx-xxx" />
+
+
+            <span asp-validation-for="MeetingLink"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+
+        <!-- =====================================================
+             FOOTER
+             ===================================================== -->
+
+        <div class="schedule-footer">
+
+
+            <button type="button"
+                    class="schedule-cancel"
+                    onclick="closeScheduleModal()">
+
+                Cancel
+
+            </button>
+
+
+            <button type="submit"
+                    class="schedule-save">
+
+                Schedule Interviews
+
+            </button>
+
+        </div>
+
+
+    </form>
+
+</div>
+
+
+<script>
+
+    // ============================================================
+    // JOB CHANGED
+    // ============================================================
+
+    function handleScheduleJobChange() {
+
+        clearAssessmentSelection();
+
+
+        const round =
+            document.getElementById(
+                "scheduleRound"
+            );
+
+
+        if (round) {
+
+            round.innerHTML = `
+                <option value="">
+                    Select Interview Round
+                </option>
+            `;
+        }
+
+
+        // Existing functions from your interview page
+        if (typeof loadJobInformation === "function") {
+
+            loadJobInformation();
+        }
+
+
+        if (typeof loadAvailableInterviewers === "function") {
+
+            loadAvailableInterviewers();
+        }
+    }
+
+
+    // ============================================================
+    // CLEAR ASSESSMENT
+    // ============================================================
+
+    function clearAssessmentSelection() {
+
+        const assessment =
+            document.getElementById(
+                "scheduleAssessment"
+            );
+
+
+        if (!assessment) {
+
+            return;
+        }
+
+
+        assessment.innerHTML = `
+            <option value="">
+                Select Assessment
+            </option>
+        `;
+    }
+
+
+    // ============================================================
+    // LOAD ASSESSMENTS FOR SELECTED JOB + ROUND
+    // ============================================================
+
+    async function loadAssessmentsForRound() {
+
+        const job =
+            document.getElementById(
+                "scheduleJob"
+            );
+
+
+        const round =
+            document.getElementById(
+                "scheduleRound"
+            );
+
+
+        const assessment =
+            document.getElementById(
+                "scheduleAssessment"
+            );
+
+
+        if (!job ||
+            !round ||
+            !assessment) {
+
+            return;
+        }
+
+
+        const jobId =
+            job.value;
+
+
+        const roundId =
+            round.value;
+
+
+        // --------------------------------------------------------
+        // RESET DROPDOWN
+        // --------------------------------------------------------
+
+        assessment.innerHTML = `
+            <option value="">
+                Select Assessment
+            </option>
+        `;
+
+
+        // --------------------------------------------------------
+        // JOB / ROUND NOT SELECTED
+        // --------------------------------------------------------
+
+        if (!jobId ||
+            !roundId) {
+
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // LOADING MESSAGE
+        // --------------------------------------------------------
+
+        assessment.innerHTML = `
+            <option value="">
+                Loading assessments...
+            </option>
+        `;
+
+
+        assessment.disabled =
+            true;
+
+
+        try {
+
+            const url =
+                `/Interview/GetAssessments?jobId=${encodeURIComponent(jobId)}&roundId=${encodeURIComponent(roundId)}`;
+
+
+            const response =
+                await fetch(
+                    url
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load assessments."
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            // ----------------------------------------------------
+            // NO ASSESSMENTS
+            // ----------------------------------------------------
+
+            if (!data ||
+                data.length === 0) {
+
+                assessment.innerHTML = `
+                    <option value="">
+                        No assessment available for this round
+                    </option>
+                `;
+
+
+                return;
+            }
+
+
+            // ----------------------------------------------------
+            // DEFAULT OPTION
+            // ----------------------------------------------------
+
+            assessment.innerHTML = `
+                <option value="">
+                    Select Assessment
+                </option>
+            `;
+
+
+            // ----------------------------------------------------
+            // CREATE OPTIONS
+            // ----------------------------------------------------
+
+            data.forEach(
+                item => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        item.id;
+
+
+                    option.textContent =
+                        item.name;
+
+
+                    assessment.appendChild(
+                        option
+                    );
+                }
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "Assessment loading error:",
+                error
+            );
+
+
+            assessment.innerHTML = `
+                <option value="">
+                    Unable to load assessments
+                </option>
+            `;
+        }
+        finally {
+
+            assessment.disabled =
+                false;
+        }
+    }
+
+</script>
