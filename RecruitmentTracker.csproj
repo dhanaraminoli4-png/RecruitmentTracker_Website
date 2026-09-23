@@ -28,6 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="QA-Automation\" />
 	  <Folder Include="wwwroot\uploads\cvs\" />
 	</ItemGroup>
 

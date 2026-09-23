@@ -1,0 +1,797 @@
+﻿@model RecruitmentTracker.Models.InterviewerProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<style>
+    .edit-profile-page {
+        min-height: calc(100vh - 70px);
+        background: #f6f8fb;
+        padding: 30px 38px 60px;
+    }
+
+    .edit-profile-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .edit-profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
+    }
+
+        .edit-profile-header h1 {
+            margin: 0;
+            color: #0b1f3a;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .edit-profile-header p {
+            margin: 6px 0 0;
+            color: #8491a2;
+            font-size: 13px;
+        }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 42px;
+        padding: 0 16px;
+        border: 1px solid #d9e0e8;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #536174;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .edit-card {
+        background: #ffffff;
+        border: 1px solid #e2e8ef;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, .04);
+    }
+
+    .edit-section {
+        margin-bottom: 34px;
+    }
+
+        .edit-section:last-child {
+            margin-bottom: 0;
+        }
+
+    .edit-section-header {
+        margin-bottom: 20px;
+        padding-bottom: 13px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+        .edit-section-header h2 {
+            margin: 0;
+            color: #17243a;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .edit-section-header p {
+            margin: 5px 0 0;
+            color: #98a2b3;
+            font-size: 11px;
+        }
+
+    .profile-photo-section {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-bottom: 28px;
+        padding: 20px;
+        border: 1px solid #edf0f4;
+        border-radius: 14px;
+        background: #fafbfc;
+    }
+
+    .profile-photo-preview {
+        width: 110px;
+        height: 110px;
+        flex: 0 0 110px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #ebe8ff;
+        border: 4px solid #f3f1ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6251b9;
+        font-size: 34px;
+        font-weight: 800;
+    }
+
+        .profile-photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .photo-upload-info {
+        flex: 1;
+    }
+
+        .photo-upload-info strong {
+            display: block;
+            color: #17243a;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .photo-upload-info span {
+            display: block;
+            color: #98a2b3;
+            font-size: 10px;
+            margin-bottom: 10px;
+        }
+
+    .photo-input {
+        font-size: 11px;
+    }
+
+    .edit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+    .form-label {
+        color: #536174;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .form-control-custom {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 13px;
+        border: 1px solid #d9e0e8;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #17243a;
+        font-size: 13px;
+        outline: none;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    textarea.form-control-custom {
+        min-height: 110px;
+        padding: 12px 13px;
+        resize: vertical;
+    }
+
+    .form-control-custom:focus {
+        border-color: #8e80db;
+        box-shadow: 0 0 0 3px rgba(142, 128, 219, .12);
+    }
+
+    .form-control-custom[readonly] {
+        background: #f7f8fa;
+        color: #8b96a6;
+        cursor: not-allowed;
+    }
+
+    .validation-text {
+        color: #d92d20;
+        font-size: 10px;
+    }
+
+    .helper-text {
+        color: #98a2b3;
+        font-size: 10px;
+    }
+
+    .edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f4;
+    }
+
+    .cancel-btn,
+    .save-btn {
+        height: 42px;
+        padding: 0 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 750;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .cancel-btn {
+        border: 1px solid #d9e0e8;
+        background: #ffffff;
+        color: #536174;
+    }
+
+    .save-btn {
+        border: none;
+        background: #0b1f3a;
+        color: #ffffff;
+    }
+
+        .save-btn:hover {
+            background: #16345d;
+        }
+
+    @@media(max-width: 760px) {
+        .edit-profile-page {
+            padding: 20px 14px 45px;
+        }
+
+        .edit-profile-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .edit-card {
+            padding: 22px 18px;
+        }
+
+        .edit-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: auto;
+        }
+
+        .profile-photo-section {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .edit-actions {
+            flex-direction: column-reverse;
+        }
+
+        .cancel-btn,
+        .save-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="edit-profile-page">
+
+    <div class="edit-profile-wrapper">
+
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
+        <div class="edit-profile-header">
+
+            <div>
+
+                <h1>
+                    Edit Profile
+                </h1>
+
+                <p>
+                    Update your interviewer profile and eligibility information.
+                </p>
+
+            </div>
+
+
+            <a asp-controller="InterviewerProfile"
+               asp-action="Profile"
+               class="back-btn">
+
+                ← Back to Profile
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             FORM
+             ===================================================== -->
+
+        <div class="edit-card">
+
+            <form asp-controller="InterviewerProfile"
+                  asp-action="Edit"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+
+                <!-- =================================================
+                     PROFILE IMAGE
+                     ================================================= -->
+
+                <div class="edit-section">
+
+                    <div class="edit-section-header">
+
+                        <h2>
+                            Profile Picture
+                        </h2>
+
+                        <p>
+                            Update your profile photo.
+                        </p>
+
+                    </div>
+
+
+                    <div class="profile-photo-section">
+
+                        <div class="profile-photo-preview"
+                             id="profileImagePreview">
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                                        Model.ExistingProfileImage))
+                            {
+                                <img src="@Model.ExistingProfileImage"
+                                     id="previewImage"
+                                     alt="Profile picture" />
+                            }
+                            else
+                            {
+                                <span id="previewInitial">
+                                    @(string.IsNullOrWhiteSpace(Model.FullName)
+                                                                    ? "?"
+                                                                    : Model.FullName.Substring(0, 1).ToUpper())
+                            </span>
+                                                        }
+
+                        </div>
+
+
+                        <div class="photo-upload-info">
+
+                            <strong>
+                                Upload Profile Picture
+                            </strong>
+
+                            <span>
+                                JPG, JPEG, PNG or WEBP. Maximum size 2MB.
+                            </span>
+
+
+                            <input asp-for="ProfileImage"
+                                   type="file"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                   class="photo-input"
+                                   onchange="previewProfileImage(this)" />
+
+
+                            <span asp-validation-for="ProfileImage"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     PERSONAL INFORMATION
+                     ================================================= -->
+
+                <div class="edit-section">
+
+                    <div class="edit-section-header">
+
+                        <h2>
+                            Basic Information
+                        </h2>
+
+                        <p>
+                            Update your personal information.
+                        </p>
+
+                    </div>
+
+
+                    <div class="edit-grid">
+
+
+                        <!-- FULL NAME -->
+
+                        <div class="form-group">
+
+                            <label asp-for="FullName"
+                                   class="form-label">
+                                Full Name
+                            </label>
+
+                            <input asp-for="FullName"
+                                   class="form-control-custom" />
+
+                            <span asp-validation-for="FullName"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Email Address
+                            </label>
+
+                            <input value="@Model.Email"
+                                   class="form-control-custom"
+                                   readonly />
+
+                            <span class="helper-text">
+                                Your account email cannot be changed here.
+                            </span>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="form-group">
+
+                            <label asp-for="PhoneNumber"
+                                   class="form-label">
+                                Phone Number
+                            </label>
+
+                            <input asp-for="PhoneNumber"
+                                   class="form-control-custom" />
+
+                            <span asp-validation-for="PhoneNumber"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                        <!-- DATE OF BIRTH -->
+
+                        <div class="form-group">
+
+                            <label asp-for="DateOfBirth"
+                                   class="form-label">
+                                Date of Birth
+                            </label>
+
+                            <input asp-for="DateOfBirth"
+                                   type="date"
+                                   class="form-control-custom" />
+
+                            <span asp-validation-for="DateOfBirth"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                        <!-- GENDER -->
+
+                        <div class="form-group">
+
+                            <label asp-for="Gender"
+                                   class="form-label">
+                                Gender
+                            </label>
+
+                            <select asp-for="Gender"
+                                    class="form-control-custom">
+
+                                <option value="">
+                                    Select Gender
+                                </option>
+
+                                <option value="Male">
+                                    Male
+                                </option>
+
+                                <option value="Female">
+                                    Female
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                                <option value="Prefer not to say">
+                                    Prefer not to say
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="Gender"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     PROFESSIONAL INFORMATION
+                     ================================================= -->
+
+                <div class="edit-section">
+
+                    <div class="edit-section-header">
+
+                        <h2>
+                            Professional & Eligibility Information
+                        </h2>
+
+                        <p>
+                            These details help determine which interviews you are eligible to conduct.
+                        </p>
+
+                    </div>
+
+
+                    <div class="edit-grid">
+
+
+                        <!-- DEPARTMENT -->
+
+                        <div class="form-group">
+
+                            <label asp-for="Department"
+                                   class="form-label">
+                                Department
+                            </label>
+
+                            <input asp-for="Department"
+                                   class="form-control-custom"
+                                   placeholder="Example: Software Engineering" />
+
+                            <span asp-validation-for="Department"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                        <!-- JOB TITLE -->
+
+                        <div class="form-group">
+
+                            <label asp-for="JobTitle"
+                                   class="form-label">
+                                Current Position
+                            </label>
+
+                            <input asp-for="JobTitle"
+                                   class="form-control-custom"
+                                   placeholder="Example: Senior Software Engineer" />
+
+                            <span asp-validation-for="JobTitle"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                        <!-- SENIORITY -->
+
+                        <div class="form-group">
+
+                            <label asp-for="SeniorityLevel"
+                                   class="form-label">
+                                Seniority Level
+                            </label>
+
+                            <select asp-for="SeniorityLevel"
+                                    class="form-control-custom">
+
+                                <option value="">
+                                    Select Seniority Level
+                                </option>
+
+                                <option value="Junior">
+                                    Junior
+                                </option>
+
+                                <option value="Mid-Level">
+                                    Mid-Level
+                                </option>
+
+                                <option value="Senior">
+                                    Senior
+                                </option>
+
+                                <option value="Lead">
+                                    Lead
+                                </option>
+
+                                <option value="Manager">
+                                    Manager
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="SeniorityLevel"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                        <!-- EXPERIENCE -->
+
+                        <div class="form-group">
+
+                            <label asp-for="YearsOfExperience"
+                                   class="form-label">
+                                Years of Experience
+                            </label>
+
+                            <input asp-for="YearsOfExperience"
+                                   type="number"
+                                   min="0"
+                                   max="60"
+                                   class="form-control-custom" />
+
+                            <span asp-validation-for="YearsOfExperience"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                        <!-- SKILLS -->
+
+                        <div class="form-group full">
+
+                            <label asp-for="Skills"
+                                   class="form-label">
+                                Skills
+                            </label>
+
+                            <textarea asp-for="Skills"
+                                      class="form-control-custom"
+                                      placeholder="Example: C#, ASP.NET Core, SQL, DevOps, QA, AI, Machine Learning"></textarea>
+
+                            <span class="helper-text">
+                                Separate each skill using a comma.
+                            </span>
+
+                            <span asp-validation-for="Skills"
+                                  class="validation-text">
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     ACTION BUTTONS
+                     ================================================= -->
+
+                <div class="edit-actions">
+
+                    <a asp-controller="InterviewerProfile"
+                       asp-action="Profile"
+                       class="cancel-btn">
+
+                        Cancel
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="save-btn">
+
+                        Save Changes
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        function previewProfileImage(input) {
+
+            if (!input.files ||
+                input.files.length === 0) {
+
+                return;
+            }
+
+
+            const file =
+                input.files[0];
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function (event) {
+
+                    const preview =
+                        document.getElementById(
+                            "profileImagePreview"
+                        );
+
+
+                    if (!preview) {
+                        return;
+                    }
+
+
+                    preview.innerHTML =
+                        `<img src="${event.target.result}"
+                              id="previewImage"
+                              alt="Profile picture" />`;
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+        }
+
+    </script>
+
+}

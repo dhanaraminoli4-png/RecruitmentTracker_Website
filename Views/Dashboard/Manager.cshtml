@@ -1,4 +1,1574 @@
-@{ ViewData["Title"] = "Hiring Manager Dashboard"; }
-<div class="page-heading"><div><div class="section-label">HIRING MANAGER WORKSPACE</div><h1>Candidate decisions</h1><p>Review the shortlist handed over by HR and keep every decision attached to its original application.</p></div><a asp-controller="HiringManager" asp-action="Applications" class="btn btn-primary">Open candidate queue</a></div>
-<div class="hero-panel mb-4"><div class="section-label" style="color:#9fb4d0">HR HANDOFF</div><h2 class="mt-2">Your review queue stays connected.</h2><p>Applications are never removed when you make a decision. The Hiring Manager decision is stored separately from the candidate-facing Sprint 1 status.</p></div>
-<div class="row g-3"><div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="stat-icon mb-3">◎</div><h5>Candidate queue</h5><p class="text-muted">Review every candidate HR has shortlisted for your attention.</p><a asp-controller="HiringManager" asp-action="Applications" class="btn btn-primary">View candidates</a></div></div></div><div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="stat-icon mb-3">◷</div><h5>Decision history</h5><p class="text-muted">Completed decisions remain attached to the application for auditability.</p></div></div></div><div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="stat-icon mb-3">✓</div><h5>Sprint 1 boundary</h5><p class="text-muted">Candidate-facing status remains <strong>Shortlisted</strong> while internal HM decisions are recorded.</p></div></div></div></div>
+@{
+    ViewData["Title"] = "Hiring Manager Dashboard";
+}
+
+<div class="hm-dashboard-page">
+
+    <!-- =========================================================
+         TOP HEADER
+    ========================================================== -->
+    <div class="hm-top-header">
+
+        <div class="hm-heading-area">
+            <span class="hm-eyebrow">HIRING MANAGER WORKSPACE</span>
+
+            <h1>Candidate decisions</h1>
+
+            <p>
+                Review candidates shortlisted by HR and manage your
+                hiring decisions from one workspace.
+            </p>
+        </div>
+
+        <div class="hm-header-actions">
+
+            <div class="hm-search-box">
+                <span class="hm-search-icon">⌕</span>
+                <input type="text"
+                       placeholder="Search candidates..." />
+            </div>
+
+            <a asp-controller="HiringManager"
+               asp-action="Applications"
+               class="hm-new-btn">
+
+                Candidate Queue
+
+                <span class="hm-plus">+</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MAIN DASHBOARD GRID
+    ========================================================== -->
+    <div class="hm-main-grid">
+
+
+        <!-- =====================================================
+             LEFT / MAIN CONTENT
+        ====================================================== -->
+        <div class="hm-main-content">
+
+
+            <!-- =============================================
+                 WELCOME / HERO CARD
+            ============================================== -->
+            <div class="hm-welcome-card">
+
+                <div class="hm-welcome-content">
+
+                    <span class="hm-mini-label">
+                        HR HANDOFF
+                    </span>
+
+                    <h2>
+                        Your shortlisted candidates
+                        are ready for review.
+                    </h2>
+
+                    <p>
+                        Review candidates forwarded by HR,
+                        check their recruitment progress and
+                        record your final hiring decision.
+                    </p>
+
+                    <a asp-controller="HiringManager"
+                       asp-action="Applications"
+                       class="hm-review-btn">
+
+                        Review Candidates
+
+                        <span>→</span>
+
+                    </a>
+
+                </div>
+
+
+                <!-- Decorative illustration -->
+                <div class="hm-welcome-art">
+
+                    <div class="hm-art-circle hm-art-circle-one"></div>
+                    <div class="hm-art-circle hm-art-circle-two"></div>
+
+                    <div class="hm-person-card">
+
+                        <div class="hm-person-head"></div>
+
+                        <div class="hm-person-body"></div>
+
+                        <div class="hm-check-circle">
+                            ✓
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 QUICK CARDS
+            ============================================== -->
+            <div class="hm-quick-grid">
+
+
+                <!-- CANDIDATE QUEUE -->
+                <a asp-controller="HiringManager"
+                   asp-action="Applications"
+                   class="hm-quick-card hm-link-card">
+
+                    <div class="hm-card-header">
+
+                        <div class="hm-card-icon blue">
+                            <span>◎</span>
+                        </div>
+
+                        <span class="hm-active-badge">
+                            ACTIVE
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Candidate Queue
+                    </h3>
+
+                    <p>
+                        Review every candidate HR has
+                        shortlisted for your approval.
+                    </p>
+
+                    <div class="hm-card-bottom">
+
+                        <span>
+                            View candidates
+                        </span>
+
+                        <span class="hm-arrow">
+                            →
+                        </span>
+
+                    </div>
+
+                </a>
+
+
+
+                <!-- INTERVIEW REVIEWS -->
+                <a asp-controller="HiringManager"
+                   asp-action="InterviewReviews"
+                   class="hm-quick-card hm-link-card">
+
+                    <div class="hm-card-header">
+
+                        <div class="hm-card-icon purple">
+                            <span>▣</span>
+                        </div>
+
+                        <span class="hm-small-status">
+                            Interviews
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Interview Reviews
+                    </h3>
+
+                    <p>
+                        Review interview assessments,
+                        interviewer feedback and round results.
+                    </p>
+
+                    <div class="hm-card-bottom">
+
+                        <span>
+                            Review interviews
+                        </span>
+
+                        <span class="hm-arrow">
+                            →
+                        </span>
+
+                    </div>
+
+                </a>
+
+
+
+                <!-- DECISION HISTORY -->
+                <div class="hm-quick-card">
+
+                    <div class="hm-card-header">
+
+                        <div class="hm-card-icon orange">
+                            <span>◷</span>
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Decision History
+                    </h3>
+
+                    <p>
+                        Previous decisions remain linked to
+                        each candidate application.
+                    </p>
+
+                    <div class="hm-card-bottom muted">
+
+                        <span>
+                            Decision records
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- APPLICATION TRACKING -->
+                <div class="hm-quick-card">
+
+                    <div class="hm-card-header">
+
+                        <div class="hm-card-icon green">
+                            <span>✓</span>
+                        </div>
+
+                    </div>
+
+                    <h3>
+                        Application Tracking
+                    </h3>
+
+                    <p>
+                        Follow shortlisted candidates through
+                        the recruitment and interview process.
+                    </p>
+
+                    <div class="hm-tracking-status">
+
+                        <span class="hm-green-dot"></span>
+
+                        Shortlisted by HR
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 RECRUITMENT PROGRESS
+            ============================================== -->
+            <div class="hm-progress-section">
+
+                <div class="hm-section-heading">
+
+                    <div>
+                        <h2>
+                            Recruitment overview
+                        </h2>
+
+                        <p>
+                            Current Hiring Manager workflow
+                        </p>
+                    </div>
+
+                    <a asp-controller="HiringManager"
+                       asp-action="Applications">
+
+                        View all
+
+                    </a>
+
+                </div>
+
+
+                <div class="hm-process-card">
+
+
+                    <div class="hm-process-item active">
+
+                        <div class="hm-process-icon">
+                            1
+                        </div>
+
+                        <div>
+                            <strong>
+                                HR Shortlist
+                            </strong>
+
+                            <span>
+                                Candidate forwarded
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="hm-process-line active"></div>
+
+
+                    <div class="hm-process-item active">
+
+                        <div class="hm-process-icon">
+                            2
+                        </div>
+
+                        <div>
+                            <strong>
+                                HM Review
+                            </strong>
+
+                            <span>
+                                Candidate evaluation
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="hm-process-line"></div>
+
+
+                    <div class="hm-process-item">
+
+                        <div class="hm-process-icon">
+                            3
+                        </div>
+
+                        <div>
+                            <strong>
+                                Interview
+                            </strong>
+
+                            <span>
+                                Interview rounds
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="hm-process-line"></div>
+
+
+                    <div class="hm-process-item">
+
+                        <div class="hm-process-icon">
+                            4
+                        </div>
+
+                        <div>
+                            <strong>
+                                Final Decision
+                            </strong>
+
+                            <span>
+                                Hiring outcome
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             RIGHT SIDE PANEL
+        ====================================================== -->
+        <aside class="hm-side-panel">
+
+
+            <!-- =============================================
+                 PROFILE
+            ============================================== -->
+            <div class="hm-profile-top">
+
+                <div>
+
+                    <span class="hm-profile-label">
+                        WORKSPACE
+                    </span>
+
+                    <strong>
+                        Hiring Manager
+                    </strong>
+
+                </div>
+
+                <div class="hm-profile-avatar">
+                    HM
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 PROGRESS CIRCLE
+            ============================================== -->
+            <div class="hm-progress-card">
+
+                <span class="hm-progress-title">
+                    Recruitment Progress
+                </span>
+
+                <div class="hm-progress-circle">
+
+                    <div class="hm-progress-circle-inner">
+
+                        <strong>
+                            75%
+                        </strong>
+
+                        <span>
+                            Reviewed
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="hm-progress-text">
+
+                    <span>
+                        Hiring workflow
+                    </span>
+
+                    <strong>
+                        In progress
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 RECENT ACTIVITY
+            ============================================== -->
+            <div class="hm-activity-section">
+
+                <div class="hm-side-title">
+
+                    <h3>
+                        Recent Activity
+                    </h3>
+
+                    <span>
+                        Today
+                    </span>
+
+                </div>
+
+
+                <div class="hm-activity-item">
+
+                    <div class="hm-activity-icon blue">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Candidate shortlisted
+                        </strong>
+
+                        <span>
+                            Sent by HR
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hm-activity-item">
+
+                    <div class="hm-activity-icon purple">
+                        ◷
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Interview completed
+                        </strong>
+
+                        <span>
+                            Ready for review
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hm-activity-item">
+
+                    <div class="hm-activity-icon green">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Decision recorded
+                        </strong>
+
+                        <span>
+                            Application updated
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 BUTTON
+            ============================================== -->
+            <a asp-controller="HiringManager"
+               asp-action="Applications"
+               class="hm-side-action">
+
+                Open Candidate Queue
+
+                <span>→</span>
+
+            </a>
+
+        </aside>
+
+
+    </div>
+
+</div>
+
+
+
+<style>
+
+    /* =========================================================
+           PAGE
+        ========================================================= */
+
+    .hm-dashboard-page {
+        min-height: calc(100vh - 60px);
+        padding: 30px;
+        background: linear-gradient( 135deg, #f8fbff 0%, #eef7ff 45%, #f8fbff 100% );
+        color: #17304f;
+        font-family: inherit;
+    }
+
+
+    /* =========================================================
+           HEADER
+        ========================================================= */
+
+    .hm-top-header {
+        max-width: 1450px;
+        margin: 0 auto 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 30px;
+    }
+
+
+    .hm-heading-area {
+        flex: 1;
+    }
+
+
+    .hm-eyebrow {
+        display: block;
+        margin-bottom: 7px;
+        color: #77aee8;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .12em;
+    }
+
+
+    .hm-heading-area h1 {
+        margin: 0;
+        font-size: 32px;
+        line-height: 1.15;
+        font-weight: 750;
+        color: #183c67;
+    }
+
+
+    .hm-heading-area p {
+        margin: 8px 0 0;
+        color: #8da2b8;
+        font-size: 13px;
+        max-width: 520px;
+    }
+
+
+    .hm-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+
+    /* SEARCH */
+
+    .hm-search-box {
+        width: 270px;
+        height: 44px;
+        padding: 0 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255,255,255,.9);
+        border: 1px solid #e7f0f8;
+        border-radius: 12px;
+        box-shadow: 0 6px 25px rgba(77, 129, 179, .05);
+    }
+
+
+    .hm-search-icon {
+        color: #afbed0;
+        font-size: 20px;
+    }
+
+
+    .hm-search-box input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #38536f;
+        font-size: 12px;
+    }
+
+
+        .hm-search-box input::placeholder {
+            color: #b4c0ce;
+        }
+
+
+    /* NEW BUTTON */
+
+    .hm-new-btn {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 0 18px;
+        text-decoration: none;
+        background: linear-gradient( 135deg, #65b5ff, #388eed );
+        color: white;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: 0 8px 20px rgba(66, 151, 238, .22);
+        transition: .2s;
+    }
+
+
+        .hm-new-btn:hover {
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(66,151,238,.28);
+        }
+
+
+    .hm-plus {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,.65);
+        border-radius: 50%;
+        font-size: 15px;
+        font-weight: 400;
+    }
+
+
+
+    /* =========================================================
+           MAIN LAYOUT
+        ========================================================= */
+
+    .hm-main-grid {
+        max-width: 1450px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 315px;
+        gap: 22px;
+        align-items: stretch;
+    }
+
+
+    .hm-main-content {
+        min-width: 0;
+    }
+
+
+
+    /* =========================================================
+           HERO / WELCOME
+        ========================================================= */
+
+    .hm-welcome-card {
+        position: relative;
+        min-height: 265px;
+        display: flex;
+        align-items: stretch;
+        margin-bottom: 20px;
+        overflow: hidden;
+        background: linear-gradient( 135deg, #ffffff 0%, #f4faff 100% );
+        border: 1px solid rgba(213,231,247,.8);
+        border-radius: 24px;
+        box-shadow: 0 12px 45px rgba(91, 136, 177, .08);
+    }
+
+
+    .hm-welcome-content {
+        position: relative;
+        z-index: 3;
+        width: 62%;
+        padding: 38px 38px 36px;
+    }
+
+
+    .hm-mini-label {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: #63a9ed;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .1em;
+    }
+
+
+    .hm-welcome-content h2 {
+        max-width: 530px;
+        margin: 0;
+        color: #183d68;
+        font-size: 27px;
+        line-height: 1.25;
+        font-weight: 750;
+    }
+
+
+    .hm-welcome-content p {
+        max-width: 500px;
+        margin: 13px 0 23px;
+        color: #899fb5;
+        line-height: 1.75;
+        font-size: 12px;
+    }
+
+
+    .hm-review-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 20px;
+        padding: 11px 18px;
+        background: linear-gradient( 135deg, #4fa8fc, #2585e8 );
+        color: white;
+        border-radius: 9px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+        box-shadow: 0 7px 18px rgba(45, 137, 229, .22);
+    }
+
+
+        .hm-review-btn:hover {
+            color: white;
+            transform: translateY(-1px);
+        }
+
+
+
+    /* HERO ART */
+
+    .hm-welcome-art {
+        position: relative;
+        flex: 1;
+        min-height: 250px;
+        overflow: hidden;
+    }
+
+
+    .hm-art-circle {
+        position: absolute;
+        border-radius: 50%;
+    }
+
+
+    .hm-art-circle-one {
+        width: 280px;
+        height: 280px;
+        right: -20px;
+        top: 25px;
+        background: linear-gradient( 135deg, #edf8ff, #d5edff );
+    }
+
+
+    .hm-art-circle-two {
+        width: 190px;
+        height: 190px;
+        right: 80px;
+        top: 65px;
+        background: rgba(122,190,255,.15);
+    }
+
+
+    .hm-person-card {
+        position: absolute;
+        width: 145px;
+        height: 150px;
+        right: 70px;
+        top: 53px;
+        border-radius: 70px 70px 25px 25px;
+        background: linear-gradient( 180deg, #9ed5ff, #58aaf4 );
+        box-shadow: 0 15px 35px rgba(68,150,227,.20);
+    }
+
+
+    .hm-person-head {
+        position: absolute;
+        width: 54px;
+        height: 54px;
+        left: 45px;
+        top: 25px;
+        background: white;
+        border-radius: 50%;
+    }
+
+
+    .hm-person-body {
+        position: absolute;
+        width: 92px;
+        height: 47px;
+        left: 27px;
+        bottom: 23px;
+        background: rgba(255,255,255,.9);
+        border-radius: 50px 50px 15px 15px;
+    }
+
+
+    .hm-check-circle {
+        position: absolute;
+        width: 37px;
+        height: 37px;
+        right: -8px;
+        top: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        color: #4098e9;
+        border-radius: 50%;
+        font-size: 18px;
+        font-weight: 900;
+        box-shadow: 0 7px 20px rgba(40,109,169,.18);
+    }
+
+
+
+    /* =========================================================
+           QUICK CARDS
+        ========================================================= */
+
+    .hm-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+
+    .hm-quick-card {
+        min-height: 190px;
+        display: flex;
+        flex-direction: column;
+        padding: 22px;
+        background: rgba(255,255,255,.95);
+        border: 1px solid #e6eff7;
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(79,128,174,.055);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+
+    .hm-link-card {
+        text-decoration: none;
+        color: inherit;
+    }
+
+
+        .hm-link-card:hover,
+        .hm-quick-card:hover {
+            transform: translateY(-3px);
+            border-color: #d5e8f8;
+            box-shadow: 0 14px 35px rgba(72,133,187,.10);
+            color: inherit;
+        }
+
+
+    .hm-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+
+    .hm-card-icon {
+        width: 39px;
+        height: 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+
+        .hm-card-icon.blue {
+            background: #e9f5ff;
+            color: #499bea;
+        }
+
+
+        .hm-card-icon.purple {
+            background: #f0edff;
+            color: #7d71e8;
+        }
+
+
+        .hm-card-icon.orange {
+            background: #fff4e8;
+            color: #efa158;
+        }
+
+
+        .hm-card-icon.green {
+            background: #ecf9ef;
+            color: #5cbd72;
+        }
+
+
+    .hm-active-badge {
+        padding: 5px 9px;
+        background: #edf8ff;
+        color: #5ba6e8;
+        border-radius: 999px;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: .08em;
+    }
+
+
+    .hm-small-status {
+        color: #a2b1c0;
+        font-size: 9px;
+        font-weight: 600;
+    }
+
+
+    .hm-quick-card h3 {
+        margin: 0 0 7px;
+        color: #254766;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+
+    .hm-quick-card p {
+        margin: 0;
+        color: #95a7b9;
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+
+    .hm-card-bottom {
+        margin-top: auto;
+        padding-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #4f9be4;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+
+        .hm-card-bottom.muted {
+            color: #a4b0bc;
+        }
+
+
+    .hm-arrow {
+        font-size: 16px;
+    }
+
+
+    .hm-tracking-status {
+        margin-top: auto;
+        padding-top: 18px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #72879d;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+
+    .hm-green-dot {
+        width: 7px;
+        height: 7px;
+        background: #5fc77c;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px #eaf9ef;
+    }
+
+
+
+    /* =========================================================
+           RECRUITMENT PROGRESS
+        ========================================================= */
+
+    .hm-progress-section {
+        padding: 24px;
+        background: rgba(255,255,255,.96);
+        border: 1px solid #e6eff7;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(78,126,171,.055);
+    }
+
+
+    .hm-section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+
+        .hm-section-heading h2 {
+            margin: 0;
+            color: #284967;
+            font-size: 15px;
+            font-weight: 750;
+        }
+
+
+        .hm-section-heading p {
+            margin: 4px 0 0;
+            color: #a1afbd;
+            font-size: 10px;
+        }
+
+
+        .hm-section-heading a {
+            color: #549ee4;
+            font-size: 10px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+
+    .hm-process-card {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+
+    .hm-process-item {
+        min-width: 105px;
+        text-align: center;
+    }
+
+
+    .hm-process-icon {
+        width: 43px;
+        height: 43px;
+        margin: 0 auto 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #f2f6fa;
+        color: #9daebe;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    .hm-process-item.active
+    .hm-process-icon {
+        background: linear-gradient( 135deg, #63b5ff, #398fe7 );
+        color: white;
+        box-shadow: 0 5px 15px rgba(61,146,230,.2);
+    }
+
+
+    .hm-process-item strong {
+        display: block;
+        color: #526b83;
+        font-size: 10px;
+    }
+
+
+    .hm-process-item span {
+        display: block;
+        margin-top: 3px;
+        color: #a5b2bf;
+        font-size: 8px;
+    }
+
+
+    .hm-process-line {
+        height: 2px;
+        flex: 1;
+        margin: 0 -5px 34px;
+        background: #edf1f5;
+    }
+
+
+        .hm-process-line.active {
+            background: #77bdf7;
+        }
+
+
+
+    /* =========================================================
+           RIGHT SIDE PANEL
+        ========================================================= */
+
+    .hm-side-panel {
+        padding: 22px;
+        background: rgba(255,255,255,.96);
+        border: 1px solid #e4eff8;
+        border-radius: 24px;
+        box-shadow: 0 12px 40px rgba(84,133,178,.08);
+    }
+
+
+    /* PROFILE */
+
+    .hm-profile-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #edf2f6;
+    }
+
+
+    .hm-profile-label {
+        display: block;
+        color: #a4b2bf;
+        font-size: 8px;
+        letter-spacing: .1em;
+        margin-bottom: 4px;
+    }
+
+
+    .hm-profile-top strong {
+        color: #3f5c76;
+        font-size: 12px;
+    }
+
+
+    .hm-profile-avatar {
+        width: 39px;
+        height: 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient( 135deg, #69b8ff, #347fde );
+        color: white;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+
+
+    /* =========================================================
+           RIGHT PROGRESS
+        ========================================================= */
+
+    .hm-progress-card {
+        margin-top: 20px;
+        padding: 22px 18px;
+        background: linear-gradient( 145deg, #65b7ff, #378ce9 );
+        border-radius: 19px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(61,146,231,.20);
+    }
+
+
+    .hm-progress-title {
+        display: block;
+        text-align: left;
+        font-size: 9px;
+        font-weight: 700;
+        opacity: .88;
+    }
+
+
+    .hm-progress-circle {
+        width: 135px;
+        height: 135px;
+        margin: 22px auto 18px;
+        padding: 13px;
+        border-radius: 50%;
+        background: conic-gradient( white 0 75%, rgba(255,255,255,.22) 75% 100% );
+    }
+
+
+    .hm-progress-circle-inner {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient( 145deg, #63b5ff, #3e92eb );
+        border-radius: 50%;
+    }
+
+
+    .hm-progress-circle strong {
+        font-size: 27px;
+        font-weight: 700;
+    }
+
+
+    .hm-progress-circle span {
+        margin-top: 2px;
+        font-size: 8px;
+        opacity: .8;
+    }
+
+
+    .hm-progress-text {
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,.22);
+    }
+
+
+        .hm-progress-text span {
+            display: block;
+            font-size: 8px;
+            opacity: .75;
+        }
+
+
+        .hm-progress-text strong {
+            display: block;
+            margin-top: 3px;
+            font-size: 12px;
+        }
+
+
+
+    /* =========================================================
+           ACTIVITY
+        ========================================================= */
+
+    .hm-activity-section {
+        margin-top: 24px;
+    }
+
+
+    .hm-side-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+
+        .hm-side-title h3 {
+            margin: 0;
+            color: #45627c;
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+
+        .hm-side-title span {
+            color: #adb9c6;
+            font-size: 8px;
+        }
+
+
+    .hm-activity-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 12px 5px;
+        border-bottom: 1px solid #f0f4f7;
+    }
+
+
+    .hm-activity-icon {
+        width: 31px;
+        height: 31px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+
+        .hm-activity-icon.blue {
+            background: #eaf5ff;
+            color: #4b9eea;
+        }
+
+
+        .hm-activity-icon.purple {
+            background: #f0edff;
+            color: #786ce0;
+        }
+
+
+        .hm-activity-icon.green {
+            background: #eaf8ef;
+            color: #54b56c;
+        }
+
+
+    .hm-activity-item strong {
+        display: block;
+        color: #5b7186;
+        font-size: 9px;
+    }
+
+
+    .hm-activity-item span {
+        display: block;
+        margin-top: 3px;
+        color: #a6b2be;
+        font-size: 8px;
+    }
+
+
+    .hm-side-action {
+        width: 100%;
+        margin-top: 22px;
+        padding: 11px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f0f8ff;
+        border: 1px solid #dceefd;
+        border-radius: 10px;
+        color: #4d99df;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+
+        .hm-side-action:hover {
+            background: #e7f4ff;
+            color: #3587d5;
+        }
+
+
+
+    /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .hm-main-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .hm-side-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+
+        .hm-profile-top,
+        .hm-side-action {
+            grid-column: 1 / -1;
+        }
+
+
+        .hm-progress-card {
+            margin-top: 0;
+        }
+
+
+        .hm-activity-section {
+            margin-top: 0;
+        }
+    }
+
+
+    @@media (max-width: 850px) {
+
+        .hm-dashboard-page {
+            padding: 20px;
+        }
+
+
+        .hm-top-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+
+        .hm-header-actions {
+            width: 100%;
+        }
+
+
+        .hm-search-box {
+            width: auto;
+            flex: 1;
+        }
+
+
+        .hm-welcome-content {
+            width: 70%;
+            padding: 30px;
+        }
+
+
+        .hm-welcome-art {
+            position: absolute;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            opacity: .65;
+        }
+
+
+        .hm-quick-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+
+        .hm-process-card {
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+    }
+
+
+    @@media (max-width: 600px) {
+
+        .hm-dashboard-page {
+            padding: 16px;
+        }
+
+
+        .hm-heading-area h1 {
+            font-size: 26px;
+        }
+
+
+        .hm-header-actions {
+            flex-direction: column;
+        }
+
+
+        .hm-search-box,
+        .hm-new-btn {
+            width: 100%;
+        }
+
+
+        .hm-welcome-card {
+            min-height: auto;
+        }
+
+
+        .hm-welcome-content {
+            width: 100%;
+            padding: 27px 23px;
+        }
+
+
+            .hm-welcome-content h2 {
+                font-size: 22px;
+            }
+
+
+        .hm-welcome-art {
+            display: none;
+        }
+
+
+        .hm-quick-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .hm-side-panel {
+            display: block;
+        }
+
+
+        .hm-progress-card,
+        .hm-activity-section {
+            margin-top: 20px;
+        }
+
+
+        .hm-process-item {
+            min-width: 100px;
+        }
+
+
+        .hm-process-line {
+            min-width: 30px;
+        }
+    }
+</style>

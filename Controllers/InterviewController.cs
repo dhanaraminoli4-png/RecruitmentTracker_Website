@@ -29,6 +29,18 @@ namespace RecruitmentTracker.Controllers
 
         // =========================================================
         // MY INTERVIEWS
+        //
+        // IMPORTANT:
+        // Interview.InterviewerIds is the source of truth.
+        //
+        // An interviewer only sees Interview records where
+        // their own user ID is assigned to THAT exact interview.
+        //
+        // This means:
+        // - Round 1 assigned to Interviewer A -> only A sees it
+        // - Round 2 assigned to Interviewer B -> only B sees it
+        // - If A and B are both assigned to the SAME interview,
+        //   both can see that same interview.
         // =========================================================
         [HttpGet]
         public async Task<IActionResult> MyInterviews()
@@ -51,36 +63,6 @@ namespace RecruitmentTracker.Controllers
                 );
             }
 
-
-            // =========================================================
-            // 1. INTERVIEWS LINKED THROUGH INTERVIEWER SCHEDULE
-            // =========================================================
-
-            var scheduledInterviewIds =
-                await _context.InterviewerSchedules
-
-                    .Where(x =>
-                        x.InterviewerId == interviewer.Id &&
-                        !x.IsDeleted &&
-                        x.IsSystemGenerated &&
-                        x.InterviewId.HasValue)
-
-                    .Select(x =>
-                        x.InterviewId!.Value)
-
-                    .Distinct()
-
-                    .ToListAsync();
-
-
-            // =========================================================
-            // 2. LOAD INTERVIEWS
-            //
-            // Accept interview assignment from either:
-            // - InterviewerSchedules
-            // OR
-            // - Interview.InterviewerIds
-            // =========================================================
 
             var interviewerIdToken =
                 "," + interviewer.Id + ",";
@@ -115,20 +97,14 @@ namespace RecruitmentTracker.Controllers
 
                     .Where(x =>
 
-                        // Assigned through calendar
-                        scheduledInterviewIds.Contains(x.Id)
+                        x.InterviewerIds != null
 
-                        ||
+                        &&
 
-                        // Assigned directly on Interview
                         (
-                            x.InterviewerIds != null &&
-
-                            (
-                                "," + x.InterviewerIds + ","
-                            ).Contains(
-                                interviewerIdToken
-                            )
+                            "," + x.InterviewerIds + ","
+                        ).Contains(
+                            interviewerIdToken
                         )
                     )
 
@@ -157,6 +133,9 @@ namespace RecruitmentTracker.Controllers
 
         // =========================================================
         // INTERVIEW DETAILS
+        //
+        // Only the interviewer assigned to this exact Interview
+        // record can open it.
         // =========================================================
 
         [HttpGet]
@@ -170,29 +149,6 @@ namespace RecruitmentTracker.Controllers
             if (interviewer == null)
             {
                 return Challenge();
-            }
-
-
-            // Security:
-            // interviewer can only open their assigned interview.
-            var assigned =
-                await _context.InterviewerSchedules
-
-                    .AnyAsync(x =>
-                        x.InterviewerId ==
-                            interviewer.Id &&
-
-                        x.InterviewId ==
-                            id &&
-
-                        x.IsSystemGenerated &&
-
-                        !x.IsDeleted);
-
-
-            if (!assigned)
-            {
-                return Forbid();
             }
 
 
@@ -247,6 +203,14 @@ namespace RecruitmentTracker.Controllers
             }
 
 
+            if (!IsInterviewerAssignedToInterview(
+                interview,
+                interviewer.Id))
+            {
+                return Forbid();
+            }
+
+
             ViewBag.CurrentInterviewerId =
                 interviewer.Id;
 
@@ -257,6 +221,8 @@ namespace RecruitmentTracker.Controllers
                 ?? "Interviewer";
 
 
+            // Only this logged-in interviewer's feedback is loaded
+            // into the feedback form.
             ViewBag.MyFeedback =
                 interview.Feedbacks
 
@@ -273,6 +239,9 @@ namespace RecruitmentTracker.Controllers
 
         // =========================================================
         // VIEW CANDIDATE CV
+        //
+        // Only an interviewer assigned to this exact interview
+        // can open the candidate CV from the interview page.
         // =========================================================
 
         [HttpGet]
@@ -281,43 +250,64 @@ namespace RecruitmentTracker.Controllers
             var interviewer =
                 await _userManager.GetUserAsync(User);
 
+
             if (interviewer == null)
             {
                 return Challenge();
             }
 
-            var assigned =
-                await _context.InterviewerSchedules
-                    .AnyAsync(x =>
-                        x.InterviewerId == interviewer.Id &&
-                        x.InterviewId == interviewId &&
-                        x.IsSystemGenerated &&
-                        !x.IsDeleted);
 
-            if (!assigned)
+            var interview =
+                await _context.Interviews
+
+                    .Include(x =>
+                        x.JobApplication)
+
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == interviewId);
+
+
+            if (interview == null)
+            {
+                return NotFound();
+            }
+
+
+            if (!IsInterviewerAssignedToInterview(
+                interview,
+                interviewer.Id))
             {
                 return Forbid();
             }
 
-            var interview =
-                await _context.Interviews
-                    .Include(x => x.JobApplication)
-                    .FirstOrDefaultAsync(x => x.Id == interviewId);
 
-            var application = interview?.JobApplication;
+            var application =
+                interview.JobApplication;
+
 
             if (application == null ||
-                string.IsNullOrWhiteSpace(application.CVFilePath))
+                string.IsNullOrWhiteSpace(
+                    application.CVFilePath))
             {
-                return NotFound("CV file was not found.");
+                return NotFound(
+                    "CV file was not found."
+                );
             }
 
-            var fullPath = GetFilePath(application.CVFilePath);
+
+            var fullPath =
+                GetFilePath(
+                    application.CVFilePath
+                );
+
 
             if (fullPath == null)
             {
-                return NotFound("CV file does not exist.");
+                return NotFound(
+                    "CV file does not exist."
+                );
             }
+
 
             return PhysicalFile(
                 fullPath,
@@ -329,6 +319,9 @@ namespace RecruitmentTracker.Controllers
 
         // =========================================================
         // VIEW ORIGINAL AI ANALYSIS PAGE
+        //
+        // Only an interviewer assigned to this exact interview
+        // can view the candidate's AI analysis.
         // =========================================================
 
         [HttpGet]
@@ -337,62 +330,105 @@ namespace RecruitmentTracker.Controllers
             var interviewer =
                 await _userManager.GetUserAsync(User);
 
+
             if (interviewer == null)
             {
                 return Challenge();
             }
 
-            var assigned =
-                await _context.InterviewerSchedules
-                    .AnyAsync(x =>
-                        x.InterviewerId == interviewer.Id &&
-                        x.InterviewId == interviewId &&
-                        x.IsSystemGenerated &&
-                        !x.IsDeleted);
 
-            if (!assigned)
+            var interview =
+                await _context.Interviews
+
+                    .Include(x =>
+                        x.JobApplication)
+
+                        .ThenInclude(x =>
+                            x.Candidate)
+
+                    .Include(x =>
+                        x.JobApplication)
+
+                        .ThenInclude(x =>
+                            x.JobVacancy)
+
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == interviewId);
+
+
+            if (interview == null)
+            {
+                return NotFound();
+            }
+
+
+            if (!IsInterviewerAssignedToInterview(
+                interview,
+                interviewer.Id))
             {
                 return Forbid();
             }
 
-            var interview =
-                await _context.Interviews
-                    .Include(x => x.JobApplication)
-                        .ThenInclude(x => x.Candidate)
-                    .Include(x => x.JobApplication)
-                        .ThenInclude(x => x.JobVacancy)
-                    .FirstOrDefaultAsync(x => x.Id == interviewId);
 
-            var application = interview?.JobApplication;
+            var application =
+                interview.JobApplication;
+
 
             if (application == null)
             {
                 return NotFound();
             }
 
+
             var requiredResults =
-                string.IsNullOrWhiteSpace(application.AIRequiredResults)
+                string.IsNullOrWhiteSpace(
+                    application.AIRequiredResults)
+
                     ? new List<AIAnalysisRequirement>()
-                    : JsonSerializer.Deserialize<List<AIAnalysisRequirement>>(
-                        application.AIRequiredResults)
+
+                    : JsonSerializer.Deserialize<
+                        List<AIAnalysisRequirement>>(
+                            application.AIRequiredResults
+                        )
+
                       ?? new List<AIAnalysisRequirement>();
+
 
             var preferredResults =
-                string.IsNullOrWhiteSpace(application.AIPreferredResults)
+                string.IsNullOrWhiteSpace(
+                    application.AIPreferredResults)
+
                     ? new List<AIAnalysisRequirement>()
-                    : JsonSerializer.Deserialize<List<AIAnalysisRequirement>>(
-                        application.AIPreferredResults)
+
+                    : JsonSerializer.Deserialize<
+                        List<AIAnalysisRequirement>>(
+                            application.AIPreferredResults
+                        )
+
                       ?? new List<AIAnalysisRequirement>();
 
-            var model = new AIAnalysisViewModel
-            {
-                Application = application,
-                RequiredResults = requiredResults,
-                PreferredResults = preferredResults
-            };
 
-            ViewBag.VacancyId = application.JobVacancyId;
-            ViewBag.ReturnToInterviewId = interviewId;
+            var model =
+                new AIAnalysisViewModel
+                {
+                    Application =
+                        application,
+
+                    RequiredResults =
+                        requiredResults,
+
+                    PreferredResults =
+                        preferredResults
+                };
+
+
+            ViewBag.VacancyId =
+                application.JobVacancyId;
+
+
+            ViewBag.ReturnToInterviewId =
+                interviewId;
+
 
             return View(
                 "~/Views/HRApplication/AIAnalysis.cshtml",
@@ -455,25 +491,14 @@ namespace RecruitmentTracker.Controllers
 
 
             // =====================================================
-            // CHECK INTERVIEWER IS ASSIGNED
+            // SECURITY:
+            // ONLY AN INTERVIEWER ASSIGNED TO THIS EXACT
+            // INTERVIEW / ROUND CAN SUBMIT THIS ASSESSMENT.
             // =====================================================
 
-            var assigned =
-                await _context.InterviewerSchedules
-
-                    .AnyAsync(x =>
-                        x.InterviewerId ==
-                            interviewer.Id &&
-
-                        x.InterviewId ==
-                            assessment.InterviewId &&
-
-                        x.IsSystemGenerated &&
-
-                        !x.IsDeleted);
-
-
-            if (!assigned)
+            if (!IsInterviewerAssignedToInterview(
+                assessment.Interview,
+                interviewer.Id))
             {
                 return Forbid();
             }
@@ -803,25 +828,27 @@ namespace RecruitmentTracker.Controllers
 
 
             // =====================================================
-            // SECURITY CHECK
+            // SECURITY:
+            // ONLY AN INTERVIEWER ASSIGNED TO THIS EXACT
+            // INTERVIEW / ROUND CAN SUBMIT FEEDBACK.
             // =====================================================
 
-            var assigned =
-                await _context.InterviewerSchedules
+            var assignedInterview =
+                await _context.Interviews
 
-                    .AnyAsync(x =>
-                        x.InterviewerId ==
-                            interviewer.Id &&
-
-                        x.InterviewId ==
-                            interviewId &&
-
-                        x.IsSystemGenerated &&
-
-                        !x.IsDeleted);
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == interviewId);
 
 
-            if (!assigned)
+            if (assignedInterview == null)
+            {
+                return NotFound();
+            }
+
+
+            if (!IsInterviewerAssignedToInterview(
+                assignedInterview,
+                interviewer.Id))
             {
                 return Forbid();
             }
@@ -1156,6 +1183,12 @@ namespace RecruitmentTracker.Controllers
 
         // =========================================================
         // GET MY CALENDAR EVENTS
+        //
+        // Manual personal events are shown normally.
+        //
+        // System-generated interview events are shown only when
+        // this interviewer is STILL assigned to the exact
+        // Interview record.
         // =========================================================
 
         [HttpGet]
@@ -1173,20 +1206,81 @@ namespace RecruitmentTracker.Controllers
             }
 
 
+            var interviewerIdToken =
+                "," + interviewer.Id + ",";
+
+
+            // Current exact interview assignments.
+            var assignedInterviewIds =
+                await _context.Interviews
+
+                    .Where(x =>
+
+                        x.InterviewerIds != null
+
+                        &&
+
+                        (
+                            "," + x.InterviewerIds + ","
+                        ).Contains(
+                            interviewerIdToken
+                        )
+                    )
+
+                    .Select(x =>
+                        x.Id)
+
+                    .ToListAsync();
+
+
             var events =
                 await _context.InterviewerSchedules
 
                     .Where(x =>
-                        x.InterviewerId ==
-                            interviewer.Id &&
 
-                        !x.IsDeleted &&
+                        x.InterviewerId ==
+                            interviewer.Id
+
+                        &&
+
+                        !x.IsDeleted
+
+                        &&
 
                         x.StartDateTime <
-                            end &&
+                            end
+
+                        &&
 
                         x.EndDateTime >
-                            start)
+                            start
+
+                        &&
+
+                        (
+                            // Personal/manual schedule item.
+                            !x.IsSystemGenerated
+
+                            ||
+
+                            // System-generated interview event:
+                            // only show if interviewer is still
+                            // assigned to that exact interview.
+                            (
+                                x.IsSystemGenerated
+
+                                &&
+
+                                x.InterviewId.HasValue
+
+                                &&
+
+                                assignedInterviewIds.Contains(
+                                    x.InterviewId.Value
+                                )
+                            )
+                        )
+                    )
 
                     .OrderBy(x =>
                         x.StartDateTime)
@@ -1586,6 +1680,52 @@ namespace RecruitmentTracker.Controllers
                 }
             );
         }
+
+        // =========================================================
+        // EXACT INTERVIEW ASSIGNMENT CHECK
+        //
+        // Interview.InterviewerIds is the source of truth.
+        //
+        // It checks the current interviewer against THIS exact
+        // Interview record, which represents one candidate +
+        // one interview round.
+        // =========================================================
+
+        private bool IsInterviewerAssignedToInterview(
+            Interview? interview,
+            string interviewerId)
+        {
+            if (interview == null ||
+                string.IsNullOrWhiteSpace(
+                    interview.InterviewerIds) ||
+                string.IsNullOrWhiteSpace(
+                    interviewerId))
+            {
+                return false;
+            }
+
+
+            var assignedInterviewerIds =
+                interview.InterviewerIds
+
+                    .Split(
+                        ',',
+                        StringSplitOptions.RemoveEmptyEntries
+                    )
+
+                    .Select(x =>
+                        x.Trim())
+
+                    .Where(x =>
+                        !string.IsNullOrWhiteSpace(x));
+
+
+            return assignedInterviewerIds.Contains(
+                interviewerId,
+                StringComparer.Ordinal
+            );
+        }
+
 
         // =========================================================
         // FILE HELPERS

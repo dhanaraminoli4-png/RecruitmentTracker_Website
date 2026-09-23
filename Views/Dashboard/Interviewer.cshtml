@@ -1,5 +1,798 @@
-@{ ViewData["Title"] = "Interviewer Dashboard"; }
-<div class="page-heading"><div><div class="section-label">INTERVIEWER WORKSPACE</div><h1>Your interview workspace</h1><p>Interview scheduling, assigned candidates and structured feedback will live here.</p></div></div>
-<div class="hero-panel mb-4"><div class="section-label" style="color:#9fb4d0">SPRINT 2 WORKSPACE</div><h2 class="mt-2">A focused place for interview teams.</h2><p>The current Sprint 1 process ends at HR shortlisting. Interview actions can be connected here without changing the application history.</p></div>
-<div class="row g-3"><div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="stat-icon mb-3">◎</div><h5>Assigned candidates</h5><p class="text-muted">See candidates assigned to you once interview scheduling is introduced.</p></div></div></div><div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="stat-icon mb-3">◷</div><h5>Interview calendar</h5><p class="text-muted">A dedicated calendar can be connected in the next sprint.</p></div></div></div><div class="col-md-4"><div class="card h-100"><div class="card-body"><div class="stat-icon mb-3">✓</div><h5>Feedback</h5><p class="text-muted">Structured interviewer feedback will remain attached to the candidate record.</p></div></div></div></div>
---
+@{
+    ViewData["Title"] = "Interviewer Dashboard";
+}
+
+<style>
+
+    /* =========================================================
+           PAGE
+           ========================================================= */
+
+    .interviewer-dashboard {
+        min-height: calc(100vh - 70px);
+        padding: 22px;
+        background: linear-gradient( 135deg, #f7fbff 0%, #eef7ff 52%, #f9fcff 100% );
+        color: #2b435e;
+    }
+
+    .interviewer-dashboard-container {
+        max-width: 1450px;
+        margin: 0 auto;
+    }
+
+    /* =========================================================
+           TOP BAR
+           ========================================================= */
+
+    .interviewer-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .interviewer-eyebrow {
+        margin-bottom: 5px;
+        color: #83a7c5;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .interviewer-title {
+        margin: 0;
+        color: #244361;
+        font-size: 31px;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .interviewer-subtitle {
+        margin: 6px 0 0;
+        color: #91a8bb;
+        font-size: 11px;
+    }
+
+    .interviewer-top-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .interviewer-primary-btn,
+    .interviewer-secondary-btn {
+        min-height: 42px;
+        padding: 0 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 750;
+        text-decoration: none;
+        transition: .18s ease;
+    }
+
+    .interviewer-primary-btn {
+        border: 1px solid #59a6f4;
+        background: linear-gradient( 135deg, #67b8ff, #4694ed );
+        color: #fff;
+        box-shadow: 0 10px 23px rgba(72, 147, 232, .18);
+    }
+
+        .interviewer-primary-btn:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+    .interviewer-secondary-btn {
+        border: 1px solid #dceaf4;
+        background: #fff;
+        color: #537895;
+    }
+
+        .interviewer-secondary-btn:hover {
+            color: #3373a5;
+            border-color: #bad7ec;
+            transform: translateY(-2px);
+        }
+
+    /* =========================================================
+           HERO
+           ========================================================= */
+
+    .interviewer-hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(280px, .65fr);
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .interviewer-welcome-card {
+        position: relative;
+        min-height: 225px;
+        padding: 28px 30px;
+        overflow: hidden;
+        border: 1px solid #dcebf6;
+        border-radius: 23px;
+        background: linear-gradient( 135deg, rgba(255,255,255,.98) 0%, rgba(236,247,255,.98) 100% );
+        box-shadow: 0 12px 32px rgba(67, 122, 169, .06);
+    }
+
+        .interviewer-welcome-card::before {
+            content: "";
+            position: absolute;
+            width: 230px;
+            height: 230px;
+            top: -105px;
+            right: -70px;
+            border-radius: 50%;
+            background: rgba(92, 171, 250, .12);
+        }
+
+        .interviewer-welcome-card::after {
+            content: "";
+            position: absolute;
+            width: 145px;
+            height: 145px;
+            right: 100px;
+            bottom: -90px;
+            border-radius: 50%;
+            background: rgba(143, 208, 255, .11);
+        }
+
+    .interviewer-welcome-content {
+        position: relative;
+        z-index: 2;
+        max-width: 650px;
+    }
+
+    .interviewer-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 17px;
+        padding: 6px 10px;
+        border: 1px solid #dcecf7;
+        border-radius: 999px;
+        background: rgba(255,255,255,.88);
+        color: #6c97b8;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+        .interviewer-pill::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #56a5f5;
+            box-shadow: 0 0 0 4px rgba(86,165,245,.11);
+        }
+
+    .interviewer-welcome-card h2 {
+        margin: 0;
+        max-width: 610px;
+        color: #23415f;
+        font-size: clamp(29px, 3.6vw, 46px);
+        line-height: 1.04;
+        letter-spacing: -1.7px;
+        font-weight: 800;
+    }
+
+    .interviewer-welcome-card p {
+        max-width: 520px;
+        margin: 13px 0 0;
+        color: #8aa3b7;
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+    .interviewer-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 21px;
+    }
+
+    /* =========================================================
+           BLUE CARD
+           ========================================================= */
+
+    .interviewer-blue-card {
+        min-height: 225px;
+        padding: 23px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 23px;
+        background: linear-gradient( 155deg, #66b5ff 0%, #4f9bf2 53%, #438be1 100% );
+        color: #ffffff;
+        box-shadow: 0 16px 33px rgba(70, 145, 229, .20);
+    }
+
+    .interviewer-blue-label {
+        color: rgba(255,255,255,.82);
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .interviewer-blue-title {
+        margin-top: 8px;
+        font-size: 30px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .interviewer-blue-caption {
+        margin-top: 5px;
+        color: rgba(255,255,255,.78);
+        font-size: 9px;
+    }
+
+    .interviewer-blue-ring {
+        width: 112px;
+        height: 112px;
+        margin: 0 auto 4px;
+        display: grid;
+        place-items: center;
+        border: 13px solid rgba(255,255,255,.26);
+        border-top-color: rgba(255,255,255,.90);
+        border-radius: 50%;
+        transform: rotate(22deg);
+    }
+
+        .interviewer-blue-ring span {
+            transform: rotate(-22deg);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+    /* =========================================================
+           WORKSPACE CARDS
+           ========================================================= */
+
+    .interviewer-card-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 15px;
+    }
+
+    .interviewer-card {
+        min-height: 175px;
+        padding: 20px;
+        border: 1px solid #e1edf6;
+        border-radius: 18px;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 8px 24px rgba(64,119,165,.045);
+        text-decoration: none;
+        color: inherit;
+        transition: .18s ease;
+    }
+
+        .interviewer-card:hover {
+            transform: translateY(-3px);
+            border-color: #c6dff1;
+            box-shadow: 0 12px 28px rgba(64,119,165,.08);
+        }
+
+    .interviewer-card-icon {
+        width: 45px;
+        height: 45px;
+        display: grid;
+        place-items: center;
+        border-radius: 13px;
+        background: #ebf6ff;
+        color: #4f9cec;
+        font-size: 17px;
+        font-weight: 800;
+        margin-bottom: 16px;
+    }
+
+    .interviewer-card h3 {
+        margin: 0;
+        color: #2e4c68;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .interviewer-card p {
+        margin: 7px 0 0;
+        color: #92a9bb;
+        font-size: 10px;
+        line-height: 1.55;
+    }
+
+    .interviewer-card-link {
+        display: inline-block;
+        margin-top: 14px;
+        color: #5799dc;
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+    /* =========================================================
+           PROCESS PANEL
+           ========================================================= */
+
+    .interviewer-process-panel {
+        overflow: hidden;
+        border: 1px solid #dfebf5;
+        border-radius: 20px;
+        background: rgba(255,255,255,.97);
+        box-shadow: 0 10px 29px rgba(66,121,166,.05);
+    }
+
+    .interviewer-panel-header {
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid #edf3f8;
+    }
+
+        .interviewer-panel-header h3 {
+            margin: 0;
+            color: #2d4b68;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .interviewer-panel-header p {
+            margin: 4px 0 0;
+            color: #9cafbf;
+            font-size: 9px;
+        }
+
+    .interviewer-process-body {
+        padding: 18px 20px 21px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .interviewer-process-step {
+        position: relative;
+        padding: 16px;
+        border-radius: 14px;
+        background: #f7fbff;
+        border: 1px solid #e4eef6;
+    }
+
+        .interviewer-process-step span {
+            display: inline-grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            background: #eaf5fe;
+            color: #4d9cec;
+            font-size: 10px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .interviewer-process-step strong {
+            display: block;
+            color: #395570;
+            font-size: 10px;
+        }
+
+        .interviewer-process-step p {
+            margin: 5px 0 0;
+            color: #9dafbf;
+            font-size: 8px;
+            line-height: 1.5;
+        }
+
+    /* =========================================================
+           FOOTER
+           ========================================================= */
+
+    .interviewer-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 17px 4px 0;
+        color: #a0b1bf;
+        font-size: 8px;
+    }
+
+    /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+    @@media (max-width: 1000px) {
+
+        .interviewer-topbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .interviewer-hero-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .interviewer-card-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .interviewer-process-body {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .interviewer-blue-card {
+            min-height: 185px;
+        }
+
+        .interviewer-blue-ring {
+            margin-left: 0;
+        }
+    }
+
+    @@media (max-width: 650px) {
+
+        .interviewer-dashboard {
+            padding: 14px;
+        }
+
+        .interviewer-top-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .interviewer-primary-btn,
+        .interviewer-secondary-btn {
+            width: 100%;
+        }
+
+        .interviewer-welcome-card {
+            min-height: auto;
+            padding: 23px 19px;
+        }
+
+        .interviewer-process-body {
+            grid-template-columns: 1fr;
+        }
+
+        .interviewer-footer {
+            flex-direction: column;
+        }
+    }
+</style>
+
+
+<div class="interviewer-dashboard">
+
+    <div class="interviewer-dashboard-container">
+
+
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
+        <div class="interviewer-topbar">
+
+            <div>
+
+                <div class="interviewer-eyebrow">
+                    HireTrack · Interviewer Workspace
+                </div>
+
+                <h1 class="interviewer-title">
+                    Your Interview Workspace
+                </h1>
+
+                <p class="interviewer-subtitle">
+                    View assigned interviews, manage your calendar and submit candidate feedback.
+                </p>
+
+            </div>
+
+
+            <div class="interviewer-top-actions">
+
+                <a asp-controller="Interviewer"
+                   asp-action="Calendar"
+                   class="interviewer-secondary-btn">
+
+                    ◷ Calendar
+
+                </a>
+
+
+                <a asp-controller="Interviewer"
+                   asp-action="MyInterviews"
+                   class="interviewer-primary-btn">
+
+                    ◎ My Interviews
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             HERO
+             ===================================================== -->
+
+        <div class="interviewer-hero-grid">
+
+
+            <section class="interviewer-welcome-card">
+
+                <div class="interviewer-welcome-content">
+
+                    <div class="interviewer-pill">
+                        Interview workspace is active
+                    </div>
+
+
+                    <h2>
+                        Everything you need for your assigned interviews.
+                    </h2>
+
+
+                    <p>
+                        Open your assigned candidates, review their information,
+                        complete assessments and submit structured interview feedback
+                        from one focused workspace.
+                    </p>
+
+
+                    <div class="interviewer-hero-actions">
+
+                        <a asp-controller="Interviewer"
+                           asp-action="MyInterviews"
+                           class="interviewer-secondary-btn">
+
+                            View Assigned Interviews
+
+                        </a>
+
+
+                        <a asp-controller="Interviewer"
+                           asp-action="Calendar"
+                           class="interviewer-secondary-btn">
+
+                            Open Calendar
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <section class="interviewer-blue-card">
+
+                <div>
+
+                    <div class="interviewer-blue-label">
+                        Interviewer workspace
+                    </div>
+
+                    <div class="interviewer-blue-title">
+                        Ready for your next interview.
+                    </div>
+
+                    <div class="interviewer-blue-caption">
+                        Your assigned interviews appear automatically.
+                    </div>
+
+                </div>
+
+
+                <div class="interviewer-blue-ring">
+                    <span>INT</span>
+                </div>
+
+            </section>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             WORKSPACE CARDS
+             ===================================================== -->
+
+        <section class="interviewer-card-grid">
+
+
+            <a asp-controller="Interviewer"
+               asp-action="MyInterviews"
+               class="interviewer-card">
+
+                <div class="interviewer-card-icon">
+                    ◎
+                </div>
+
+                <h3>
+                    Assigned Interviews
+                </h3>
+
+                <p>
+                    View only the candidate interviews and interview rounds
+                    that have been assigned directly to you.
+                </p>
+
+                <span class="interviewer-card-link">
+                    Open interviews →
+                </span>
+
+            </a>
+
+
+
+            <a asp-controller="Interviewer"
+               asp-action="Calendar"
+               class="interviewer-card">
+
+                <div class="interviewer-card-icon">
+                    ◷
+                </div>
+
+                <h3>
+                    Interview Calendar
+                </h3>
+
+                <p>
+                    See your scheduled interviews together with your own
+                    calendar events and availability.
+                </p>
+
+                <span class="interviewer-card-link">
+                    Open calendar →
+                </span>
+
+            </a>
+
+
+
+            <a asp-controller="Interviewer"
+               asp-action="MyInterviews"
+               class="interviewer-card">
+
+                <div class="interviewer-card-icon">
+                    ✓
+                </div>
+
+                <h3>
+                    Assessment & Feedback
+                </h3>
+
+                <p>
+                    Open an assigned interview to complete its assessment
+                    and submit your structured feedback.
+                </p>
+
+                <span class="interviewer-card-link">
+                    View assigned work →
+                </span>
+
+            </a>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             PROCESS
+             ===================================================== -->
+
+        <section class="interviewer-process-panel">
+
+            <div class="interviewer-panel-header">
+
+                <h3>
+                    Interview Workflow
+                </h3>
+
+                <p>
+                    Your role in the candidate interview process.
+                </p>
+
+            </div>
+
+
+            <div class="interviewer-process-body">
+
+
+                <div class="interviewer-process-step">
+
+                    <span>1</span>
+
+                    <strong>
+                        Receive Assignment
+                    </strong>
+
+                    <p>
+                        HR schedules the interview and it appears automatically in your workspace.
+                    </p>
+
+                </div>
+
+
+
+                <div class="interviewer-process-step">
+
+                    <span>2</span>
+
+                    <strong>
+                        Review Candidate
+                    </strong>
+
+                    <p>
+                        Open the candidate profile, CV, AI analysis and interview details.
+                    </p>
+
+                </div>
+
+
+
+                <div class="interviewer-process-step">
+
+                    <span>3</span>
+
+                    <strong>
+                        Complete Assessment
+                    </strong>
+
+                    <p>
+                        Record answers, question scores and the manual assessment result.
+                    </p>
+
+                </div>
+
+
+
+                <div class="interviewer-process-step">
+
+                    <span>4</span>
+
+                    <strong>
+                        Submit Feedback
+                    </strong>
+
+                    <p>
+                        Add ratings, strengths, weaknesses, comments and your recommendation.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             FOOTER
+             ===================================================== -->
+
+        <div class="interviewer-footer">
+
+            <span>
+                © @DateTime.Now.Year HireTrack
+            </span>
+
+            <span>
+                Interviewer Workspace · Interview Management
+            </span>
+
+        </div>
+
+    </div>
+
+</div>

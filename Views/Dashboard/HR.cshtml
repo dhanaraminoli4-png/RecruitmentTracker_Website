@@ -6,10 +6,58 @@
         (ViewBag.RecentVacancies
         ?? new List<RecruitmentTracker.Models.JobVacancy>());
 
-    var activeVacancies = ViewBag.ActiveVacancies ?? 0;
-    var totalApplications = ViewBag.TotalApplications ?? 0;
-    var closingSoon = ViewBag.ClosingSoon ?? 0;
+    var activeVacancies =
+        Convert.ToInt32(
+            ViewBag.ActiveVacancies ?? 0
+        );
+
+    var totalApplications =
+        Convert.ToInt32(
+            ViewBag.TotalApplications ?? 0
+        );
+
+    var closingSoon =
+        Convert.ToInt32(
+            ViewBag.ClosingSoon ?? 0
+        );
+
+    var maxMetric =
+        Math.Max(
+            1,
+            Math.Max(
+                activeVacancies,
+                Math.Max(
+                    totalApplications,
+                    closingSoon
+                )
+            )
+        );
+
+    var activeWidth =
+        Math.Max(
+            8,
+            (int)Math.Round(
+                activeVacancies * 100.0 / maxMetric
+            )
+        );
+
+    var applicationsWidth =
+        Math.Max(
+            8,
+            (int)Math.Round(
+                totalApplications * 100.0 / maxMetric
+            )
+        );
+
+    var closingWidth =
+        Math.Max(
+            8,
+            (int)Math.Round(
+                closingSoon * 100.0 / maxMetric
+            )
+        );
 }
+
 
 <style>
 
@@ -17,723 +65,720 @@
            PAGE
            ========================================================= */
 
-    .hr-page {
-        background: #f3f8fc;
+    .hr-dashboard-page {
         min-height: calc(100vh - 70px);
-        padding: 18px 24px 35px;
-        color: #17496d;
-        overflow: hidden;
+        padding: 22px;
+        background: linear-gradient( 135deg, #f7fbff 0%, #eef7ff 52%, #f9fcff 100% );
+        color: #2b435e;
     }
 
-    .hr-container {
+
+    .hr-dashboard-container {
         max-width: 1450px;
         margin: 0 auto;
     }
 
 
     /* =========================================================
-           TOP MINI NAV
+           TOP BAR
            ========================================================= */
 
-    .hr-topbar {
-        height: 42px;
+    .hr-dashboard-topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 8px;
-        margin-bottom: 10px;
+        gap: 18px;
+        margin-bottom: 18px;
     }
 
-    .hr-brand {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: .9px;
+
+    .hr-dashboard-title-wrap {
+        min-width: 0;
+    }
+
+
+    .hr-dashboard-eyebrow {
+        margin-bottom: 5px;
+        color: #83a7c5;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .12em;
         text-transform: uppercase;
-        color: #123b5d;
     }
 
-    .hr-top-right {
+
+    .hr-dashboard-title {
+        margin: 0;
+        color: #244361;
+        font-size: 31px;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+
+    .hr-dashboard-subtitle {
+        margin: 6px 0 0;
+        color: #91a8bb;
+        font-size: 11px;
+    }
+
+
+    .hr-dashboard-actions {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
-    .hr-top-link {
-        font-size: 10px;
-        color: #718da3;
-        text-decoration: none;
-        padding: 7px 11px;
-        border-radius: 20px;
-        transition: .2s ease;
+
+    .hr-dashboard-search {
+        width: 300px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0 13px;
+        border: 1px solid #deebf5;
+        border-radius: 12px;
+        background: rgba(255,255,255,.95);
+        box-shadow: 0 8px 24px rgba(73, 129, 176, .05);
     }
 
-        .hr-top-link:hover {
-            color: #123b5d;
-            background: #ffffff;
+
+        .hr-dashboard-search span {
+            color: #a5b8c8;
+            font-size: 14px;
         }
 
-    .hr-top-pill {
-        font-size: 9px;
-        font-weight: 700;
-        color: #17496d;
-        background: #ffffff;
-        border: 1px solid #dceaf4;
-        border-radius: 20px;
-        padding: 7px 13px;
+
+        .hr-dashboard-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #45627c;
+            font-size: 11px;
+        }
+
+
+            .hr-dashboard-search input::placeholder {
+                color: #b5c5d2;
+            }
+
+
+    .hr-new-vacancy-btn {
+        height: 42px;
+        padding: 0 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 1px solid #59a6f4;
+        border-radius: 12px;
+        background: linear-gradient( 135deg, #67b8ff, #4694ed );
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 750;
+        text-decoration: none;
+        box-shadow: 0 10px 23px rgba(72, 147, 232, .18);
+        transition: .18s ease;
     }
+
+
+        .hr-new-vacancy-btn:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 13px 27px rgba(72, 147, 232, .24);
+        }
 
 
     /* =========================================================
            HERO
            ========================================================= */
 
-    .hr-hero {
+    .hr-hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(280px, .65fr);
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+
+    .hr-welcome-card {
         position: relative;
-        min-height: 475px;
-        border-radius: 0 0 48px 48px;
-        background: radial-gradient( circle at 50% 10%, rgba(65, 145, 195, .13), transparent 35% ), linear-gradient( 180deg, #eaf5fb 0%, #f3f9fc 70%, #edf7fc 100% );
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
+        min-height: 225px;
+        padding: 28px 30px;
         overflow: hidden;
-        border: 1px solid #dfedf5;
+        border: 1px solid #dcebf6;
+        border-radius: 23px;
+        background: linear-gradient( 135deg, rgba(255,255,255,.98) 0%, rgba(236,247,255,.98) 100% );
+        box-shadow: 0 12px 32px rgba(67, 122, 169, .06);
     }
 
-        .hr-hero::before {
+
+        .hr-welcome-card::before {
             content: "";
             position: absolute;
-            width: 550px;
-            height: 550px;
+            width: 230px;
+            height: 230px;
+            top: -105px;
+            right: -70px;
             border-radius: 50%;
-            top: -330px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, .70);
-            filter: blur(40px);
+            background: rgba(92, 171, 250, .12);
         }
 
-        .hr-hero::after {
+
+        .hr-welcome-card::after {
             content: "";
             position: absolute;
-            width: 400px;
-            height: 220px;
-            bottom: -170px;
-            left: 50%;
-            transform: translateX(-50%);
+            width: 145px;
+            height: 145px;
+            right: 100px;
+            bottom: -90px;
             border-radius: 50%;
-            background: rgba(45, 120, 165, .07);
-            filter: blur(45px);
+            background: rgba(143, 208, 255, .11);
         }
 
-    .hr-hero-content {
+
+    .hr-welcome-content {
         position: relative;
-        z-index: 3;
-        max-width: 760px;
-        padding: 45px 25px;
+        z-index: 2;
+        max-width: 650px;
     }
 
 
-    /* =========================================================
-           FLOATING STATUS
-           ========================================================= */
-
-    .hr-status {
+    .hr-workspace-pill {
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        padding: 7px 12px;
-        background: rgba(255, 255, 255, .9);
-        border: 1px solid #dceaf3;
-        border-radius: 30px;
+        margin-bottom: 17px;
+        padding: 6px 10px;
+        border: 1px solid #dcecf7;
+        border-radius: 999px;
+        background: rgba(255,255,255,.88);
+        color: #6c97b8;
         font-size: 9px;
-        font-weight: 700;
-        color: #45677f;
-        box-shadow: 0 5px 20px rgba(39, 103, 139, .05);
-        margin-bottom: 24px;
-    }
-
-    .hr-status-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #4b91b8;
-        box-shadow: 0 0 0 4px rgba(75, 145, 184, .10);
+        font-weight: 750;
     }
 
 
-    /* =========================================================
-           HERO TYPOGRAPHY
-           ========================================================= */
-
-    .hr-hero h1 {
-        margin: 0;
-        color: #123b5d;
-        font-size: clamp(42px, 5.5vw, 72px);
-        line-height: .98;
-        letter-spacing: -3.5px;
-        font-weight: 650;
-    }
-
-        .hr-hero h1 span {
-            display: block;
+        .hr-workspace-pill::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #56a5f5;
+            box-shadow: 0 0 0 4px rgba(86,165,245,.11);
         }
 
-    .hr-hero-subtitle {
-        max-width: 500px;
-        margin: 23px auto 0;
-        color: #718da3;
-        font-size: 13px;
-        line-height: 1.7;
+
+    .hr-welcome-card h2 {
+        margin: 0;
+        max-width: 610px;
+        color: #23415f;
+        font-size: clamp(29px, 3.6vw, 46px);
+        line-height: 1.04;
+        letter-spacing: -1.7px;
+        font-weight: 800;
     }
 
 
-    /* =========================================================
-           HERO BUTTONS
-           ========================================================= */
+    .hr-welcome-card p {
+        max-width: 520px;
+        margin: 13px 0 0;
+        color: #8aa3b7;
+        font-size: 11px;
+        line-height: 1.65;
+    }
 
-    .hr-hero-actions {
-        margin-top: 27px;
+
+    .hr-welcome-actions {
         display: flex;
-        justify-content: center;
+        flex-wrap: wrap;
         gap: 8px;
+        margin-top: 21px;
     }
 
-    .hr-main-btn,
-    .hr-light-btn {
+
+    .hr-soft-btn {
+        min-height: 38px;
+        padding: 0 14px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        height: 38px;
-        padding: 0 17px;
-        border-radius: 22px;
+        border: 1px solid #dceaf4;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #537895;
         font-size: 10px;
         font-weight: 700;
         text-decoration: none;
-        transition: .2s ease;
+        transition: .18s ease;
     }
 
-    .hr-main-btn {
-        background: #17496d;
-        color: #ffffff;
-        border: 1px solid #17496d;
-        box-shadow: 0 7px 18px rgba(39, 103, 139, .14);
-    }
 
-        .hr-main-btn:hover {
-            background: #236487;
-            border-color: #236487;
-            color: #ffffff;
-            transform: translateY(-2px);
-        }
-
-    .hr-light-btn {
-        background: rgba(255, 255, 255, .8);
-        color: #17496d;
-        border: 1px solid #d5e7f2;
-    }
-
-        .hr-light-btn:hover {
-            background: #ffffff;
-            color: #123b5d;
-            border-color: #c6dfea;
+        .hr-soft-btn:hover {
+            color: #3373a5;
+            border-color: #bad7ec;
             transform: translateY(-2px);
         }
 
 
     /* =========================================================
-           METRIC / TRUST STRIP
+           BLUE SUMMARY CARD
            ========================================================= */
 
-    .hr-metrics {
-        min-height: 105px;
-        background: #ffffff;
-        border-radius: 0 0 42px 42px;
+    .hr-blue-card {
+        min-height: 225px;
+        padding: 23px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 23px;
+        background: linear-gradient( 155deg, #66b5ff 0%, #4f9bf2 53%, #438be1 100% );
+        color: #ffffff;
+        box-shadow: 0 16px 33px rgba(70, 145, 229, .20);
+    }
+
+
+    .hr-blue-card-label {
+        color: rgba(255,255,255,.82);
+        font-size: 9px;
+        font-weight: 750;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+
+    .hr-blue-card-value {
+        margin-top: 8px;
+        font-size: 43px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -2px;
+    }
+
+
+    .hr-blue-card-caption {
+        margin-top: 4px;
+        color: rgba(255,255,255,.78);
+        font-size: 9px;
+    }
+
+
+    .hr-blue-ring {
+        width: 112px;
+        height: 112px;
+        margin: 0 auto 4px;
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        place-items: center;
+        border: 13px solid rgba(255,255,255,.26);
+        border-top-color: rgba(255,255,255,.90);
+        border-radius: 50%;
+        transform: rotate(22deg);
+    }
+
+
+        .hr-blue-ring span {
+            transform: rotate(-22deg);
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+
+    /* =========================================================
+           STATS
+           ========================================================= */
+
+    .hr-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 15px;
+    }
+
+
+    .hr-stat-card {
+        min-height: 105px;
+        padding: 16px 17px;
+        display: flex;
         align-items: center;
-        border: 1px solid #e0edf4;
-        border-top: none;
-        padding: 18px 35px;
-        box-shadow: 0 8px 25px rgba(39, 103, 139, .025);
+        gap: 13px;
+        border: 1px solid #e1edf6;
+        border-radius: 17px;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 8px 24px rgba(64,119,165,.045);
     }
 
-    .hr-metric {
-        text-align: center;
-        border-right: 1px solid #e5eef4;
+
+    .hr-stat-icon {
+        width: 45px;
+        height: 45px;
+        flex: 0 0 45px;
+        display: grid;
+        place-items: center;
+        border-radius: 13px;
+        background: #ebf6ff;
+        color: #4f9cec;
+        font-size: 17px;
+        font-weight: 800;
     }
 
-        .hr-metric:last-child {
-            border-right: none;
+
+    .hr-stat-copy span {
+        display: block;
+        color: #92a9bb;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+    .hr-stat-copy strong {
+        display: block;
+        margin-top: 5px;
+        color: #2e4c68;
+        font-size: 25px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -.7px;
+    }
+
+
+    /* =========================================================
+           MAIN GRID
+           ========================================================= */
+
+    .hr-main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(300px, .72fr);
+        gap: 15px;
+        align-items: start;
+    }
+
+
+    .hr-panel {
+        overflow: hidden;
+        border: 1px solid #dfebf5;
+        border-radius: 20px;
+        background: rgba(255,255,255,.97);
+        box-shadow: 0 10px 29px rgba(66,121,166,.05);
+    }
+
+
+    .hr-panel-header {
+        padding: 18px 20px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid #edf3f8;
+    }
+
+
+        .hr-panel-header h3 {
+            margin: 0;
+            color: #2d4b68;
+            font-size: 14px;
+            font-weight: 800;
         }
 
-        .hr-metric strong {
+
+        .hr-panel-header p {
+            margin: 4px 0 0;
+            color: #9cafbf;
+            font-size: 9px;
+        }
+
+
+    .hr-panel-link {
+        color: #5599dc;
+        font-size: 9px;
+        font-weight: 750;
+        text-decoration: none;
+    }
+
+
+        .hr-panel-link:hover {
+            color: #357ebf;
+        }
+
+
+    /* =========================================================
+           OVERVIEW
+           ========================================================= */
+
+    .hr-overview {
+        padding: 20px;
+    }
+
+
+    .hr-overview-row {
+        display: grid;
+        grid-template-columns: 115px minmax(0, 1fr) 48px;
+        gap: 11px;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+
+        .hr-overview-row:last-of-type {
+            margin-bottom: 0;
+        }
+
+
+    .hr-overview-label {
+        color: #68849c;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+    .hr-overview-track {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #edf5fb;
+    }
+
+
+    .hr-overview-fill {
+        height: 100%;
+        min-width: 8%;
+        border-radius: inherit;
+        background: linear-gradient( 90deg, #86cbff, #4e9cef );
+    }
+
+
+    .hr-overview-value {
+        color: #385a76;
+        font-size: 10px;
+        font-weight: 800;
+        text-align: right;
+    }
+
+
+    .hr-overview-note {
+        margin-top: 18px;
+        padding: 12px 13px;
+        border-radius: 11px;
+        background: #f5faff;
+        color: #8da5b9;
+        font-size: 9px;
+        line-height: 1.55;
+    }
+
+
+    /* =========================================================
+           QUICK ACTIONS
+           ========================================================= */
+
+    .hr-quick-actions {
+        padding: 11px;
+    }
+
+
+    .hr-quick-action {
+        min-height: 60px;
+        padding: 10px 11px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        border-radius: 12px;
+        color: inherit;
+        text-decoration: none;
+        transition: .18s ease;
+    }
+
+
+        .hr-quick-action:hover {
+            background: #f4f9fd;
+            transform: translateX(2px);
+        }
+
+
+    .hr-quick-icon {
+        width: 37px;
+        height: 37px;
+        flex: 0 0 37px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: #eaf5fe;
+        color: #4d9cec;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+
+    .hr-quick-copy {
+        min-width: 0;
+        flex: 1;
+    }
+
+
+        .hr-quick-copy strong {
             display: block;
-            font-size: 23px;
-            font-weight: 700;
-            color: #17496d;
-            letter-spacing: -.8px;
+            color: #36546f;
+            font-size: 10px;
+            font-weight: 750;
         }
 
-        .hr-metric span {
+
+        .hr-quick-copy span {
+            display: block;
+            margin-top: 3px;
+            color: #9eb1c0;
+            font-size: 8px;
+        }
+
+
+    .hr-quick-arrow {
+        color: #acbdca;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+           VACANCIES
+           ========================================================= */
+
+    .hr-vacancy-panel {
+        margin-top: 15px;
+    }
+
+
+    .hr-vacancy-list {
+        padding: 4px 15px 12px;
+    }
+
+
+    .hr-vacancy-row {
+        min-height: 66px;
+        padding: 9px 5px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 135px 95px 30px;
+        gap: 11px;
+        align-items: center;
+        border-bottom: 1px solid #edf3f8;
+        color: inherit;
+        text-decoration: none;
+    }
+
+
+        .hr-vacancy-row:last-child {
+            border-bottom: none;
+        }
+
+
+        .hr-vacancy-row:hover {
+            background: #f8fbfe;
+        }
+
+
+    .hr-vacancy-main {
+        min-width: 0;
+    }
+
+
+        .hr-vacancy-main strong {
+            display: block;
+            overflow: hidden;
+            color: #395570;
+            font-size: 10px;
+            font-weight: 750;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+
+        .hr-vacancy-main span {
             display: block;
             margin-top: 4px;
-            color: #8aa1b2;
-            font-size: 9px;
-            font-weight: 650;
-            letter-spacing: .6px;
-            text-transform: uppercase;
+            color: #9daebe;
+            font-size: 8px;
         }
 
-
-    /* =========================================================
-           INTRO SECTION
-           ========================================================= */
-
-    .hr-intro {
-        padding: 75px 30px 38px;
-        text-align: center;
-    }
-
-    .hr-eyebrow {
-        font-size: 9px;
-        font-weight: 750;
-        color: #75a0ba;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        margin-bottom: 12px;
-    }
-
-    .hr-intro h2 {
-        max-width: 650px;
-        margin: 0 auto;
-        color: #17496d;
-        font-size: clamp(25px, 3vw, 36px);
-        line-height: 1.12;
-        letter-spacing: -1.5px;
-        font-weight: 650;
-    }
-
-    .hr-intro p {
-        max-width: 510px;
-        margin: 15px auto 0;
-        color: #7893a6;
-        font-size: 12px;
-        line-height: 1.7;
-    }
-
-
-    /* =========================================================
-           CAPABILITIES
-           ========================================================= */
-
-    .hr-capabilities {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 0;
-        padding: 25px 20px 80px;
-    }
-
-    .hr-capability {
-        padding: 20px 25px;
-        border-left: 1px solid #d9e8f1;
-        transition: .2s ease;
-    }
-
-        .hr-capability:first-child {
-            border-left: none;
-        }
-
-        .hr-capability:hover {
-            transform: translateY(-4px);
-        }
-
-    .hr-cap-icon {
-        width: 34px;
-        height: 34px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: #e3f1f8;
-        color: #246589;
-        font-size: 14px;
-        margin-bottom: 18px;
-    }
-
-    .hr-capability h3 {
-        margin: 0 0 8px;
-        color: #17496d;
-        font-size: 12px;
-        font-weight: 750;
-    }
-
-    .hr-capability p {
-        margin: 0;
-        color: #8299aa;
-        font-size: 10px;
-        line-height: 1.6;
-        max-width: 190px;
-    }
-
-    .hr-capability a {
-        display: inline-block;
-        margin-top: 12px;
-        color: #246589;
-        font-size: 9px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-        .hr-capability a:hover {
-            color: #17496d;
-            text-decoration: underline;
-        }
-
-
-    /* =========================================================
-           VACANCIES SECTION
-           ========================================================= */
-
-    .hr-vacancies-section {
-        padding: 0 20px 80px;
-    }
-
-    .hr-section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: end;
-        margin-bottom: 20px;
-        padding: 0 5px;
-    }
-
-        .hr-section-header h2 {
-            margin: 0;
-            color: #17496d;
-            font-size: 24px;
-            font-weight: 650;
-            letter-spacing: -1px;
-        }
-
-        .hr-section-header p {
-            margin: 6px 0 0;
-            color: #8299aa;
-            font-size: 10px;
-        }
-
-    .hr-view-all {
-        color: #246589;
-        font-size: 10px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-        .hr-view-all:hover {
-            color: #17496d;
-        }
-
-
-    /* =========================================================
-           VACANCY CARDS
-           ========================================================= */
-
-    .hr-vacancy-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 13px;
-    }
-
-    .hr-vacancy-card {
-        position: relative;
-        overflow: hidden;
-        min-height: 190px;
-        padding: 23px;
-        border-radius: 20px;
-        background: #ffffff;
-        border: 1px solid #dceaf3;
-        text-decoration: none;
-        transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
-    }
-
-        .hr-vacancy-card::before {
-            content: "";
-            position: absolute;
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            right: -80px;
-            top: -80px;
-            background: #eaf5fb;
-            transition: .3s ease;
-        }
-
-        .hr-vacancy-card:hover {
-            transform: translateY(-4px);
-            border-color: #bdd8e8;
-            box-shadow: 0 14px 35px rgba(39, 103, 139, .08);
-        }
-
-            .hr-vacancy-card:hover::before {
-                transform: scale(1.25);
-            }
-
-    .hr-vacancy-content {
-        position: relative;
-        z-index: 2;
-    }
-
-
-    /* Vacancy status */
-
-    .hr-vacancy-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 5px 9px;
-        border-radius: 20px;
-        background: #e5f4ed;
-        color: #397b60;
-        font-size: 8px;
-        font-weight: 750;
-        text-transform: uppercase;
-        letter-spacing: .5px;
-    }
-
-        .hr-vacancy-status::before {
-            content: "";
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .hr-vacancy-status.closed {
-            background: #eaf1f5;
-            color: #6f8797;
-        }
-
-
-    /* Vacancy title */
-
-    .hr-vacancy-title {
-        margin-top: 22px;
-        color: #17496d;
-        font-size: 16px;
-        font-weight: 700;
-        letter-spacing: -.4px;
-    }
-
-    .hr-vacancy-code {
-        color: #91a5b3;
-        font-size: 8px;
-        margin-top: 4px;
-    }
-
-
-    /* Vacancy footer */
-
-    .hr-vacancy-footer {
-        position: absolute;
-        left: 23px;
-        right: 23px;
-        bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: end;
-    }
 
     .hr-vacancy-date span {
         display: block;
-        color: #91a5b3;
-        font-size: 8px;
+        color: #a2b3c0;
+        font-size: 7px;
         margin-bottom: 3px;
     }
 
+
     .hr-vacancy-date strong {
-        color: #55748a;
-        font-size: 9px;
+        color: #627f97;
+        font-size: 8px;
     }
 
 
-    /* Open button */
-
-    .hr-open {
-        width: 27px;
-        height: 27px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #17496d;
-        color: #ffffff;
-        font-size: 12px;
-        transition: .2s ease;
-    }
-
-    .hr-vacancy-card:hover .hr-open {
-        background: #236487;
-        transform: translateX(2px);
+    .hr-vacancy-status {
+        justify-self: start;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #e8f7f0;
+        color: #4c8b6e;
+        font-size: 7px;
+        font-weight: 800;
+        text-transform: uppercase;
     }
 
 
-    /* =========================================================
-           EMPTY STATE
-           ========================================================= */
-
-    .hr-empty {
-        grid-column: 1 / -1;
-        min-height: 160px;
-        border: 1px dashed #cfe1ec;
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        background: rgba(255, 255, 255, .45);
-    }
-
-        .hr-empty strong {
-            color: #42647b;
-            font-size: 12px;
+        .hr-vacancy-status.closed {
+            background: #eef3f7;
+            color: #7e96aa;
         }
 
-        .hr-empty span {
-            margin-top: 5px;
-            color: #91a5b3;
+
+    .hr-vacancy-open {
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: #edf6fd;
+        color: #5597d6;
+        font-size: 10px;
+    }
+
+
+    .hr-dashboard-empty {
+        margin: 13px;
+        padding: 32px 18px;
+        border: 1px dashed #cddfeb;
+        border-radius: 14px;
+        background: #f9fcff;
+        text-align: center;
+    }
+
+
+        .hr-dashboard-empty strong {
+            display: block;
+            color: #58748e;
             font-size: 10px;
         }
 
 
-    /* =========================================================
-           LARGE CTA
-           ========================================================= */
-
-    .hr-cta {
-        position: relative;
-        min-height: 370px;
-        border-radius: 42px 42px 0 0;
-        background: radial-gradient( circle at 50% 100%, rgba(53, 130, 170, .09), transparent 40% ), linear-gradient( 180deg, #e8f4fa, #f3f9fc );
-        border: 1px solid #dcebf3;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-
-        .hr-cta::before {
-            content: "";
-            position: absolute;
-            width: 350px;
-            height: 350px;
-            border-radius: 50%;
-            left: 50%;
-            bottom: -270px;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, .85);
-            filter: blur(30px);
+        .hr-dashboard-empty span {
+            display: block;
+            margin-top: 5px;
+            color: #9db0bf;
+            font-size: 8px;
         }
-
-    .hr-cta-content {
-        position: relative;
-        z-index: 2;
-        max-width: 600px;
-        padding: 40px 20px;
-    }
-
-    .hr-cta-icon {
-        width: 44px;
-        height: 44px;
-        margin: 0 auto 18px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1px solid #dceaf2;
-        color: #246589;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 17px;
-    }
-
-    .hr-cta h2 {
-        margin: 0;
-        color: #17496d;
-        font-size: clamp(30px, 4vw, 45px);
-        line-height: 1.05;
-        letter-spacing: -2px;
-        font-weight: 650;
-    }
-
-    .hr-cta p {
-        margin: 14px auto 0;
-        color: #7c96a8;
-        font-size: 11px;
-        max-width: 410px;
-        line-height: 1.6;
-    }
-
-    .hr-cta-actions {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 22px;
-    }
 
 
     /* =========================================================
            FOOTER
            ========================================================= */
 
-    .hr-footer {
+    .hr-dashboard-footer {
         display: flex;
         justify-content: space-between;
-        padding: 13px 8px 0;
-        color: #91a5b3;
+        gap: 12px;
+        padding: 17px 4px 0;
+        color: #a0b1bf;
         font-size: 8px;
-    }
-
-
-    /* =========================================================
-           ANIMATIONS
-           ========================================================= */
-
-    .hr-hero-content {
-        animation: heroEnter .75s ease both;
-    }
-
-    .hr-metrics {
-        animation: fadeUp .65s .1s ease both;
-    }
-
-    .hr-intro {
-        animation: fadeUp .65s .18s ease both;
-    }
-
-    @@keyframes heroEnter {
-
-        from {
-            opacity: 0;
-            transform: translateY(18px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @@keyframes fadeUp {
-
-        from {
-            opacity: 0;
-            transform: translateY(15px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
 
@@ -743,486 +788,577 @@
 
     @@media (max-width: 1000px) {
 
-        .hr-page {
-            padding: 12px 16px 25px;
+        .hr-dashboard-topbar {
+            align-items: flex-start;
+            flex-direction: column;
         }
 
-        .hr-hero {
-            min-height: 430px;
+        .hr-dashboard-actions {
+            width: 100%;
         }
 
-        .hr-capabilities {
-            grid-template-columns: repeat(2, 1fr);
+        .hr-dashboard-search {
+            flex: 1;
+            width: auto;
         }
 
-        .hr-capability:nth-child(3) {
-            border-left: none;
+        .hr-hero-grid,
+        .hr-main-grid {
+            grid-template-columns: 1fr;
         }
 
-        .hr-vacancy-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .hr-blue-card {
+            min-height: 185px;
+        }
+
+        .hr-blue-ring {
+            margin-left: 0;
         }
     }
 
 
-    @@media (max-width: 700px) {
+    @@media (max-width: 760px) {
 
-        .hr-topbar {
-            padding: 0 3px;
+        .hr-dashboard-page {
+            padding: 14px;
         }
 
-        .hr-top-right .hr-top-link {
+        .hr-dashboard-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .hr-dashboard-search,
+        .hr-new-vacancy-btn {
+            width: 100%;
+        }
+
+        .hr-stat-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hr-welcome-card {
+            min-height: auto;
+            padding: 23px 19px;
+        }
+
+        .hr-vacancy-row {
+            grid-template-columns: minmax(0, 1fr) 82px 28px;
+        }
+
+        .hr-vacancy-date {
+            display: none;
+        }
+    }
+
+
+    @@media (max-width: 520px) {
+
+        .hr-vacancy-row {
+            grid-template-columns: minmax(0, 1fr) 28px;
+        }
+
+        .hr-vacancy-status {
             display: none;
         }
 
-        .hr-hero {
-            min-height: 450px;
-            border-radius: 0 0 30px 30px;
-        }
-
-            .hr-hero h1 {
-                font-size: 43px;
-                letter-spacing: -2px;
-            }
-
-        .hr-hero-subtitle {
-            font-size: 11px;
-        }
-
-        .hr-metrics {
-            grid-template-columns: repeat(2, 1fr);
-            border-radius: 0 0 28px 28px;
-            padding: 20px 10px;
-            gap: 18px 0;
-        }
-
-        .hr-metric:nth-child(2) {
-            border-right: none;
-        }
-
-        .hr-metric:nth-child(3),
-        .hr-metric:nth-child(4) {
-            border-top: 1px solid #e5eef4;
-            padding-top: 15px;
-        }
-
-        .hr-intro {
-            padding: 55px 15px 25px;
-        }
-
-        .hr-capabilities {
-            grid-template-columns: 1fr;
-            padding: 15px 5px 55px;
-        }
-
-        .hr-capability,
-        .hr-capability:nth-child(3) {
-            border-left: none;
-            border-top: 1px solid #d9e8f1;
-            padding: 20px 15px;
-        }
-
-            .hr-capability:first-child {
-                border-top: none;
-            }
-
-        .hr-vacancies-section {
-            padding: 0 5px 55px;
-        }
-
-        .hr-section-header {
-            align-items: start;
+        .hr-dashboard-footer {
             flex-direction: column;
-            gap: 10px;
-        }
-
-        .hr-vacancy-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .hr-cta {
-            min-height: 330px;
-            border-radius: 30px 30px 0 0;
-        }
-
-        .hr-footer {
-            flex-direction: column;
-            gap: 7px;
-        }
-    }
-
-
-    @@media (max-width: 576px) {
-
-        .hr-hero-actions,
-        .hr-cta-actions {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .hr-main-btn,
-        .hr-light-btn {
-            width: 100%;
-            max-width: 260px;
-        }
-
-        .hr-hero h1 {
-            font-size: 38px;
-        }
-    }
-
-
-    /* =========================================================
-           REDUCED MOTION
-           ========================================================= */
-
-    @@media (prefers-reduced-motion: reduce) {
-
-        .hr-hero-content,
-        .hr-metrics,
-        .hr-intro {
-            animation: none;
-        }
-
-        .hr-vacancy-card,
-        .hr-capability,
-        .hr-main-btn,
-        .hr-light-btn,
-        .hr-open {
-            transition: none;
         }
     }
 </style>
 
 
-<div class="hr-page">
+<div class="hr-dashboard-page">
 
-    <div class="hr-container">
+    <div class="hr-dashboard-container">
 
 
         <!-- =====================================================
-             TOP BAR
+             HEADER
              ===================================================== -->
 
-        <div class="hr-topbar">
+        <div class="hr-dashboard-topbar">
 
-            <div class="hr-brand">
-                RecruitmentTracker
+            <div class="hr-dashboard-title-wrap">
+
+                <div class="hr-dashboard-eyebrow">
+                    HireTrack · HR Workspace
+                </div>
+
+                <h1 class="hr-dashboard-title">
+                    Recruitment Dashboard
+                </h1>
+
+                <p class="hr-dashboard-subtitle">
+                    Manage vacancies, applications and interviews from one clean workspace.
+                </p>
+
             </div>
 
-            <div class="hr-top-right">
+
+            <div class="hr-dashboard-actions">
+
+                <div class="hr-dashboard-search">
+
+                    <span>
+                        ⌕
+                    </span>
+
+                    <input type="text"
+                           id="dashboardVacancySearch"
+                           placeholder="Search recent vacancies..."
+                           oninput="filterDashboardVacancies()" />
+
+                </div>
+
 
                 <a asp-controller="Vacancy"
-                   asp-action="Index"
-                   class="hr-top-link">
-                    Vacancies
-                </a>
+                   asp-action="Create"
+                   class="hr-new-vacancy-btn">
 
-                <a asp-controller="HRApplication"
-                   asp-action="Management"
-                   class="hr-top-link">
-                    Applications
-                </a>
+                    <span>
+                        ＋
+                    </span>
 
-                <a asp-controller="InterviewType"
-                   asp-action="Index"
-                   class="hr-top-link">
-                    Interview Types
-                </a>
+                    New Vacancy
 
-                <span class="hr-top-pill">
-                    HR Workspace
-                </span>
+                </a>
 
             </div>
 
         </div>
 
 
+
         <!-- =====================================================
              HERO
              ===================================================== -->
 
-        <section class="hr-hero">
+        <div class="hr-hero-grid">
 
-            <div class="hr-hero-content">
 
-                <div class="hr-status">
+            <section class="hr-welcome-card">
 
-                    <span class="hr-status-dot"></span>
+                <div class="hr-welcome-content">
 
-                    Recruitment workspace is active
+                    <div class="hr-workspace-pill">
+                        Recruitment workspace is active
+                    </div>
+
+
+                    <h2>
+                        Build your next team with a clearer hiring workflow.
+                    </h2>
+
+
+                    <p>
+                        Review candidates, manage vacancies and schedule interviews
+                        while keeping the full recruitment process in one place.
+                    </p>
+
+
+                    <div class="hr-welcome-actions">
+
+                        <a asp-controller="HRApplication"
+                           asp-action="Management"
+                           class="hr-soft-btn">
+
+                            View Applications
+
+                        </a>
+
+
+                        <a asp-controller="Interview"
+                           asp-action="Index"
+                           class="hr-soft-btn">
+
+                            Manage Interviews
+
+                        </a>
+
+
+                        <a asp-controller="Vacancy"
+                           asp-action="Index"
+                           class="hr-soft-btn">
+
+                            Browse Vacancies
+
+                        </a>
+
+                    </div>
 
                 </div>
 
-                <h1>
+            </section>
 
-                    Build your team.
+
+
+            <section class="hr-blue-card">
+
+                <div>
+
+                    <div class="hr-blue-card-label">
+                        Active recruitment
+                    </div>
+
+                    <div class="hr-blue-card-value">
+                        @activeVacancies
+                    </div>
+
+                    <div class="hr-blue-card-caption">
+                        vacancies currently open
+                    </div>
+
+                </div>
+
+
+                <div class="hr-blue-ring">
+                    <span>HR</span>
+                </div>
+
+            </section>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             STATS
+             ===================================================== -->
+
+        <section class="hr-stat-grid">
+
+
+            <div class="hr-stat-card">
+
+                <div class="hr-stat-icon">
+                    ▣
+                </div>
+
+                <div class="hr-stat-copy">
 
                     <span>
-                        Find the right people.
+                        Active Vacancies
                     </span>
 
-                </h1>
-
-                <p class="hr-hero-subtitle">
-
-                    Manage vacancies, review candidates and move
-                    applications through your recruitment workflow
-                    from one simple workspace.
-
-                </p>
-
-                <div class="hr-hero-actions">
-
-                    <a asp-controller="Vacancy"
-                       asp-action="Create"
-                       class="hr-main-btn">
-
-                        + Create Vacancy
-
-                    </a>
-
-                    <a asp-controller="HRApplication"
-                       asp-action="Management"
-                       class="hr-light-btn">
-
-                        View Applications
-
-                    </a>
+                    <strong>
+                        @activeVacancies
+                    </strong>
 
                 </div>
 
             </div>
 
-        </section>
 
 
-        <!-- =====================================================
-             METRICS
-             ===================================================== -->
+            <div class="hr-stat-card">
 
-        <section class="hr-metrics">
-
-            <div class="hr-metric">
-
-                <strong>
-                    @activeVacancies
-                </strong>
-
-                <span>
-                    Active Vacancies
-                </span>
-
-            </div>
-
-
-            <div class="hr-metric">
-
-                <strong>
-                    @totalApplications
-                </strong>
-
-                <span>
-                    Applications
-                </span>
-
-            </div>
-
-
-            <div class="hr-metric">
-
-                <strong>
-                    @closingSoon
-                </strong>
-
-                <span>
-                    Closing Soon
-                </span>
-
-            </div>
-
-
-            <div class="hr-metric">
-
-                <strong>
-                    HR
-                </strong>
-
-                <span>
-                    Workspace
-                </span>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================================
-             INTRO
-             ===================================================== -->
-
-        <section class="hr-intro">
-
-            <div class="hr-eyebrow">
-                Everything in one place
-            </div>
-
-            <h2>
-
-                Collaborate with candidates
-                and build better teams.
-
-            </h2>
-
-            <p>
-
-                A focused recruitment workspace for creating roles,
-                reviewing applications and making confident hiring decisions.
-
-            </p>
-
-        </section>
-
-
-        <!-- =====================================================
-             CAPABILITIES
-             ===================================================== -->
-
-        <section class="hr-capabilities">
-
-
-            <!-- CREATE -->
-
-            <div class="hr-capability">
-
-                <div class="hr-cap-icon">
-                    +
-                </div>
-
-                <h3>
-                    Create Vacancies
-                </h3>
-
-                <p>
-
-                    Define new roles, requirements,
-                    closing dates and candidate screening options.
-
-                </p>
-
-                <a asp-controller="Vacancy"
-                   asp-action="Create">
-
-                    Create vacancy →
-
-                </a>
-
-            </div>
-
-
-            <!-- APPLICATIONS -->
-
-            <div class="hr-capability">
-
-                <div class="hr-cap-icon">
+                <div class="hr-stat-icon">
                     ◎
                 </div>
 
-                <h3>
-                    Review Applications
-                </h3>
+                <div class="hr-stat-copy">
 
-                <p>
+                    <span>
+                        Applications
+                    </span>
 
-                    Review candidate applications and
-                    move them through your recruitment process.
+                    <strong>
+                        @totalApplications
+                    </strong>
 
-                </p>
-
-                <a asp-controller="HRApplication"
-                   asp-action="Management">
-
-                    Manage applications →
-
-                </a>
+                </div>
 
             </div>
 
 
-            <!-- VACANCIES -->
 
-            <div class="hr-capability">
+            <div class="hr-stat-card">
 
-                <div class="hr-cap-icon">
-                    ▤
+                <div class="hr-stat-icon">
+                    ◷
                 </div>
 
-                <h3>
-                    Manage Job Postings
-                </h3>
+                <div class="hr-stat-copy">
 
-                <p>
+                    <span>
+                        Closing Soon
+                    </span>
 
-                    View published roles, reopen positions
-                    and manage your recruitment campaigns.
+                    <strong>
+                        @closingSoon
+                    </strong>
 
-                </p>
-
-                <a asp-controller="Vacancy"
-                   asp-action="Index">
-
-                    View vacancies →
-
-                </a>
-
-            </div>
-
-
-            <!-- WORKFLOW -->
-
-            <div class="hr-capability">
-
-                <div class="hr-cap-icon">
-                    ✓
                 </div>
-
-                <h3>
-                    Recruitment Workflow
-                </h3>
-
-                <p>
-
-                    Move candidates from initial review
-                    through shortlist and hiring decisions.
-
-                </p>
-
-                <a asp-controller="HRApplication"
-                   asp-action="Management">
-
-                    Open workflow →
-
-                </a>
 
             </div>
 
         </section>
+
+
+
+        <!-- =====================================================
+             MAIN DASHBOARD
+             ===================================================== -->
+
+        <div class="hr-main-grid">
+
+
+            <!-- OVERVIEW -->
+
+            <section class="hr-panel">
+
+                <div class="hr-panel-header">
+
+                    <div>
+
+                        <h3>
+                            Recruitment Overview
+                        </h3>
+
+                        <p>
+                            Current workload comparison.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hr-overview">
+
+
+                    <div class="hr-overview-row">
+
+                        <div class="hr-overview-label">
+                            Active Vacancies
+                        </div>
+
+                        <div class="hr-overview-track">
+
+                            <div class="hr-overview-fill"
+                                 style="width:@activeWidth%">
+                            </div>
+
+                        </div>
+
+                        <div class="hr-overview-value">
+                            @activeVacancies
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="hr-overview-row">
+
+                        <div class="hr-overview-label">
+                            Applications
+                        </div>
+
+                        <div class="hr-overview-track">
+
+                            <div class="hr-overview-fill"
+                                 style="width:@applicationsWidth%">
+                            </div>
+
+                        </div>
+
+                        <div class="hr-overview-value">
+                            @totalApplications
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="hr-overview-row">
+
+                        <div class="hr-overview-label">
+                            Closing Soon
+                        </div>
+
+                        <div class="hr-overview-track">
+
+                            <div class="hr-overview-fill"
+                                 style="width:@closingWidth%">
+                            </div>
+
+                        </div>
+
+                        <div class="hr-overview-value">
+                            @closingSoon
+                        </div>
+
+                    </div>
+
+
+                    <div class="hr-overview-note">
+                        These bars compare the current dashboard totals only.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- QUICK ACTIONS -->
+
+            <section class="hr-panel">
+
+                <div class="hr-panel-header">
+
+                    <div>
+
+                        <h3>
+                            Quick Actions
+                        </h3>
+
+                        <p>
+                            Common HR tasks.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hr-quick-actions">
+
+
+                    <a asp-controller="Vacancy"
+                       asp-action="Create"
+                       class="hr-quick-action">
+
+                        <div class="hr-quick-icon">
+                            ＋
+                        </div>
+
+                        <div class="hr-quick-copy">
+
+                            <strong>
+                                Create Vacancy
+                            </strong>
+
+                            <span>
+                                Publish a new role
+                            </span>
+
+                        </div>
+
+                        <span class="hr-quick-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+
+
+                    <a asp-controller="HRApplication"
+                       asp-action="Management"
+                       class="hr-quick-action">
+
+                        <div class="hr-quick-icon">
+                            ◎
+                        </div>
+
+                        <div class="hr-quick-copy">
+
+                            <strong>
+                                Review Applications
+                            </strong>
+
+                            <span>
+                                Screen and shortlist candidates
+                            </span>
+
+                        </div>
+
+                        <span class="hr-quick-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+
+
+                    <a asp-controller="Interview"
+                       asp-action="Index"
+                       class="hr-quick-action">
+
+                        <div class="hr-quick-icon">
+                            ◷
+                        </div>
+
+                        <div class="hr-quick-copy">
+
+                            <strong>
+                                Manage Interviews
+                            </strong>
+
+                            <span>
+                                Schedule and track interviews
+                            </span>
+
+                        </div>
+
+                        <span class="hr-quick-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+
+
+                    <a asp-controller="Vacancy"
+                       asp-action="Index"
+                       class="hr-quick-action">
+
+                        <div class="hr-quick-icon">
+                            ▤
+                        </div>
+
+                        <div class="hr-quick-copy">
+
+                            <strong>
+                                Manage Vacancies
+                            </strong>
+
+                            <span>
+                                Open your recruitment campaigns
+                            </span>
+
+                        </div>
+
+                        <span class="hr-quick-arrow">
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+        </div>
+
 
 
         <!-- =====================================================
              RECENT VACANCIES
              ===================================================== -->
 
-        <section class="hr-vacancies-section">
+        <section class="hr-panel hr-vacancy-panel">
 
-            <div class="hr-section-header">
+            <div class="hr-panel-header">
 
                 <div>
 
-                    <h2>
+                    <h3>
                         Recent Vacancies
-                    </h2>
+                    </h3>
 
                     <p>
                         Your latest recruitment campaigns.
@@ -1230,9 +1366,10 @@
 
                 </div>
 
+
                 <a asp-controller="Vacancy"
                    asp-action="Index"
-                   class="hr-view-all">
+                   class="hr-panel-link">
 
                     View all vacancies →
 
@@ -1241,155 +1378,103 @@
             </div>
 
 
-            <div class="hr-vacancy-grid">
+            @if (recentVacancies.Any())
+            {
+                <div class="hr-vacancy-list"
+                     id="dashboardVacancyList">
 
-                @if (recentVacancies.Any())
-                {
-
-                    foreach (var vacancy in recentVacancies)
+                    @foreach (var vacancy in recentVacancies)
                     {
+                        var searchable =
+                        (
+                        $"{vacancy.JobTitle} " +
+                        $"{vacancy.JobCode}"
+                        )
+                        .ToLowerInvariant();
+
 
                         <a asp-controller="Vacancy"
                            asp-action="Manage"
                            asp-route-id="@vacancy.Id"
-                           class="hr-vacancy-card">
+                           class="hr-vacancy-row"
+                           data-search="@searchable">
 
-                            <div class="hr-vacancy-content">
+                            <div class="hr-vacancy-main">
 
-                                <span class="hr-vacancy-status @(vacancy.IsActive ? "" : "closed")">
-
-                                    @(vacancy.IsActive
-                                                                ? "Live"
-                                                                : "Archived")
-
-                        </span>
-
-                                <div class="hr-vacancy-title">
-
+                                <strong>
                                     @vacancy.JobTitle
+                                </strong>
 
-                                </div>
+                                <span>
+                                    @(string.IsNullOrWhiteSpace(
+                                                                vacancy.JobCode)
 
-                        @if (!string.IsNullOrEmpty(vacancy.JobCode))
-                                {
+                                                                ? "No job code"
 
-                                    <div class="hr-vacancy-code">
-
-                                        @vacancy.JobCode
-
-                                    </div>
-
-                                }
+                                                                : vacancy.JobCode)
+                                                                              </span>
 
                             </div>
 
 
-                            <div class="hr-vacancy-footer">
+                            <div class="hr-vacancy-date">
 
-                                <div class="hr-vacancy-date">
+                                <span>
+                                    Closing
+                                </span>
 
-                                    <span>
-                                        Closing
-                                    </span>
-
-                                    <strong>
-                                        @vacancy.ClosingDate.ToString("dd MMM yyyy")
-                                    </strong>
-
-                                </div>
-
-                                <div class="hr-open">
-                                    →
-                                </div>
+                                <strong>
+                                    @vacancy.ClosingDate.ToString("dd MMM yyyy")
+                                </strong>
 
                             </div>
+
+
+                            <span class="hr-vacancy-status @(vacancy.IsActive ? "" : "closed")">
+
+                                @(vacancy.IsActive
+                                                        ? "Live"
+                                                        : "Archived")
+
+                    </span>
+
+
+                            <span class="hr-vacancy-open">
+                                →
+                            </span>
 
                         </a>
+                                }
 
-                    }
+                </div>
+            }
+            else
+            {
+                <div class="hr-dashboard-empty">
 
-                }
-                else
-                {
+                    <strong>
+                        No recent vacancies
+                    </strong>
 
-                    <div class="hr-empty">
+                    <span>
+                        Create your first vacancy to begin recruiting.
+                    </span>
 
-                        <strong>
-                            No recent vacancies
-                        </strong>
-
-                        <span>
-                            Create your first vacancy to begin recruiting.
-                        </span>
-
-                    </div>
-
-                }
-
-            </div>
+                </div>
+            }
 
         </section>
 
-
-        <!-- =====================================================
-             LARGE CTA
-             ===================================================== -->
-
-        <section class="hr-cta">
-
-            <div class="hr-cta-content">
-
-                <div class="hr-cta-icon">
-                    ✦
-                </div>
-
-                <h2>
-
-                    Ready to build
-                    your next team?
-
-                </h2>
-
-                <p>
-
-                    Create a vacancy and start connecting
-                    with the candidates who can make an impact.
-
-                </p>
-
-                <div class="hr-cta-actions">
-
-                    <a asp-controller="Vacancy"
-                       asp-action="Create"
-                       class="hr-main-btn">
-
-                        Create Vacancy
-
-                    </a>
-
-                    <a asp-controller="Vacancy"
-                       asp-action="Index"
-                       class="hr-light-btn">
-
-                        Browse Vacancies
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </section>
 
 
         <!-- =====================================================
              FOOTER
              ===================================================== -->
 
-        <div class="hr-footer">
+        <div class="hr-dashboard-footer">
 
             <span>
-                © @DateTime.Now.Year RecruitmentTracker
+                © @DateTime.Now.Year HireTrack
             </span>
 
             <span>
@@ -1401,3 +1486,51 @@
     </div>
 
 </div>
+
+
+<script>
+
+    function filterDashboardVacancies() {
+
+        const input =
+            document.getElementById(
+                "dashboardVacancySearch"
+            );
+
+
+        const search =
+            (
+                input?.value
+                || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        document
+            .querySelectorAll(
+                "#dashboardVacancyList .hr-vacancy-row"
+            )
+            .forEach(
+                row => {
+
+                    const searchable =
+                        (
+                            row.dataset.search
+                            || ""
+                        )
+                        .toLowerCase();
+
+
+                    row.style.display =
+                        !search ||
+                        searchable.includes(search)
+
+                            ? ""
+
+                            : "none";
+                }
+            );
+    }
+
+</script>

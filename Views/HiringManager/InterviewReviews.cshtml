@@ -721,630 +721,941 @@
 
 <style>
 
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 
     /* =========================================================
            PAGE
-           ========================================================= */
+        ========================================================= */
 
     .hm-review-page {
-        max-width: 1250px;
+        max-width: 1450px;
+        min-height: calc(100vh - 60px);
         margin: 0 auto;
-        padding: 32px;
-        color: #172033;
+        padding: 30px;
+        font-family: 'Inter', sans-serif;
+        color: #34516d;
+        background: linear-gradient( 135deg, #f8fbff 0%, #eef7ff 45%, #f8fbff 100% );
     }
+
+
+        .hm-review-page *,
+        .hm-review-page select,
+        .hm-review-page button,
+        .hm-review-page input {
+            font-family: 'Inter', sans-serif;
+        }
 
 
 
     /* =========================================================
            HEADER
-           ========================================================= */
+        ========================================================= */
 
     .hm-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        gap: 20px;
-        margin-bottom: 24px;
+        gap: 24px;
+        margin-bottom: 27px;
     }
 
 
     .hm-eyebrow {
-        color: #98a2b3;
-        font-size: 10px;
+        margin-bottom: 8px;
+        color: #68a9e8;
+        font-size: 12px;
         font-weight: 700;
-        letter-spacing: .09em;
-        margin-bottom: 7px;
+        letter-spacing: .11em;
+        text-transform: uppercase;
     }
 
 
     .hm-header h1 {
         margin: 0;
-        font-size: 30px;
-        font-weight: 750;
-        color: #101828;
+        color: #183c67;
+        font-size: 38px;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -0.04em;
     }
 
 
     .hm-header p {
-        margin: 7px 0 0;
-        color: #7b8495;
-        font-size: 13px;
+        max-width: 650px;
+        margin: 9px 0 0;
+        color: #879db2;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.65;
     }
 
 
     .hm-back-btn {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 18px;
+        background: rgba(255,255,255,.95);
+        border: 1px solid #dceaf5;
+        border-radius: 12px;
+        color: #63809b;
         text-decoration: none;
-        border: 1px solid #d8dee8;
-        background: white;
-        color: #475467;
-        padding: 10px 15px;
-        border-radius: 9px;
-        font-size: 12px;
-        font-weight: 650;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 5px 18px rgba(65,112,153,.05);
+        white-space: nowrap;
+        transition: .2s ease;
     }
 
 
         .hm-back-btn:hover {
-            color: #101828;
-            background: #f9fafb;
+            color: #3389d8;
+            border-color: #cce5f8;
+            background: #f7fbff;
+            transform: translateY(-2px);
         }
 
 
 
     /* =========================================================
-           FILTER
-           ========================================================= */
+           FILTER CARD
+        ========================================================= */
 
     .hm-filter-card {
-        background: white;
-        border: 1px solid #e4e7ec;
-        border-radius: 14px;
-        padding: 19px 21px;
-        margin-bottom: 22px;
-        box-shadow: 0 2px 8px rgba(15,23,42,.03);
+        position: relative;
+        margin-bottom: 24px;
+        padding: 24px 26px;
+        overflow: hidden;
+        background: linear-gradient( 135deg, #ffffff, #f8fcff );
+        border: 1px solid #e0edf7;
+        border-radius: 20px;
+        box-shadow: 0 10px 35px rgba(76,125,170,.07);
     }
 
 
+        .hm-filter-card::after {
+            content: "";
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            right: -75px;
+            top: -85px;
+            border-radius: 50%;
+            background: rgba(96,177,244,.07);
+            pointer-events: none;
+        }
+
+
     .hm-filter-heading {
-        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 18px;
     }
 
 
     .hm-filter-label {
-        color: #98a2b3;
-        font-size: 9px;
-        font-weight: 750;
-        letter-spacing: .08em;
+        color: #68aae8;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .10em;
+        text-transform: uppercase;
     }
 
 
     .hm-filter-heading h3 {
-        margin: 5px 0 3px;
-        color: #101828;
-        font-size: 15px;
-        font-weight: 700;
+        margin: 6px 0 4px;
+        color: #294b69;
+        font-size: 19px;
+        font-weight: 750;
+        letter-spacing: -0.025em;
     }
 
 
     .hm-filter-heading p {
         margin: 0;
-        color: #98a2b3;
-        font-size: 11px;
+        color: #96a8b9;
+        font-size: 13px;
+        line-height: 1.55;
     }
 
 
+
+    /* =========================================================
+           FILTER FORM
+        ========================================================= */
+
     .hm-filter-form {
+        position: relative;
+        z-index: 2;
         display: flex;
-        align-items: end;
-        gap: 12px;
+        align-items: flex-end;
+        gap: 14px;
     }
 
 
     .hm-filter-field {
-        width: min(430px, 100%);
+        width: min(500px, 100%);
     }
 
 
         .hm-filter-field label {
             display: block;
-            margin-bottom: 6px;
-            color: #475467;
-            font-size: 11px;
-            font-weight: 650;
+            margin-bottom: 8px;
+            color: #617b94;
+            font-size: 13px;
+            font-weight: 600;
         }
 
 
     .hm-job-select {
         width: 100%;
-        height: 42px;
-        border: 1px solid #d0d5dd;
-        border-radius: 9px;
-        background: white;
-        padding: 0 12px;
-        color: #344054;
-        font-size: 12px;
+        height: 48px;
+        padding: 0 14px;
         outline: none;
+        background: white;
+        border: 1px solid #dbe8f2;
+        border-radius: 11px;
+        color: #506d86;
+        font-size: 14px;
+        font-weight: 500;
+        transition: .2s ease;
     }
 
 
-        .hm-job-select:focus {
-            border-color: #98a2b3;
-            box-shadow: 0 0 0 3px rgba(152,162,179,.12);
+        .hm-job-select:hover {
+            border-color: #bedcf2;
         }
 
 
+        .hm-job-select:focus {
+            border-color: #75b8ec;
+            box-shadow: 0 0 0 4px rgba(80,164,231,.10);
+        }
+
+
+
+    /* =========================================================
+           SELECTED JOB
+        ========================================================= */
+
     .hm-selected-job {
+        position: relative;
+        z-index: 2;
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-top: 15px;
-        padding-top: 14px;
-        border-top: 1px solid #edf0f3;
+        gap: 14px;
+        margin-top: 18px;
+        padding-top: 17px;
+        border-top: 1px solid #edf3f8;
     }
 
 
-        .hm-selected-job div {
+        .hm-selected-job > div {
             flex: 1;
         }
 
 
         .hm-selected-job span {
             display: block;
-            color: #98a2b3;
-            font-size: 9px;
+            color: #9babb9;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .06em;
             text-transform: uppercase;
-            letter-spacing: .05em;
         }
 
 
         .hm-selected-job strong {
             display: block;
-            margin-top: 3px;
-            color: #344054;
-            font-size: 12px;
+            margin-top: 5px;
+            color: #496781;
+            font-size: 14px;
+            font-weight: 650;
         }
 
 
     .hm-job-code {
         flex: none !important;
-        padding: 5px 9px;
+        padding: 7px 11px;
+        background: #edf7ff;
+        color: #4c96d9 !important;
         border-radius: 999px;
-        background: #f2f4f7;
-        color: #475467 !important;
-        font-size: 9px !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
     }
 
 
     .hm-clear-filter {
-        text-decoration: none;
-        font-size: 10px;
+        color: #609ed6;
+        font-size: 12px;
         font-weight: 650;
-        color: #667085;
+        text-decoration: none;
     }
 
 
         .hm-clear-filter:hover {
-            color: #101828;
+            color: #3487cf;
         }
 
 
 
     /* =========================================================
            STATS
-           ========================================================= */
+        ========================================================= */
 
     .hm-stats {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
-        margin-bottom: 22px;
+        grid-template-columns: repeat(4, minmax(0,1fr));
+        gap: 16px;
+        margin-bottom: 28px;
     }
 
 
     .hm-stat-card {
-        background: white;
-        border: 1px solid #e4e7ec;
-        border-radius: 13px;
-        padding: 16px 18px;
+        position: relative;
+        min-height: 140px;
+        padding: 21px 22px;
+        overflow: hidden;
+        background: rgba(255,255,255,.97);
+        border: 1px solid #e2edf6;
+        border-radius: 17px;
+        box-shadow: 0 8px 28px rgba(76,124,167,.055);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
+
+
+        .hm-stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #d2e6f5;
+            box-shadow: 0 12px 32px rgba(65,124,178,.09);
+        }
+
+
+        .hm-stat-card::after {
+            content: "";
+            position: absolute;
+            width: 75px;
+            height: 75px;
+            right: -20px;
+            top: -20px;
+            border-radius: 50%;
+            background: rgba(80,167,239,.06);
+        }
 
 
         .hm-stat-card > span {
             display: block;
-            color: #98a2b3;
-            font-size: 10px;
-            margin-bottom: 5px;
+            margin-bottom: 9px;
+            color: #8ea3b6;
+            font-size: 12px;
+            font-weight: 600;
         }
 
 
         .hm-stat-card strong {
-            color: #111827;
-            font-size: 24px;
+            display: block;
+            color: #244b6d;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
         }
 
 
         .hm-stat-card small {
             display: block;
-            color: #98a2b3;
-            font-size: 9px;
-            margin-top: 3px;
-        }
-
-
-
-    /* =========================================================
-           LIST HEADING
-           ========================================================= */
-
-    .hm-list-heading {
-        margin-bottom: 13px;
-    }
-
-
-        .hm-list-heading h2 {
-            margin: 0;
-            color: #101828;
-            font-size: 17px;
-            font-weight: 700;
-        }
-
-
-        .hm-list-heading p {
-            margin: 4px 0 0;
-            color: #98a2b3;
-            font-size: 10px;
+            margin-top: 8px;
+            color: #9dacba;
+            font-size: 11px;
+            line-height: 1.4;
         }
 
 
 
     /* =========================================================
            ALERTS
-           ========================================================= */
+        ========================================================= */
 
     .hm-alert {
-        padding: 12px 15px;
-        border-radius: 10px;
-        margin-bottom: 18px;
-        font-size: 12px;
+        margin-bottom: 20px;
+        padding: 14px 17px;
+        border-radius: 11px;
+        font-size: 13px;
+        font-weight: 500;
     }
 
 
         .hm-alert.success {
-            background: #ecfdf3;
-            border: 1px solid #abefc6;
-            color: #067647;
+            background: #effbf3;
+            border: 1px solid #d5f1df;
+            color: #4a9561;
         }
 
 
         .hm-alert.error {
-            background: #fef3f2;
-            border: 1px solid #fecdca;
-            color: #b42318;
+            background: #fff3f3;
+            border: 1px solid #f3dada;
+            color: #c25f5f;
         }
 
 
 
     /* =========================================================
-           CARDS
-           ========================================================= */
+           LIST HEADING
+        ========================================================= */
+
+    .hm-list-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin: 0 2px 15px;
+    }
+
+
+        .hm-list-heading h2 {
+            margin: 0;
+            color: #254765;
+            font-size: 23px;
+            font-weight: 750;
+            letter-spacing: -0.025em;
+        }
+
+
+        .hm-list-heading p {
+            margin: 5px 0 0;
+            color: #98aabd;
+            font-size: 13px;
+        }
+
+
+
+    /* =========================================================
+           INTERVIEW LIST
+        ========================================================= */
 
     .hm-review-list {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 18px;
     }
 
+
+
+    /* =========================================================
+           INTERVIEW CARD
+        ========================================================= */
 
     .hm-review-card {
-        border: 1px solid #e4e7ec;
-        border-radius: 15px;
         overflow: hidden;
-        background: white;
-        box-shadow: 0 2px 8px rgba(15,23,42,.04);
+        background: rgba(255,255,255,.98);
+        border: 1px solid #e1edf6;
+        border-radius: 19px;
+        box-shadow: 0 9px 30px rgba(75,124,168,.065);
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
     }
 
+
+        .hm-review-card:hover {
+            transform: translateY(-2px);
+            border-color: #d3e7f6;
+            box-shadow: 0 14px 38px rgba(66,126,179,.095);
+        }
+
+
+
+    /* =========================================================
+           CANDIDATE TOP
+        ========================================================= */
 
     .hm-card-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-right: 20px;
-        border-bottom: 1px solid #edf0f3;
+        gap: 20px;
+        padding-right: 24px;
+        border-bottom: 1px solid #edf3f8;
+        background: linear-gradient( 135deg, #ffffff, #f9fcff );
     }
 
 
     .hm-card-candidate {
         display: flex;
-        gap: 13px;
         align-items: center;
-        padding: 18px 20px;
+        gap: 17px;
+        padding: 22px 24px;
     }
 
 
     .hm-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 11px;
-        background: #eef2ff;
-        color: #4f46e5;
+        width: 58px;
+        height: 58px;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 750;
-        font-size: 16px;
-        flex-shrink: 0;
+        border-radius: 15px;
+        background: linear-gradient( 135deg, #69b9ff, #3f91e9 );
+        color: white;
+        font-size: 20px;
+        font-weight: 800;
+        box-shadow: 0 8px 20px rgba(60,145,228,.20);
     }
 
 
     .hm-card-candidate h3 {
         margin: 0;
-        font-size: 14px;
-        color: #101828;
+        color: #294a68;
+        font-size: 18px;
+        font-weight: 750;
+        letter-spacing: -0.025em;
     }
 
 
     .hm-card-candidate span {
         display: block;
-        margin-top: 3px;
-        font-size: 11px;
-        color: #98a2b3;
+        margin-top: 4px;
+        color: #9aabb9;
+        font-size: 13px;
     }
 
 
     .hm-card-candidate strong {
         display: block;
-        margin-top: 5px;
-        font-size: 12px;
-        color: #475467;
+        margin-top: 7px;
+        color: #58748d;
+        font-size: 14px;
+        font-weight: 600;
     }
 
 
     .hm-card-candidate small {
         display: block;
-        margin-top: 2px;
-        color: #98a2b3;
-        font-size: 9px;
+        margin-top: 3px;
+        color: #a7b4c0;
+        font-size: 11px;
     }
 
 
 
     /* =========================================================
-           RESULT BADGE
-           ========================================================= */
+           RESULT BADGES
+        ========================================================= */
 
     .hm-result-badge {
-        padding: 6px 10px;
+        padding: 8px 14px;
         border-radius: 999px;
-        font-size: 9px;
+        font-size: 11px;
         font-weight: 700;
+        letter-spacing: .025em;
+        white-space: nowrap;
     }
 
 
         .hm-result-badge.pending {
-            background: #fffaeb;
-            color: #b54708;
+            background: #fff7e9;
+            color: #d2943c;
         }
 
 
         .hm-result-badge.passed {
-            background: #ecfdf3;
-            color: #067647;
+            background: #edf9f1;
+            color: #53a36a;
         }
 
 
         .hm-result-badge.failed {
-            background: #fef3f2;
-            color: #b42318;
+            background: #fff0f0;
+            color: #ca6363;
         }
 
 
 
     /* =========================================================
-           INTERVIEW GRID
-           ========================================================= */
+           INTERVIEW DETAILS
+        ========================================================= */
 
     .hm-card-grid {
-        padding: 16px 20px;
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 15px;
-        border-bottom: 1px solid #edf0f3;
+        grid-template-columns: repeat(4, minmax(0,1fr));
+        gap: 0;
+        padding: 0;
+        border-bottom: 1px solid #edf3f8;
     }
+
+
+        .hm-card-grid > div {
+            min-height: 90px;
+            padding: 19px 22px;
+            border-right: 1px solid #edf3f8;
+        }
+
+
+            .hm-card-grid > div:last-child {
+                border-right: 0;
+            }
 
 
         .hm-card-grid span,
         .hm-data-item > span {
             display: block;
-            color: #98a2b3;
-            font-size: 9px;
+            margin-bottom: 7px;
+            color: #9cadbc;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .06em;
             text-transform: uppercase;
-            letter-spacing: .04em;
-            margin-bottom: 5px;
         }
 
 
         .hm-card-grid strong,
         .hm-data-item strong {
-            color: #344054;
-            font-size: 12px;
+            color: #506e87;
+            font-size: 14px;
+            font-weight: 650;
         }
 
 
 
     /* =========================================================
            REVIEW DATA
-           ========================================================= */
+        ========================================================= */
 
     .hm-review-data {
-        padding: 16px 20px;
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 15px;
-        background: #fbfcfd;
-        border-bottom: 1px solid #edf0f3;
+        grid-template-columns: repeat(4, minmax(0,1fr));
+        gap: 0;
+        padding: 0;
+        background: #f8fbfe;
+        border-bottom: 1px solid #edf3f8;
     }
 
 
-    .hm-data-item small {
-        display: block;
-        margin-top: 3px;
-        font-size: 9px;
-        color: #98a2b3;
+    .hm-data-item {
+        min-height: 90px;
+        padding: 19px 22px;
+        border-right: 1px solid #e7f0f7;
     }
+
+
+        .hm-data-item:last-child {
+            border-right: 0;
+        }
+
+
+        .hm-data-item small {
+            display: block;
+            margin-top: 5px;
+            color: #9faebb;
+            font-size: 11px;
+        }
 
 
     .hm-result-text.pending {
-        color: #b54708;
+        color: #d0933d;
     }
 
 
     .hm-result-text.passed {
-        color: #067647;
+        color: #54a36b;
     }
 
 
     .hm-result-text.failed {
-        color: #b42318;
+        color: #c86262;
     }
 
 
 
     /* =========================================================
-           FOOTER
-           ========================================================= */
+           CARD FOOTER
+        ========================================================= */
 
     .hm-card-footer {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 13px 20px;
+        gap: 15px;
+        padding: 16px 22px;
+        background: white;
     }
 
 
     .hm-ready-badge,
     .hm-waiting-badge,
     .hm-decided-badge {
-        padding: 5px 9px;
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 11px;
         border-radius: 999px;
-        font-size: 9px;
+        font-size: 11px;
         font-weight: 650;
     }
 
 
     .hm-ready-badge {
-        background: #ecfdf3;
-        color: #067647;
+        background: #edf9f1;
+        color: #52a269;
     }
 
 
     .hm-waiting-badge {
-        background: #fffaeb;
-        color: #b54708;
+        background: #fff7e9;
+        color: #cf913c;
     }
 
 
     .hm-decided-badge {
-        background: #f2f4f7;
-        color: #475467;
+        background: #eef4f8;
+        color: #6c8499;
     }
 
 
+
+    /* =========================================================
+           REVIEW BUTTON
+        ========================================================= */
+
     .hm-view-btn {
-        background: #111827;
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 18px;
+        background: linear-gradient( 135deg, #64b6ff, #368ce7 );
         color: white;
+        border-radius: 10px;
         text-decoration: none;
-        padding: 9px 14px;
-        border-radius: 8px;
-        font-size: 10px;
-        font-weight: 650;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 7px 18px rgba(54,141,229,.18);
+        transition: transform .2s ease, box-shadow .2s ease;
     }
 
 
         .hm-view-btn:hover {
             color: white;
-            opacity: .9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(54,141,229,.25);
         }
 
 
 
     /* =========================================================
-           EMPTY
-           ========================================================= */
+           EMPTY STATE
+        ========================================================= */
 
     .hm-empty {
-        border: 1px dashed #d0d5dd;
-        border-radius: 14px;
-        padding: 50px 20px;
-        background: white;
+        padding: 60px 25px;
+        background: rgba(255,255,255,.96);
+        border: 1px dashed #caddeb;
+        border-radius: 19px;
         text-align: center;
+        box-shadow: 0 8px 26px rgba(75,122,164,.04);
     }
 
 
     .hm-empty-icon {
-        width: 47px;
-        height: 47px;
-        border-radius: 12px;
-        background: #eef2ff;
-        color: #4f46e5;
+        width: 60px;
+        height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: auto auto 10px;
-        font-size: 20px;
+        margin: 0 auto 15px;
+        background: linear-gradient( 135deg, #eaf6ff, #dbeeff );
+        color: #4096e4;
+        border-radius: 16px;
+        font-size: 25px;
+        font-weight: 800;
     }
 
 
     .hm-empty h3 {
         margin: 0;
-        font-size: 14px;
-        color: #344054;
+        color: #34536f;
+        font-size: 18px;
+        font-weight: 700;
     }
 
 
     .hm-empty p {
-        margin: 5px 0 0;
-        font-size: 11px;
-        color: #98a2b3;
+        margin: 7px 0 0;
+        color: #95a7b7;
+        font-size: 14px;
     }
 
 
 
     /* =========================================================
-           RESPONSIVE
-           ========================================================= */
+           RESPONSIVE - TABLET
+        ========================================================= */
 
-    @@media (max-width: 850px) {
+    @@media (max-width: 1000px) {
 
-        .hm-stats,
+        .hm-stats {
+            grid-template-columns: repeat(2, minmax(0,1fr));
+        }
+
+
         .hm-card-grid,
         .hm-review-data {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+        }
+
+
+            .hm-card-grid > div:nth-child(2n),
+            .hm-data-item:nth-child(2n) {
+                border-right: 0;
+            }
+
+
+            .hm-card-grid > div,
+            .hm-data-item {
+                border-bottom: 1px solid #edf3f8;
+            }
+    }
+
+
+
+    /* =========================================================
+           RESPONSIVE - MOBILE
+        ========================================================= */
+
+    @@media (max-width: 700px) {
+
+        .hm-review-page {
+            padding: 18px;
         }
 
 
         .hm-header {
             flex-direction: column;
+            align-items: stretch;
         }
-    }
 
 
-    @@media (max-width: 600px) {
+            .hm-header h1 {
+                font-size: 30px;
+            }
 
-        .hm-stats,
+
+            .hm-header p {
+                font-size: 14px;
+            }
+
+
+        .hm-back-btn {
+            align-self: flex-start;
+        }
+
+
+        .hm-stats {
+            grid-template-columns: 1fr;
+        }
+
+
+        .hm-selected-job {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+
+        .hm-filter-field {
+            width: 100%;
+        }
+
+
+        .hm-card-top {
+            align-items: flex-start;
+            padding-right: 18px;
+        }
+
+
+        .hm-card-candidate {
+            padding: 19px 18px;
+            gap: 13px;
+        }
+
+
+        .hm-avatar {
+            width: 52px;
+            height: 52px;
+            font-size: 18px;
+        }
+
+
+        .hm-card-candidate h3 {
+            font-size: 17px;
+        }
+
+
         .hm-card-grid,
         .hm-review-data {
             grid-template-columns: 1fr;
         }
 
 
-        .hm-selected-job {
-            align-items: flex-start;
+            .hm-card-grid > div,
+            .hm-data-item {
+                border-right: 0;
+                border-bottom: 1px solid #edf3f8;
+            }
+
+
+                .hm-card-grid > div:last-child,
+                .hm-data-item:last-child {
+                    border-bottom: 0;
+                }
+
+
+        .hm-card-footer {
             flex-direction: column;
+            align-items: stretch;
         }
 
 
-        .hm-filter-field {
+        .hm-view-btn {
             width: 100%;
+            min-height: 46px;
+        }
+    }
+
+
+
+    /* =========================================================
+           SMALL MOBILE
+        ========================================================= */
+
+    @@media (max-width: 480px) {
+
+        .hm-review-page {
+            padding: 14px;
+        }
+
+
+        .hm-header h1 {
+            font-size: 27px;
+        }
+
+
+        .hm-filter-card {
+            padding: 20px;
+        }
+
+
+        .hm-stat-card {
+            min-height: 125px;
+        }
+
+
+        .hm-card-top {
+            flex-direction: column;
+            padding-right: 0;
+        }
+
+
+        .hm-result-badge {
+            margin: 0 18px 18px;
         }
     }
 
